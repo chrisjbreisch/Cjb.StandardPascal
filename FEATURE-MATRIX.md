@@ -25,18 +25,18 @@ behavior, or conformance change.
 
 | Feature | Status | Notes |
 | --- | :---: | --- |
-| Source text and source spans | ⬜ | File, line, column, offset, and length are required |
-| Case-insensitive identifiers | ⬜ | Original spelling should remain available for diagnostics |
-| Reserved words | ⬜ | Full ISO 7185 reserved-word set required |
-| Integer literals | ⬜ | Decimal digits without a sign |
-| Real literals | ⬜ | Decimal and scientific notation |
+| Source text and source spans | ✅ | Tokens and scan errors carry file, line, column, offset, and length |
+| Case-insensitive identifiers | ✅ | Keyword matching is case-insensitive; original spelling is preserved |
+| Reserved words | 🚧 | Expression keywords `and`, `div`, `in`, `mod`, `not`, and `or` are recognized |
+| Integer literals | ✅ | Decimal digits are parsed as 64-bit integers pending the `maxint` policy |
+| Real literals | ✅ | Decimal and scientific notation use invariant culture |
 | Character and string literals | ⬜ | Single quotes with doubled-quote escaping |
-| Operators and delimiters | ⬜ | Includes `:=`, `<>`, `<=`, `>=`, and `..` |
+| Operators and delimiters | 🚧 | Expression arithmetic, relational, and parenthesis tokens are implemented |
 | Delimiter aliases | ⬜ | `(.`/`[`, `.)`/`]`, `@`/`^`, and `(*`/`{` forms |
-| Whitespace | ⬜ | Spaces and line endings act as separators |
+| Whitespace | ✅ | Whitespace is ignored while source locations remain accurate |
 | Brace comments | ⬜ | `{ comment }` |
 | Parenthesis-star comments | ⬜ | `(* comment *)` |
-| Scanner diagnostics | ⬜ | Unexpected characters and unterminated constructs |
+| Scanner diagnostics | 🚧 | Unexpected characters, invalid numeric syntax, and numeric overflow throw source-correlated `ScanException` errors |
 
 ## Expressions
 
@@ -121,7 +121,7 @@ behavior, or conformance change.
 
 | Feature | Status | Notes |
 | --- | :---: | --- |
-| Scanner, parser, semantic, and interpreter tests | ⬜ | Components do not exist yet |
+| Scanner, parser, semantic, and interpreter tests | 🚧 | Scanner unit tests cover the implemented expression subset |
 | CLI integration tests | ⬜ | Test project exists; behavior tests remain |
 | ISO example corpus | ⬜ | Positive and negative conformance programs required |
 | Cross-platform validation | ⬜ | Windows, Linux, and macOS CI required |

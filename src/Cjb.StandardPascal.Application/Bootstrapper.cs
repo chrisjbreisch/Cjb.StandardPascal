@@ -1,5 +1,7 @@
 using System.Reflection;
 
+using Cjb.StandardPascal.Language.Scanner;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -78,6 +80,7 @@ public sealed class Bootstrapper : IDisposable
     {
         _services.AddSingleton(Configuration);
         _services.AddSingleton<IConsoleApp, ConsoleApp>();
+        _services.AddSingleton<IScanner, Scanner>();
     }
 
     private void LogConfiguredServices()
