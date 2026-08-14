@@ -47,13 +47,15 @@ dotnet build Cjb.StandardPascal.sln
 dotnet test Cjb.StandardPascal.sln
 ```
 
-The intended command-line interface will accept one or more Pascal source files:
+Run the interactive expression scanner:
 
 ```powershell
-cjb-pascal program.pas
+dotnet run --project src/Cjb.StandardPascal.Cli
 ```
 
-This interface is planned but not yet implemented.
+Enter one expression per prompt. A blank line or end-of-input closes the
+session. Source-file arguments and program execution are planned but not yet
+implemented.
 
 ## Roadmap
 

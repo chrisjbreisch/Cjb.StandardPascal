@@ -17,9 +17,12 @@ public sealed class BootstrapperTest
             bootstrapper.ScopedServiceProvider.GetRequiredService<IConsoleApp>();
         IScanner scanner =
             bootstrapper.ScopedServiceProvider.GetRequiredService<IScanner>();
+        IConsole console =
+            bootstrapper.ScopedServiceProvider.GetRequiredService<IConsole>();
 
         Assert.IsInstanceOfType<ConsoleApp>(application);
         Assert.IsInstanceOfType<Scanner>(scanner);
+        Assert.IsInstanceOfType<SystemConsole>(console);
         Assert.IsFalse(string.IsNullOrWhiteSpace(bootstrapper.ApplicationName));
     }
 }

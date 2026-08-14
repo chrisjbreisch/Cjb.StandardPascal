@@ -79,6 +79,7 @@ public sealed class Bootstrapper : IDisposable
     private void ConfigureServices()
     {
         _services.AddSingleton(Configuration);
+        _services.AddSingleton<IConsole, SystemConsole>();
         _services.AddSingleton<IConsoleApp, ConsoleApp>();
         _services.AddSingleton<IScanner, Scanner>();
     }

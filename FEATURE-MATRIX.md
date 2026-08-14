@@ -15,9 +15,10 @@ behavior, or conformance change.
 | Cross-platform .NET solution | ✅ | .NET 10 solution with separate language, CLI, and test projects |
 | Strict build configuration | ✅ | Compiler warnings are treated as errors |
 | Application composition root | ✅ | Bootstrapper configures JSON/environment settings, logging, DI, and application scope |
-| Command-line application project | 🚧 | Entry point exists but intentionally reports that execution is unavailable |
+| Command-line application project | 🚧 | Interactive expression scanning is available; parsing and execution remain |
+| Interactive expression input | ✅ | Reads expressions until a blank line or end-of-input and prints scanner tokens or positioned errors |
 | Source-file arguments | ⬜ | Planned final interface: `cjb-pascal file.pas [file2.pas ...]` |
-| Exit-code contract | ⬜ | Success, source error, runtime error, and invocation error codes remain to be defined |
+| Exit-code contract | 🚧 | Interactive scanner sessions return success; source-file and runtime codes remain undefined |
 | Automated unit-test projects | ✅ | MSTest 4 projects exist for the language and CLI |
 | Continuous integration | ⬜ | Build and test workflow not configured |
 
@@ -122,7 +123,7 @@ behavior, or conformance change.
 | Feature | Status | Notes |
 | --- | :---: | --- |
 | Scanner, parser, semantic, and interpreter tests | 🚧 | Scanner unit tests cover the implemented expression subset |
-| CLI integration tests | ⬜ | Test project exists; behavior tests remain |
+| CLI integration tests | 🚧 | Expression input, scanner output, error recovery, and end-of-input are covered |
 | ISO example corpus | ⬜ | Positive and negative conformance programs required |
 | Cross-platform validation | ⬜ | Windows, Linux, and macOS CI required |
 | Feature-status documentation | ✅ | This matrix establishes the baseline |
