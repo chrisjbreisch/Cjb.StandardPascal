@@ -14,6 +14,7 @@ behavior, or conformance change.
 | --- | :---: | --- |
 | Cross-platform .NET solution | ✅ | .NET 10 solution with separate language, CLI, and test projects |
 | Strict build configuration | ✅ | Compiler warnings are treated as errors |
+| Application composition root | ✅ | Bootstrapper configures JSON/environment settings, logging, DI, and application scope |
 | Command-line application project | 🚧 | Entry point exists but intentionally reports that execution is unavailable |
 | Source-file arguments | ⬜ | Planned final interface: `cjb-pascal file.pas [file2.pas ...]` |
 | Exit-code contract | ⬜ | Success, source error, runtime error, and invocation error codes remain to be defined |

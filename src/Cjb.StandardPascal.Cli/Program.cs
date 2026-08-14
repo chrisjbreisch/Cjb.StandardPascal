@@ -1,4 +1,9 @@
-﻿Console.Error.WriteLine(
-    "Cjb.StandardPascal is under development; Pascal source execution is not implemented yet.");
+﻿using Cjb.StandardPascal.Application;
 
-return 64;
+using Microsoft.Extensions.DependencyInjection;
+
+using Bootstrapper bootstrapper = new();
+IConsoleApp application =
+    bootstrapper.ScopedServiceProvider.GetRequiredService<IConsoleApp>();
+
+return application.Run(args);

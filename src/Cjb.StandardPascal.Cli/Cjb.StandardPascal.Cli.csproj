@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Cjb.StandardPascal.Language\Cjb.StandardPascal.Language.csproj" />
+    <ProjectReference Include="..\Cjb.StandardPascal.Application\Cjb.StandardPascal.Application.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

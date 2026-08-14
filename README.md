@@ -26,6 +26,7 @@ phase.
 ```text
 src/
   Cjb.StandardPascal.Language/       Scanner, parser, semantics, and runtime
+  Cjb.StandardPascal.Application/    Configuration, logging, and dependency injection
   Cjb.StandardPascal.Cli/            Command-line entry point
 tests/
   Cjb.StandardPascal.Language.Tests/ Language unit and integration tests
