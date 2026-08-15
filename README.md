@@ -4,8 +4,8 @@ A command-line interpreter for ISO 7185 Standard Pascal, implemented in C# and
 designed to run Pascal source files directly without a machine emulator.
 
 > [!IMPORTANT]
-> The project is in early development. Scanning and parsing for simple
-> expressions are implemented, but Pascal programs cannot be executed yet. See the
+> The project is in early development. Scanning, parsing, and interpretation
+> for simple expressions are implemented, but Pascal programs cannot be executed yet. See the
 > [feature matrix](FEATURE-MATRIX.md) for exact progress.
 
 ## Goals
@@ -29,7 +29,7 @@ src/
   Cjb.StandardPascal.Language/
     Scanner/                         Tokens and lexical analysis
     Parser/                          Recursive-descent parser and expression AST
-    Interpreter/                     Tree-walking execution (planned)
+    Interpreter/                     Tree-walking expression execution
   Cjb.StandardPascal.Application/    Configuration, logging, and dependency injection
   Cjb.StandardPascal.Cli/            Command-line entry point
 tests/
@@ -64,8 +64,7 @@ the interpreter milestone:
 Print 3 * 5;
 ```
 
-It currently parses as `(print (* 3 5))`; it will produce `15` once expression
-interpretation is connected.
+It parses as `(print (* 3 5))` and produces `15`.
 
 ## Roadmap
 

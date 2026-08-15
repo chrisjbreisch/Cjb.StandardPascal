@@ -1,3 +1,6 @@
+using System.Globalization;
+
+using Cjb.StandardPascal.Language.Interpreter;
 using Cjb.StandardPascal.Language.Parser;
 using Cjb.StandardPascal.Language.Parser.Expressions;
 using Cjb.StandardPascal.Language.Parser.Statements;
@@ -14,6 +17,7 @@ public sealed class ConsoleApp : IConsoleApp
     private readonly IParser _parser;
     private readonly IExpressionFormatter _expressionFormatter;
     private readonly IStatementFormatter _statementFormatter;
+    private readonly IInterpreter _interpreter;
     private readonly IConsole _console;
 
     public ConsoleApp(
@@ -22,6 +26,7 @@ public sealed class ConsoleApp : IConsoleApp
         IParser parser,
         IExpressionFormatter expressionFormatter,
         IStatementFormatter statementFormatter,
+        IInterpreter interpreter,
         IConsole console)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -31,6 +36,7 @@ public sealed class ConsoleApp : IConsoleApp
             ?? throw new ArgumentNullException(nameof(expressionFormatter));
         _statementFormatter = statementFormatter
             ?? throw new ArgumentNullException(nameof(statementFormatter));
+        _interpreter = interpreter ?? throw new ArgumentNullException(nameof(interpreter));
         _console = console ?? throw new ArgumentNullException(nameof(console));
     }
 
@@ -71,7 +77,7 @@ public sealed class ConsoleApp : IConsoleApp
             }
 
             _console.WriteLine("Parse:");
-            _console.WriteLine($"  {ParseAndFormat(tokens)}");
+            ParseFormatAndInterpret(tokens);
         }
         catch (ScanException exception)
         {
@@ -93,17 +99,41 @@ public sealed class ConsoleApp : IConsoleApp
             _console.WriteLine(
                 $"error ({exception.Span.Line},{exception.Span.Column}): {exception.Message}");
         }
+        catch (RuntimeException exception)
+        {
+            _logger.LogWarning(
+                exception,
+                "Expression execution failed at line {Line}, column {Column}.",
+                exception.Span.Line,
+                exception.Span.Column);
+            _console.WriteLine(
+                $"error ({exception.Span.Line},{exception.Span.Column}): {exception.Message}");
+        }
     }
 
-    private string ParseAndFormat(List<Token> tokens)
+    private void ParseFormatAndInterpret(List<Token> tokens)
     {
         if (tokens[0].Type == TokenType.Print)
         {
             IStatement statement = _parser.ParseStatement(tokens);
-            return _statementFormatter.Format(statement);
+            _console.WriteLine($"  {_statementFormatter.Format(statement)}");
+            _console.WriteLine("Output:");
+            _console.WriteLine($"  {FormatValue(_interpreter.Interpret(statement))}");
+            return;
         }
 
         Expression expression = _parser.Parse(tokens);
-        return _expressionFormatter.Format(expression);
+        _console.WriteLine($"  {_expressionFormatter.Format(expression)}");
+        _console.WriteLine("Result:");
+        _console.WriteLine($"  {FormatValue(_interpreter.Evaluate(expression))}");
+    }
+
+    private static string FormatValue(object value)
+    {
+        return value switch
+        {
+            bool boolean => boolean ? "TRUE" : "FALSE",
+            _ => Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty,
+        };
     }
 }

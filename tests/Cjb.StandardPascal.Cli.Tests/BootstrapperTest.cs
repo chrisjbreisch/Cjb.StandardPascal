@@ -1,4 +1,5 @@
 using Cjb.StandardPascal.Application;
+using Cjb.StandardPascal.Language.Interpreter;
 using Cjb.StandardPascal.Language.Parser;
 using Cjb.StandardPascal.Language.Parser.Expressions;
 using Cjb.StandardPascal.Language.Parser.Statements;
@@ -28,6 +29,8 @@ public sealed class BootstrapperTest
             bootstrapper.ScopedServiceProvider.GetRequiredService<IExpressionFormatter>();
         IStatementFormatter statementFormatter =
             bootstrapper.ScopedServiceProvider.GetRequiredService<IStatementFormatter>();
+        IInterpreter interpreter =
+            bootstrapper.ScopedServiceProvider.GetRequiredService<IInterpreter>();
 
         Assert.IsInstanceOfType<ConsoleApp>(application);
         Assert.IsInstanceOfType<Scanner>(scanner);
@@ -35,6 +38,7 @@ public sealed class BootstrapperTest
         Assert.IsInstanceOfType<Parser>(parser);
         Assert.IsInstanceOfType<ExpressionFormatter>(formatter);
         Assert.IsInstanceOfType<StatementFormatter>(statementFormatter);
+        Assert.IsInstanceOfType<Interpreter>(interpreter);
         Assert.IsFalse(string.IsNullOrWhiteSpace(bootstrapper.ApplicationName));
     }
 }

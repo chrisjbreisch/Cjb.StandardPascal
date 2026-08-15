@@ -43,21 +43,21 @@ behavior, or conformance change.
 
 | Feature | Status | Notes |
 | --- | :---: | --- |
-| Integer and real constants | 🚧 | Scanner and parser support are complete; semantic checking and evaluation remain |
-| Boolean constants | ⬜ | Predefined identifiers `true` and `false` |
+| Integer and real constants | ✅ | 64-bit integer and double-precision real values are scanned, parsed, and evaluated |
+| Boolean constants | ✅ | Predefined identifiers `true` and `false` are evaluated case-insensitively |
 | Character and string constants | ⬜ | Fixed-length character arrays require later type support |
-| Parenthesized expressions | 🚧 | Syntax and source spans are implemented; evaluation remains |
-| Unary `+`, `-`, and `not` | 🚧 | ISO precedence is parsed; type checking and evaluation remain |
-| `*`, `/`, `div`, and `mod` | 🚧 | ISO precedence is parsed; type checking and evaluation remain |
-| `and`, `or` | 🚧 | ISO precedence is parsed; Boolean type checking remains |
-| Binary `+` and `-` | 🚧 | ISO precedence is parsed; numeric and set semantics remain |
-| Relational operators | 🚧 | Six comparison operators are parsed as optional, non-chainable relations |
+| Parenthesized expressions | ✅ | Grouped expressions preserve precedence and evaluate recursively |
+| Unary `+`, `-`, and `not` | ✅ | Numeric signs and Boolean negation are evaluated with operand checks |
+| `*`, `/`, `div`, and `mod` | ✅ | `/` returns real; `div` and `mod` require integers and detect zero divisors |
+| `and`, `or` | ✅ | Boolean operands are required |
+| Binary `+` and `-` | 🚧 | Numeric semantics are implemented; set operations remain |
+| Relational operators | 🚧 | Numeric and Boolean comparisons are implemented; other ISO types remain |
 | Set membership `in` | 🚧 | Syntax is parsed; set types and evaluation remain |
-| Identifier expressions | 🚧 | Syntax is parsed; declarations and name resolution remain |
+| Identifier expressions | 🚧 | `true` and `false` resolve; declared identifiers remain |
 | Function calls | ⬜ | Depends on routine declarations |
 | Set constructors | ⬜ | Includes individual elements and ranges |
 | Static expression type checking | ⬜ | Required before general program execution |
-| Checked runtime arithmetic | ⬜ | Overflow and division-by-zero diagnostics |
+| Checked runtime arithmetic | ✅ | Integer overflow and division by zero produce source-positioned runtime errors |
 
 ## Program structure and declarations
 
@@ -95,7 +95,7 @@ behavior, or conformance change.
 | Feature | Status | Notes |
 | --- | :---: | --- |
 | Empty and compound statements | ⬜ | Statement sequences and `begin ... end` |
-| Temporary `Print` statement | 🚧 | `Print expression;` scans, parses, and formats; execution remains |
+| Temporary `Print` statement | ✅ | `Print expression;` evaluates and writes the resulting value |
 | Assignment | ⬜ | Variable access on the left of `:=` |
 | Procedure call | ⬜ | Value, variable, and routine parameters |
 | `if` statement | ⬜ | Includes nearest-`if` binding for `else` |
@@ -117,13 +117,13 @@ behavior, or conformance change.
 | File operations | ⬜ | Standard file and text-file operations |
 | Packing procedures | ⬜ | `pack` and `unpack` |
 | Dynamic allocation | ⬜ | `new` and `dispose` |
-| Runtime diagnostics | ⬜ | Source-correlated errors without silent fallbacks |
+| Runtime diagnostics | 🚧 | Expression type, undefined identifier, overflow, and division errors are source-correlated |
 
 ## Quality and conformance
 
 | Feature | Status | Notes |
 | --- | :---: | --- |
-| Scanner, parser, semantic, and interpreter tests | 🚧 | Scanner and parser unit tests cover the implemented expression subset |
+| Scanner, parser, semantic, and interpreter tests | 🚧 | Scanner, parser, and interpreter tests cover the implemented expression subset |
 | CLI integration tests | 🚧 | Scanner and parser output, both error paths, recovery, and end-of-input are covered |
 | ISO example corpus | ⬜ | Positive and negative conformance programs required |
 | Cross-platform validation | ⬜ | Windows, Linux, and macOS CI required |

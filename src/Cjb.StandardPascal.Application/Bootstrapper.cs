@@ -1,5 +1,6 @@
 using System.Reflection;
 
+using Cjb.StandardPascal.Language.Interpreter;
 using Cjb.StandardPascal.Language.Parser;
 using Cjb.StandardPascal.Language.Parser.Expressions;
 using Cjb.StandardPascal.Language.Parser.Statements;
@@ -88,6 +89,7 @@ public sealed class Bootstrapper : IDisposable
         _services.AddSingleton<IParser, Parser>();
         _services.AddSingleton<IExpressionFormatter, ExpressionFormatter>();
         _services.AddSingleton<IStatementFormatter, StatementFormatter>();
+        _services.AddSingleton<IInterpreter, Interpreter>();
     }
 
     private void LogConfiguredServices()

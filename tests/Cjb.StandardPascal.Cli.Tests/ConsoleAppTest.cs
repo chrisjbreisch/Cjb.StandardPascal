@@ -1,4 +1,5 @@
 using Cjb.StandardPascal.Application;
+using Cjb.StandardPascal.Language.Interpreter;
 using Cjb.StandardPascal.Language.Parser;
 using Cjb.StandardPascal.Language.Parser.Expressions;
 using Cjb.StandardPascal.Language.Parser.Statements;
@@ -21,6 +22,7 @@ public sealed class ConsoleAppTest
             new Parser(),
             new ExpressionFormatter(),
             new StatementFormatter(new ExpressionFormatter()),
+            new Interpreter(),
             console);
 
         int exitCode = application.Run([]);
@@ -32,6 +34,8 @@ public sealed class ConsoleAppTest
         Assert.Contains("EndOfFile  ", console.Output);
         Assert.Contains("Parse:", console.Output);
         Assert.Contains("(+ 1 2)", console.Output);
+        Assert.Contains("Result:", console.Output);
+        Assert.Contains("  3", console.Output);
     }
 
     [TestMethod]
@@ -44,6 +48,7 @@ public sealed class ConsoleAppTest
             new Parser(),
             new ExpressionFormatter(),
             new StatementFormatter(new ExpressionFormatter()),
+            new Interpreter(),
             console);
 
         int exitCode = application.Run([]);
@@ -65,6 +70,7 @@ public sealed class ConsoleAppTest
             new Parser(),
             new ExpressionFormatter(),
             new StatementFormatter(new ExpressionFormatter()),
+            new Interpreter(),
             console);
 
         int exitCode = application.Run([]);
@@ -84,6 +90,7 @@ public sealed class ConsoleAppTest
             new Parser(),
             new ExpressionFormatter(),
             new StatementFormatter(new ExpressionFormatter()),
+            new Interpreter(),
             console);
 
         int exitCode = application.Run([]);
@@ -102,6 +109,7 @@ public sealed class ConsoleAppTest
             new Parser(),
             expressionFormatter,
             new StatementFormatter(expressionFormatter),
+            new Interpreter(),
             console);
 
         int exitCode = application.Run([]);
@@ -110,6 +118,30 @@ public sealed class ConsoleAppTest
         Assert.Contains("Print Print ", console.Output);
         Assert.Contains("Semicolon ; ", console.Output);
         Assert.Contains("(print (* 3 5))", console.Output);
+        Assert.Contains("Output:", console.Output);
+        Assert.Contains("  15", console.Output);
+    }
+
+    [TestMethod]
+    public void Run_Runtime_Error_Prints_Error_And_Continues()
+    {
+        TestConsole console = new(["Print 1 div 0;", "Print 4;", ""]);
+        ExpressionFormatter expressionFormatter = new();
+        ConsoleApp application = new(
+            NullLogger<ConsoleApp>.Instance,
+            new Scanner(),
+            new Parser(),
+            expressionFormatter,
+            new StatementFormatter(expressionFormatter),
+            new Interpreter(),
+            console);
+
+        int exitCode = application.Run([]);
+
+        Assert.AreEqual(0, exitCode);
+        Assert.Contains("error (1,9): Division by zero.", console.Output);
+        Assert.Contains("Output:", console.Output);
+        Assert.Contains("  4", console.Output);
     }
 
     private sealed class TestConsole : IConsole
