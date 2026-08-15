@@ -13,29 +13,22 @@ namespace Cjb.StandardPascal.Cli.Tests;
 public sealed class ConsoleAppTest
 {
     [TestMethod]
-    public void Run_Expression_Prints_Scanned_Tokens()
+    public void Run_Expression_Prints_Interpreted_Result_Only()
     {
         TestConsole console = new(["1 + 2", ""]);
         ConsoleApp application = new(
             NullLogger<ConsoleApp>.Instance,
             new Scanner(),
             new Parser(),
-            new ExpressionFormatter(),
-            new StatementFormatter(new ExpressionFormatter()),
             new Interpreter(),
             console);
 
         int exitCode = application.Run([]);
 
         Assert.AreEqual(0, exitCode);
-        Assert.Contains("Number 1 1", console.Output);
-        Assert.Contains("Plus + ", console.Output);
-        Assert.Contains("Number 2 2", console.Output);
-        Assert.Contains("EndOfFile  ", console.Output);
-        Assert.Contains("Parse:", console.Output);
-        Assert.Contains("(+ 1 2)", console.Output);
-        Assert.Contains("Result:", console.Output);
-        Assert.Contains("  3", console.Output);
+        Assert.Contains($"> 3{Environment.NewLine}", console.Output);
+        Assert.DoesNotContain("Scan:", console.Output);
+        Assert.DoesNotContain("Parse:", console.Output);
     }
 
     [TestMethod]
@@ -46,8 +39,6 @@ public sealed class ConsoleAppTest
             NullLogger<ConsoleApp>.Instance,
             new Scanner(),
             new Parser(),
-            new ExpressionFormatter(),
-            new StatementFormatter(new ExpressionFormatter()),
             new Interpreter(),
             console);
 
@@ -55,9 +46,7 @@ public sealed class ConsoleAppTest
 
         Assert.AreEqual(0, exitCode);
         Assert.Contains("error (1,3): Unexpected character '@'.", console.Output);
-        Assert.Contains("Number 3 3", console.Output);
-        Assert.Contains("Parse:", console.Output);
-        Assert.Contains("  3", console.Output);
+        Assert.Contains($"> 3{Environment.NewLine}", console.Output);
     }
 
     [TestMethod]
@@ -68,8 +57,6 @@ public sealed class ConsoleAppTest
             NullLogger<ConsoleApp>.Instance,
             new Scanner(),
             new Parser(),
-            new ExpressionFormatter(),
-            new StatementFormatter(new ExpressionFormatter()),
             new Interpreter(),
             console);
 
@@ -77,7 +64,7 @@ public sealed class ConsoleAppTest
 
         Assert.AreEqual(0, exitCode);
         Assert.Contains("error (1,4): Expected an expression.", console.Output);
-        Assert.Contains("(* 2 3)", console.Output);
+        Assert.Contains($"> 6{Environment.NewLine}", console.Output);
     }
 
     [TestMethod]
@@ -88,8 +75,6 @@ public sealed class ConsoleAppTest
             NullLogger<ConsoleApp>.Instance,
             new Scanner(),
             new Parser(),
-            new ExpressionFormatter(),
-            new StatementFormatter(new ExpressionFormatter()),
             new Interpreter(),
             console);
 
@@ -99,40 +84,32 @@ public sealed class ConsoleAppTest
     }
 
     [TestMethod]
-    public void Run_Print_Statement_Prints_Parsed_Statement()
+    public void Run_Print_Statement_Prints_Interpreted_Output_Only()
     {
         TestConsole console = new(["Print 3 * 5;", ""]);
-        ExpressionFormatter expressionFormatter = new();
         ConsoleApp application = new(
             NullLogger<ConsoleApp>.Instance,
             new Scanner(),
             new Parser(),
-            expressionFormatter,
-            new StatementFormatter(expressionFormatter),
             new Interpreter(),
             console);
 
         int exitCode = application.Run([]);
 
         Assert.AreEqual(0, exitCode);
-        Assert.Contains("Print Print ", console.Output);
-        Assert.Contains("Semicolon ; ", console.Output);
-        Assert.Contains("(print (* 3 5))", console.Output);
-        Assert.Contains("Output:", console.Output);
-        Assert.Contains("  15", console.Output);
+        Assert.Contains($"> 15{Environment.NewLine}", console.Output);
+        Assert.DoesNotContain("Print Print", console.Output);
+        Assert.DoesNotContain("(print", console.Output);
     }
 
     [TestMethod]
     public void Run_Runtime_Error_Prints_Error_And_Continues()
     {
         TestConsole console = new(["Print 1 div 0;", "Print 4;", ""]);
-        ExpressionFormatter expressionFormatter = new();
         ConsoleApp application = new(
             NullLogger<ConsoleApp>.Instance,
             new Scanner(),
             new Parser(),
-            expressionFormatter,
-            new StatementFormatter(expressionFormatter),
             new Interpreter(),
             console);
 
@@ -140,8 +117,7 @@ public sealed class ConsoleAppTest
 
         Assert.AreEqual(0, exitCode);
         Assert.Contains("error (1,9): Division by zero.", console.Output);
-        Assert.Contains("Output:", console.Output);
-        Assert.Contains("  4", console.Output);
+        Assert.Contains($"> 4{Environment.NewLine}", console.Output);
     }
 
     private sealed class TestConsole : IConsole

@@ -15,8 +15,6 @@ public sealed class ConsoleApp : IConsoleApp
     private readonly ILogger<ConsoleApp> _logger;
     private readonly IScanner _scanner;
     private readonly IParser _parser;
-    private readonly IExpressionFormatter _expressionFormatter;
-    private readonly IStatementFormatter _statementFormatter;
     private readonly IInterpreter _interpreter;
     private readonly IConsole _console;
 
@@ -24,18 +22,12 @@ public sealed class ConsoleApp : IConsoleApp
         ILogger<ConsoleApp> logger,
         IScanner scanner,
         IParser parser,
-        IExpressionFormatter expressionFormatter,
-        IStatementFormatter statementFormatter,
         IInterpreter interpreter,
         IConsole console)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _scanner = scanner ?? throw new ArgumentNullException(nameof(scanner));
         _parser = parser ?? throw new ArgumentNullException(nameof(parser));
-        _expressionFormatter = expressionFormatter
-            ?? throw new ArgumentNullException(nameof(expressionFormatter));
-        _statementFormatter = statementFormatter
-            ?? throw new ArgumentNullException(nameof(statementFormatter));
         _interpreter = interpreter ?? throw new ArgumentNullException(nameof(interpreter));
         _console = console ?? throw new ArgumentNullException(nameof(console));
     }
@@ -47,7 +39,7 @@ public sealed class ConsoleApp : IConsoleApp
         _logger.LogInformation(
             "Cjb.StandardPascal started with {ArgumentCount} source arguments.",
             arguments.Count);
-        _console.WriteLine("Cjb.StandardPascal expression scanner and parser");
+        _console.WriteLine("Cjb.StandardPascal expression interpreter");
         _console.WriteLine("Enter an expression. Submit a blank line to exit.");
 
         while (true)
@@ -69,15 +61,8 @@ public sealed class ConsoleApp : IConsoleApp
         try
         {
             List<Token> tokens = _scanner.ScanTokens(new SourceText(expression));
-
-            _console.WriteLine("Scan:");
-            foreach (Token token in tokens)
-            {
-                _console.WriteLine($"  {token}");
-            }
-
-            _console.WriteLine("Parse:");
-            ParseFormatAndInterpret(tokens);
+            object result = ParseAndInterpret(tokens);
+            _console.WriteLine(FormatValue(result));
         }
         catch (ScanException exception)
         {
@@ -111,21 +96,16 @@ public sealed class ConsoleApp : IConsoleApp
         }
     }
 
-    private void ParseFormatAndInterpret(List<Token> tokens)
+    private object ParseAndInterpret(List<Token> tokens)
     {
         if (tokens[0].Type == TokenType.Print)
         {
             IStatement statement = _parser.ParseStatement(tokens);
-            _console.WriteLine($"  {_statementFormatter.Format(statement)}");
-            _console.WriteLine("Output:");
-            _console.WriteLine($"  {FormatValue(_interpreter.Interpret(statement))}");
-            return;
+            return _interpreter.Interpret(statement);
         }
 
         Expression expression = _parser.Parse(tokens);
-        _console.WriteLine($"  {_expressionFormatter.Format(expression)}");
-        _console.WriteLine("Result:");
-        _console.WriteLine($"  {FormatValue(_interpreter.Evaluate(expression))}");
+        return _interpreter.Evaluate(expression);
     }
 
     private static string FormatValue(object value)

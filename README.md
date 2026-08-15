@@ -47,15 +47,16 @@ dotnet build Cjb.StandardPascal.sln
 dotnet test Cjb.StandardPascal.sln
 ```
 
-Run the interactive expression scanner and parser:
+Run the interactive expression interpreter:
 
 ```powershell
 dotnet run --project src/Cjb.StandardPascal.Cli
 ```
 
-Enter one expression per prompt. The console prints scanner tokens followed by
-a parenthesized parse tree. A blank line or end-of-input closes the session.
-Source-file arguments and program execution are planned but not yet implemented.
+Enter one expression per prompt. The console scans, parses, and evaluates it,
+then prints only the interpreted result. A blank line or end-of-input closes
+the session. Source-file arguments and full program execution are planned but
+not yet implemented.
 
 The temporary `Print` statement reserves the first output-oriented syntax for
 the interpreter milestone:
