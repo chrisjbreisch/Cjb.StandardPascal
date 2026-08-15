@@ -31,7 +31,7 @@ behavior, or conformance change.
 | Reserved words | 🚧 | Expression keywords plus temporary `Print` are recognized |
 | Integer literals | ✅ | Decimal digits are parsed as 64-bit integers pending the `maxint` policy |
 | Real literals | ✅ | Decimal and scientific notation use invariant culture |
-| Character and string literals | ⬜ | Single quotes with doubled-quote escaping |
+| Character and string literals | 🚧 | Single-quoted literals and doubled-quote escaping are implemented; ISO character/fixed-array typing remains |
 | Operators and delimiters | 🚧 | Expression arithmetic, relational, and parenthesis tokens are implemented |
 | Delimiter aliases | ⬜ | `(.`/`[`, `.)`/`]`, `@`/`^`, and `(*`/`{` forms |
 | Whitespace | ✅ | Whitespace is ignored while source locations remain accurate |
@@ -45,7 +45,7 @@ behavior, or conformance change.
 | --- | :---: | --- |
 | Integer and real constants | ✅ | 64-bit integer and double-precision real values are scanned, parsed, and evaluated |
 | Boolean constants | ✅ | Predefined identifiers `true` and `false` are evaluated case-insensitively |
-| Character and string constants | ⬜ | Fixed-length character arrays require later type support |
+| Character and string constants | 🚧 | String values scan, parse, compare, and print; character/fixed-array type semantics remain |
 | Parenthesized expressions | ✅ | Grouped expressions preserve precedence and evaluate recursively |
 | Unary `+`, `-`, and `not` | ✅ | Numeric signs and Boolean negation are evaluated with operand checks |
 | `*`, `/`, `div`, and `mod` | ✅ | `/` returns real; `div` and `mod` require integers and detect zero divisors |

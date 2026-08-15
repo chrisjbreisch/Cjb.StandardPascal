@@ -99,6 +99,15 @@ public sealed class ParserTest
         Assert.AreEqual(3, expression.Span.Column);
     }
 
+    [TestMethod]
+    public void Parser_Parses_String_Literal()
+    {
+        Expression expression = Parse("'Hello'");
+
+        Literal literal = Assert.IsInstanceOfType<Literal>(expression);
+        Assert.AreEqual("Hello", literal.Value);
+    }
+
     private Expression Parse(string source)
     {
         List<Token> tokens = _scanner.ScanTokens(new SourceText(source, "expression.pas"));

@@ -111,6 +111,32 @@ public sealed class ScannerTest
     }
 
     [TestMethod]
+    [DataRow("'Hello, world!'", "Hello, world!")]
+    [DataRow("'isn''t'", "isn't")]
+    [DataRow("''", "")]
+    public void Scanner_Recognizes_String_Literals(string source, string expected)
+    {
+        List<Token> tokens = _scanner.ScanTokens(new SourceText(source));
+
+        AssertTokenTypes(tokens, TokenType.String, TokenType.EndOfFile);
+        Assert.AreEqual(source, tokens[0].Lexeme);
+        Assert.AreEqual(expected, tokens[0].Literal);
+    }
+
+    [TestMethod]
+    [DataRow("'unterminated")]
+    [DataRow("'line\r\nbreak'")]
+    public void Scanner_Reports_Unterminated_String_Literals(string source)
+    {
+        ScanException exception = Assert.ThrowsExactly<ScanException>(
+            () => _scanner.ScanTokens(new SourceText(source, "string.pas")));
+
+        Assert.AreEqual("Unterminated string literal.", exception.Message);
+        Assert.AreEqual("string.pas", exception.Span.FilePath);
+        Assert.AreEqual(1, exception.Span.Column);
+    }
+
+    [TestMethod]
     public void Scanner_Reports_Unexpected_Characters()
     {
         ScanException exception = Assert.ThrowsExactly<ScanException>(

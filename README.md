@@ -67,6 +67,13 @@ Print 3 * 5;
 
 It parses as `(print (* 3 5))` and produces `15`.
 
+Single-quoted ISO Pascal string literals and doubled quote escaping are
+supported:
+
+```pascal
+Print 'isn''t this useful?';
+```
+
 ## Roadmap
 
 Development proceeds in vertical slices:

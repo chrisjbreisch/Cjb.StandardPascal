@@ -120,6 +120,23 @@ public sealed class ConsoleAppTest
         Assert.Contains($"> 4{Environment.NewLine}", console.Output);
     }
 
+    [TestMethod]
+    public void Run_Print_String_Prints_Unescaped_Value()
+    {
+        TestConsole console = new(["Print 'isn''t this useful?';", ""]);
+        ConsoleApp application = new(
+            NullLogger<ConsoleApp>.Instance,
+            new Scanner(),
+            new Parser(),
+            new Interpreter(),
+            console);
+
+        int exitCode = application.Run([]);
+
+        Assert.AreEqual(0, exitCode);
+        Assert.Contains($"> isn't this useful?{Environment.NewLine}", console.Output);
+    }
+
     private sealed class TestConsole : IConsole
     {
         private readonly Queue<string> _input;

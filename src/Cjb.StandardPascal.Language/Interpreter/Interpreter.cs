@@ -209,6 +209,11 @@ public sealed class Interpreter : IInterpreter
             return leftBoolean.CompareTo(rightBoolean);
         }
 
+        if (left is string leftString && right is string rightString)
+        {
+            return string.CompareOrdinal(leftString, rightString);
+        }
+
         throw Error(token, "Operands are not comparable.");
     }
 

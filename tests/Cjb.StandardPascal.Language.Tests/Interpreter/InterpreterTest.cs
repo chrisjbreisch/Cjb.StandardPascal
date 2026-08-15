@@ -68,6 +68,31 @@ public sealed class InterpreterTest
     }
 
     [TestMethod]
+    public void Interpret_Print_String_Returns_String_Value()
+    {
+        List<Token> tokens = _scanner.ScanTokens(
+            new SourceText("Print 'Hello, world!';"));
+        IStatement statement = _parser.ParseStatement(tokens);
+
+        object result = _interpreter.Interpret(statement);
+
+        Assert.AreEqual("Hello, world!", result);
+    }
+
+    [TestMethod]
+    [DataRow("'alpha' = 'alpha'", true)]
+    [DataRow("'alpha' < 'beta'", true)]
+    [DataRow("'beta' <> 'beta'", false)]
+    public void Evaluate_String_Comparison_Returns_Boolean(
+        string source,
+        bool expected)
+    {
+        object result = Evaluate(source);
+
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
     [DataRow("1 / 0", "Division by zero.")]
     [DataRow("1 div 0", "Division by zero.")]
     [DataRow("1 and 2", "Operand must be Boolean.")]

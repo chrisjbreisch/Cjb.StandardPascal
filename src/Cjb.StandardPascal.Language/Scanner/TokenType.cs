@@ -22,6 +22,7 @@ public enum TokenType
     // Literals
     Identifier,
     Number,
+    String,
 
     // Expression keywords
     And,

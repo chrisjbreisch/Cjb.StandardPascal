@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 
 namespace Cjb.StandardPascal.Language.Scanner;
 
@@ -101,6 +102,9 @@ public sealed class Scanner : IScanner
                 break;
             case '*':
                 AddToken(TokenType.Star);
+                break;
+            case '\'':
+                GetString();
                 break;
             case '/':
                 AddToken(TokenType.Slash);
@@ -219,6 +223,41 @@ public sealed class Scanner : IScanner
         }
 
         AddToken(TokenType.Number, literal);
+    }
+
+    private void GetString()
+    {
+        StringBuilder value = new();
+
+        while (!IsAtEnd())
+        {
+            char character = Peek();
+
+            if (character is '\r' or '\n')
+            {
+                throw Error("Unterminated string literal.");
+            }
+
+            Advance();
+
+            if (character != '\'')
+            {
+                value.Append(character);
+                continue;
+            }
+
+            if (Peek() == '\'')
+            {
+                Advance();
+                value.Append('\'');
+                continue;
+            }
+
+            AddToken(TokenType.String, value.ToString());
+            return;
+        }
+
+        throw Error("Unterminated string literal.");
     }
 
     private ScanException Error(string message)

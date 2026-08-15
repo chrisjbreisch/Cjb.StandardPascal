@@ -126,7 +126,7 @@ public sealed class Parser : IParser
 
     private Expression Primary()
     {
-        if (Match(TokenType.Number))
+        if (Match(TokenType.Number, TokenType.String))
         {
             return new Literal(Previous());
         }
