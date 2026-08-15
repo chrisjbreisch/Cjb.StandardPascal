@@ -1,4 +1,5 @@
 using Cjb.StandardPascal.Application;
+using Cjb.StandardPascal.Language.Parser;
 using Cjb.StandardPascal.Language.Scanner;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -19,10 +20,13 @@ public sealed class BootstrapperTest
             bootstrapper.ScopedServiceProvider.GetRequiredService<IScanner>();
         IConsole console =
             bootstrapper.ScopedServiceProvider.GetRequiredService<IConsole>();
+        IParser parser =
+            bootstrapper.ScopedServiceProvider.GetRequiredService<IParser>();
 
         Assert.IsInstanceOfType<ConsoleApp>(application);
         Assert.IsInstanceOfType<Scanner>(scanner);
         Assert.IsInstanceOfType<SystemConsole>(console);
+        Assert.IsInstanceOfType<Parser>(parser);
         Assert.IsFalse(string.IsNullOrWhiteSpace(bootstrapper.ApplicationName));
     }
 }

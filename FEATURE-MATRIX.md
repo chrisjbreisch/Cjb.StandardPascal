@@ -43,17 +43,17 @@ behavior, or conformance change.
 
 | Feature | Status | Notes |
 | --- | :---: | --- |
-| Integer and real constants | ⬜ | First expression milestone |
+| Integer and real constants | 🚧 | Scanner and parser support are complete; semantic checking and evaluation remain |
 | Boolean constants | ⬜ | Predefined identifiers `true` and `false` |
 | Character and string constants | ⬜ | Fixed-length character arrays require later type support |
-| Parenthesized expressions | ⬜ | Highest-precedence grouping |
-| Unary `+`, `-`, and `not` | ⬜ | Numeric signs and Boolean negation |
-| `*`, `/`, `div`, and `mod` | ⬜ | `/` returns real; `div` and `mod` require integers |
-| `and`, `or` | ⬜ | Boolean operands only |
-| Binary `+` and `-` | ⬜ | Numeric operations first; set operations later |
-| Relational operators | ⬜ | `=`, `<>`, `<`, `>`, `<=`, and `>=` |
-| Set membership `in` | ⬜ | Depends on set types |
-| Identifier expressions | ⬜ | Depends on declarations and name resolution |
+| Parenthesized expressions | 🚧 | Syntax and source spans are implemented; evaluation remains |
+| Unary `+`, `-`, and `not` | 🚧 | ISO precedence is parsed; type checking and evaluation remain |
+| `*`, `/`, `div`, and `mod` | 🚧 | ISO precedence is parsed; type checking and evaluation remain |
+| `and`, `or` | 🚧 | ISO precedence is parsed; Boolean type checking remains |
+| Binary `+` and `-` | 🚧 | ISO precedence is parsed; numeric and set semantics remain |
+| Relational operators | 🚧 | Six comparison operators are parsed as optional, non-chainable relations |
+| Set membership `in` | 🚧 | Syntax is parsed; set types and evaluation remain |
+| Identifier expressions | 🚧 | Syntax is parsed; declarations and name resolution remain |
 | Function calls | ⬜ | Depends on routine declarations |
 | Set constructors | ⬜ | Includes individual elements and ranges |
 | Static expression type checking | ⬜ | Required before general program execution |
@@ -122,7 +122,7 @@ behavior, or conformance change.
 
 | Feature | Status | Notes |
 | --- | :---: | --- |
-| Scanner, parser, semantic, and interpreter tests | 🚧 | Scanner unit tests cover the implemented expression subset |
+| Scanner, parser, semantic, and interpreter tests | 🚧 | Scanner and parser unit tests cover the implemented expression subset |
 | CLI integration tests | 🚧 | Expression input, scanner output, error recovery, and end-of-input are covered |
 | ISO example corpus | ⬜ | Positive and negative conformance programs required |
 | Cross-platform validation | ⬜ | Windows, Linux, and macOS CI required |

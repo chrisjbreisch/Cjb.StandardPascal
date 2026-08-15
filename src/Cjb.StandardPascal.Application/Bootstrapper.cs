@@ -1,5 +1,6 @@
 using System.Reflection;
 
+using Cjb.StandardPascal.Language.Parser;
 using Cjb.StandardPascal.Language.Scanner;
 
 using Microsoft.Extensions.Configuration;
@@ -82,6 +83,7 @@ public sealed class Bootstrapper : IDisposable
         _services.AddSingleton<IConsole, SystemConsole>();
         _services.AddSingleton<IConsoleApp, ConsoleApp>();
         _services.AddSingleton<IScanner, Scanner>();
+        _services.AddSingleton<IParser, Parser>();
     }
 
     private void LogConfiguredServices()
