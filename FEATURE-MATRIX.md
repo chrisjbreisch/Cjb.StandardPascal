@@ -16,7 +16,7 @@ behavior, or conformance change.
 | Strict build configuration | ✅ | Compiler warnings are treated as errors |
 | Application composition root | ✅ | Bootstrapper configures JSON/environment settings, logging, DI, and application scope |
 | Command-line application project | 🚧 | Interactive expression scanning is available; parsing and execution remain |
-| Interactive expression input | ✅ | Reads expressions until a blank line or end-of-input and prints scanner tokens or positioned errors |
+| Interactive expression input | ✅ | Reads expressions until a blank line or end-of-input and prints scanner tokens, parenthesized parse trees, or positioned errors |
 | Source-file arguments | ⬜ | Planned final interface: `cjb-pascal file.pas [file2.pas ...]` |
 | Exit-code contract | 🚧 | Interactive scanner sessions return success; source-file and runtime codes remain undefined |
 | Automated unit-test projects | ✅ | MSTest 4 projects exist for the language and CLI |
@@ -123,7 +123,7 @@ behavior, or conformance change.
 | Feature | Status | Notes |
 | --- | :---: | --- |
 | Scanner, parser, semantic, and interpreter tests | 🚧 | Scanner and parser unit tests cover the implemented expression subset |
-| CLI integration tests | 🚧 | Expression input, scanner output, error recovery, and end-of-input are covered |
+| CLI integration tests | 🚧 | Scanner and parser output, both error paths, recovery, and end-of-input are covered |
 | ISO example corpus | ⬜ | Positive and negative conformance programs required |
 | Cross-platform validation | ⬜ | Windows, Linux, and macOS CI required |
 | Feature-status documentation | ✅ | This matrix establishes the baseline |

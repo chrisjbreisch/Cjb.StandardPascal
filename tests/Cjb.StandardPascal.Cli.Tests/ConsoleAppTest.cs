@@ -1,4 +1,6 @@
 using Cjb.StandardPascal.Application;
+using Cjb.StandardPascal.Language.Parser;
+using Cjb.StandardPascal.Language.Parser.Expressions;
 using Cjb.StandardPascal.Language.Scanner;
 
 using Microsoft.Extensions.Logging.Abstractions;
@@ -15,6 +17,8 @@ public sealed class ConsoleAppTest
         ConsoleApp application = new(
             NullLogger<ConsoleApp>.Instance,
             new Scanner(),
+            new Parser(),
+            new ExpressionFormatter(),
             console);
 
         int exitCode = application.Run([]);
@@ -24,6 +28,8 @@ public sealed class ConsoleAppTest
         Assert.Contains("Plus + ", console.Output);
         Assert.Contains("Number 2 2", console.Output);
         Assert.Contains("EndOfFile  ", console.Output);
+        Assert.Contains("Parse:", console.Output);
+        Assert.Contains("(+ 1 2)", console.Output);
     }
 
     [TestMethod]
@@ -33,6 +39,8 @@ public sealed class ConsoleAppTest
         ConsoleApp application = new(
             NullLogger<ConsoleApp>.Instance,
             new Scanner(),
+            new Parser(),
+            new ExpressionFormatter(),
             console);
 
         int exitCode = application.Run([]);
@@ -40,6 +48,26 @@ public sealed class ConsoleAppTest
         Assert.AreEqual(0, exitCode);
         Assert.Contains("error (1,3): Unexpected character '@'.", console.Output);
         Assert.Contains("Number 3 3", console.Output);
+        Assert.Contains("Parse:", console.Output);
+        Assert.Contains("  3", console.Output);
+    }
+
+    [TestMethod]
+    public void Run_Invalid_Syntax_Prints_Error_And_Continues()
+    {
+        TestConsole console = new(["1 +", "2 * 3", ""]);
+        ConsoleApp application = new(
+            NullLogger<ConsoleApp>.Instance,
+            new Scanner(),
+            new Parser(),
+            new ExpressionFormatter(),
+            console);
+
+        int exitCode = application.Run([]);
+
+        Assert.AreEqual(0, exitCode);
+        Assert.Contains("error (1,4): Expected an expression.", console.Output);
+        Assert.Contains("(* 2 3)", console.Output);
     }
 
     [TestMethod]
@@ -49,6 +77,8 @@ public sealed class ConsoleAppTest
         ConsoleApp application = new(
             NullLogger<ConsoleApp>.Instance,
             new Scanner(),
+            new Parser(),
+            new ExpressionFormatter(),
             console);
 
         int exitCode = application.Run([]);

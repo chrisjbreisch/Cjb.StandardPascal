@@ -1,5 +1,6 @@
 using Cjb.StandardPascal.Application;
 using Cjb.StandardPascal.Language.Parser;
+using Cjb.StandardPascal.Language.Parser.Expressions;
 using Cjb.StandardPascal.Language.Scanner;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -22,11 +23,14 @@ public sealed class BootstrapperTest
             bootstrapper.ScopedServiceProvider.GetRequiredService<IConsole>();
         IParser parser =
             bootstrapper.ScopedServiceProvider.GetRequiredService<IParser>();
+        IExpressionFormatter formatter =
+            bootstrapper.ScopedServiceProvider.GetRequiredService<IExpressionFormatter>();
 
         Assert.IsInstanceOfType<ConsoleApp>(application);
         Assert.IsInstanceOfType<Scanner>(scanner);
         Assert.IsInstanceOfType<SystemConsole>(console);
         Assert.IsInstanceOfType<Parser>(parser);
+        Assert.IsInstanceOfType<ExpressionFormatter>(formatter);
         Assert.IsFalse(string.IsNullOrWhiteSpace(bootstrapper.ApplicationName));
     }
 }
