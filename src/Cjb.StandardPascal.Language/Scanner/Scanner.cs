@@ -13,6 +13,7 @@ public sealed class Scanner : IScanner
             ["mod"] = TokenType.Mod,
             ["not"] = TokenType.Not,
             ["or"] = TokenType.Or,
+            ["print"] = TokenType.Print,
         };
 
     private string _source = string.Empty;
@@ -88,6 +89,9 @@ public sealed class Scanner : IScanner
                 break;
             case ')':
                 AddToken(TokenType.RightParen);
+                break;
+            case ';':
+                AddToken(TokenType.Semicolon);
                 break;
             case '-':
                 AddToken(TokenType.Minus);

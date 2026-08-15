@@ -1,6 +1,7 @@
 using Cjb.StandardPascal.Application;
 using Cjb.StandardPascal.Language.Parser;
 using Cjb.StandardPascal.Language.Parser.Expressions;
+using Cjb.StandardPascal.Language.Parser.Statements;
 using Cjb.StandardPascal.Language.Scanner;
 
 using Microsoft.Extensions.Logging.Abstractions;
@@ -19,6 +20,7 @@ public sealed class ConsoleAppTest
             new Scanner(),
             new Parser(),
             new ExpressionFormatter(),
+            new StatementFormatter(new ExpressionFormatter()),
             console);
 
         int exitCode = application.Run([]);
@@ -41,6 +43,7 @@ public sealed class ConsoleAppTest
             new Scanner(),
             new Parser(),
             new ExpressionFormatter(),
+            new StatementFormatter(new ExpressionFormatter()),
             console);
 
         int exitCode = application.Run([]);
@@ -61,6 +64,7 @@ public sealed class ConsoleAppTest
             new Scanner(),
             new Parser(),
             new ExpressionFormatter(),
+            new StatementFormatter(new ExpressionFormatter()),
             console);
 
         int exitCode = application.Run([]);
@@ -79,11 +83,33 @@ public sealed class ConsoleAppTest
             new Scanner(),
             new Parser(),
             new ExpressionFormatter(),
+            new StatementFormatter(new ExpressionFormatter()),
             console);
 
         int exitCode = application.Run([]);
 
         Assert.AreEqual(0, exitCode);
+    }
+
+    [TestMethod]
+    public void Run_Print_Statement_Prints_Parsed_Statement()
+    {
+        TestConsole console = new(["Print 3 * 5;", ""]);
+        ExpressionFormatter expressionFormatter = new();
+        ConsoleApp application = new(
+            NullLogger<ConsoleApp>.Instance,
+            new Scanner(),
+            new Parser(),
+            expressionFormatter,
+            new StatementFormatter(expressionFormatter),
+            console);
+
+        int exitCode = application.Run([]);
+
+        Assert.AreEqual(0, exitCode);
+        Assert.Contains("Print Print ", console.Output);
+        Assert.Contains("Semicolon ; ", console.Output);
+        Assert.Contains("(print (* 3 5))", console.Output);
     }
 
     private sealed class TestConsole : IConsole

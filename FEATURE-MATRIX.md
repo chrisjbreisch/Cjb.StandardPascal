@@ -28,7 +28,7 @@ behavior, or conformance change.
 | --- | :---: | --- |
 | Source text and source spans | ✅ | Tokens and scan errors carry file, line, column, offset, and length |
 | Case-insensitive identifiers | ✅ | Keyword matching is case-insensitive; original spelling is preserved |
-| Reserved words | 🚧 | Expression keywords `and`, `div`, `in`, `mod`, `not`, and `or` are recognized |
+| Reserved words | 🚧 | Expression keywords plus temporary `Print` are recognized |
 | Integer literals | ✅ | Decimal digits are parsed as 64-bit integers pending the `maxint` policy |
 | Real literals | ✅ | Decimal and scientific notation use invariant culture |
 | Character and string literals | ⬜ | Single quotes with doubled-quote escaping |
@@ -95,6 +95,7 @@ behavior, or conformance change.
 | Feature | Status | Notes |
 | --- | :---: | --- |
 | Empty and compound statements | ⬜ | Statement sequences and `begin ... end` |
+| Temporary `Print` statement | 🚧 | `Print expression;` scans, parses, and formats; execution remains |
 | Assignment | ⬜ | Variable access on the left of `:=` |
 | Procedure call | ⬜ | Value, variable, and routine parameters |
 | `if` statement | ⬜ | Includes nearest-`if` binding for `else` |

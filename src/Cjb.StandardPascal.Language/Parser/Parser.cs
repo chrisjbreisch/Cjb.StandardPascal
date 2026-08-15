@@ -1,4 +1,5 @@
 using Cjb.StandardPascal.Language.Parser.Expressions;
+using Cjb.StandardPascal.Language.Parser.Statements;
 using Cjb.StandardPascal.Language.Scanner;
 
 namespace Cjb.StandardPascal.Language.Parser;
@@ -9,6 +10,35 @@ public sealed class Parser : IParser
     private int _current;
 
     public Expression Parse(List<Token> tokens)
+    {
+        Initialize(tokens);
+
+        Expression expression = Expression();
+        Consume(TokenType.EndOfFile, "Expected the end of the expression.");
+        return expression;
+    }
+
+    public IStatement ParseStatement(List<Token> tokens)
+    {
+        Initialize(tokens);
+
+        Token print = Consume(TokenType.Print, "Expected 'Print'.");
+        Expression expression = Expression();
+        Token semicolon = Consume(
+            TokenType.Semicolon,
+            "Expected ';' after the Print expression.");
+        Consume(TokenType.EndOfFile, "Expected the end of the statement.");
+
+        SourceSpan span = new(
+            print.Span.FilePath,
+            print.Span.Start,
+            semicolon.Span.Start + semicolon.Span.Length - print.Span.Start,
+            print.Span.Line,
+            print.Span.Column);
+        return new Print(expression, span);
+    }
+
+    private void Initialize(List<Token> tokens)
     {
         ArgumentNullException.ThrowIfNull(tokens);
 
@@ -21,10 +51,6 @@ public sealed class Parser : IParser
 
         _tokens = tokens;
         _current = 0;
-
-        Expression expression = Expression();
-        Consume(TokenType.EndOfFile, "Expected the end of the expression.");
-        return expression;
     }
 
     private Expression Expression()

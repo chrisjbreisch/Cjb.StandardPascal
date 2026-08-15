@@ -57,6 +57,16 @@ Enter one expression per prompt. The console prints scanner tokens followed by
 a parenthesized parse tree. A blank line or end-of-input closes the session.
 Source-file arguments and program execution are planned but not yet implemented.
 
+The temporary `Print` statement reserves the first output-oriented syntax for
+the interpreter milestone:
+
+```pascal
+Print 3 * 5;
+```
+
+It currently parses as `(print (* 3 5))`; it will produce `15` once expression
+interpretation is connected.
+
 ## Roadmap
 
 Development proceeds in vertical slices:

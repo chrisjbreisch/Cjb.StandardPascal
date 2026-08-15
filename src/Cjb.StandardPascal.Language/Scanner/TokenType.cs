@@ -7,6 +7,7 @@ public enum TokenType
     Minus,
     Plus,
     RightParen,
+    Semicolon,
     Slash,
     Star,
 
@@ -29,6 +30,7 @@ public enum TokenType
     Mod,
     Not,
     Or,
+    Print,
 
     EndOfFile,
 }
