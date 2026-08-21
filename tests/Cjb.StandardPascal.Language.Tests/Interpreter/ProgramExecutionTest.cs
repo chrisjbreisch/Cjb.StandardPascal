@@ -22,6 +22,34 @@ public sealed class ProgramExecutionTest
         Assert.AreEqual("5 2.5TRUEX" + Environment.NewLine, output.Text);
     }
 
+    [TestMethod]
+    public void ParseProgram_Malformed_Block_Throws_Source_Correlated_Parse_Exception()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+
+        ParseException exception = Assert.ThrowsExactly<ParseException>(() => parser.ParseProgram(
+            scanner.ScanTokens(new SourceText("program Demo; begin writeln(1) end"))));
+
+        Assert.AreEqual("Expected '.' after the program block.", exception.Message);
+        Assert.AreEqual(35, exception.Span.Column);
+    }
+
+    [TestMethod]
+    public void Execute_Program_Division_By_Zero_Throws_Runtime_Exception()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter();
+        Program program = parser.ParseProgram(scanner.ScanTokens(
+            new SourceText("program Demo; begin writeln(1 div 0); end.")));
+
+        RuntimeException exception = Assert.ThrowsExactly<RuntimeException>(
+            () => interpreter.Execute(program));
+
+        Assert.AreEqual("Division by zero.", exception.Message);
+    }
+
     private sealed class BufferOutput : IOutput
     {
         public string Text { get; private set; } = string.Empty;
