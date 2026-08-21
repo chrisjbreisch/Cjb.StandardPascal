@@ -168,10 +168,11 @@ public sealed class Parser : IParser
         {
             Token keyword = Previous();
             Token name = Consume(TokenType.Identifier, "Expected a procedure name.");
+            IReadOnlyList<RoutineParameter> parameters = ParseRoutineParameters();
             Consume(TokenType.Semicolon, "Expected ';' after procedure heading.");
             Block body = ParseBlock();
             Token semicolon = Consume(TokenType.Semicolon, "Expected ';' after procedure declaration.");
-            declarations.Add(new ProcedureDeclaration(name, body, Span(keyword, semicolon)));
+            declarations.Add(new ProcedureDeclaration(name, parameters, body, Span(keyword, semicolon)));
         }
 
         while (Match(TokenType.Function))
@@ -358,7 +359,21 @@ public sealed class Parser : IParser
                 return new Assignment(name, value, Span(name, value.Span));
             }
 
-            return new ProcedureCall(name, name.Span);
+            List<Expression> arguments = [];
+
+            if (Match(TokenType.LeftParen))
+            {
+                if (!Check(TokenType.RightParen))
+                {
+                    arguments.Add(Expression());
+                    while (Match(TokenType.Comma)) { arguments.Add(Expression()); }
+                }
+
+                Token rightParenthesis = Consume(TokenType.RightParen, "Expected ')' after procedure arguments.");
+                return new ProcedureCall(name, arguments, Span(name, rightParenthesis));
+            }
+
+            return new ProcedureCall(name, arguments, name.Span);
         }
 
         Token print = Consume(TokenType.Print, "Expected 'Print'.");

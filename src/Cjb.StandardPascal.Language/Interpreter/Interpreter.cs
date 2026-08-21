@@ -252,7 +252,55 @@ public sealed class Interpreter : IInterpreter
             throw Error(statement.Name, $"Undefined procedure '{statement.Name.Lexeme}'.");
         }
 
-        return Interpret(new BlockStatement(procedure.Body));
+        if (statement.Arguments.Count != procedure.Parameters.Count)
+        {
+            throw Error(statement.Name, $"Procedure '{procedure.Name.Lexeme}' expects {procedure.Parameters.Count} arguments.");
+        }
+
+        object[] arguments = statement.Arguments.Select(Evaluate).ToArray();
+        Dictionary<string, object> callerValues = new(_values, StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, PascalType> callerTypes = new(_types, StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, string> variableArguments = [];
+
+        try
+        {
+            _values.Clear();
+            _types.Clear();
+
+            for (int index = 0; index < procedure.Parameters.Count; index++)
+            {
+                RoutineParameter parameter = procedure.Parameters[index];
+                PascalType type = ResolveType(parameter.Type);
+                _values.Add(parameter.Name.Lexeme, arguments[index]);
+                _types.Add(parameter.Name.Lexeme, type);
+
+                if (parameter.IsVariable)
+                {
+                    if (statement.Arguments[index] is not Identifier identifier)
+                    {
+                        throw Error(statement.Name, "Var parameter requires an assignable identifier.");
+                    }
+
+                    variableArguments.Add(parameter.Name.Lexeme, identifier.Name.Lexeme);
+                }
+            }
+
+            object result = Interpret(new BlockStatement(procedure.Body));
+
+            foreach ((string parameterName, string callerName) in variableArguments)
+            {
+                callerValues[callerName] = _values[parameterName];
+            }
+
+            return result;
+        }
+        finally
+        {
+            _values.Clear();
+            _types.Clear();
+            foreach ((string name, object value) in callerValues) { _values.Add(name, value); }
+            foreach ((string name, PascalType type) in callerTypes) { _types.Add(name, type); }
+        }
     }
 
     public object VisitBlockStatement(BlockStatement statement)

@@ -242,6 +242,21 @@ public sealed class ProgramExecutionTest
         Assert.AreEqual("6" + Environment.NewLine, output.Text);
     }
 
+    [TestMethod]
+    public void Execute_Procedure_With_Var_Parameter_Updates_Caller()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Routines; var count: integer; procedure Increment(var value: integer); begin value := value + 1; end; begin count := 1; Increment(count); writeln(count); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("2" + Environment.NewLine, output.Text);
+    }
+
     private sealed class BufferOutput : IOutput
     {
         public string Text { get; private set; } = string.Empty;
