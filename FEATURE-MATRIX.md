@@ -83,10 +83,10 @@ behavior, or conformance change.
 | Feature | Status | Notes |
 | --- | :---: | --- |
 | `integer`, `real`, `boolean`, and `char` | ✅ | 64-bit signed integer (`maxint` = `9223372036854775807`), double real, Boolean, and single-character string values |
-| Enumerated and subrange types | ⬜ | User-defined ordinals and range checks |
+| Enumerated and subrange types | 🚧 | Enumerations and integer subranges are supported, including assignment range checks; advanced ordinal compatibility remains |
 | Array types | ⬜ | Any ordinal index type and multiple dimensions |
 | Packed character arrays | ⬜ | Standard Pascal string representation |
-| Record types | ⬜ | Fixed and variant fields |
+| Record types | 🚧 | Fixed scalar fields support record variables and `with`; variant fields and nested selectors remain |
 | Set types | ⬜ | Ordinal base type |
 | File types | ⬜ | Files cannot contain file components |
 | Pointer types | ⬜ | Includes forward type references and `nil` |
@@ -102,20 +102,20 @@ behavior, or conformance change.
 | Temporary `Print` statement | ✅ | Retained as a documented transitional extension for interactive migration |
 | Assignment | ✅ | Scalar identifier assignment with compatibility checks |
 | Procedure call | ⬜ | Value, variable, and routine parameters |
-| `if` statement | ⬜ | Includes nearest-`if` binding for `else` |
-| `while` and `repeat` statements | ⬜ | Boolean loop conditions |
-| `for` statement | ⬜ | `to` and `downto`; ordinal local control variable |
-| `case` statement | ⬜ | Ordinal selector and compatible labels |
-| `goto` and labeled statements | ⬜ | Structured-statement jump restrictions |
-| `with` statement | ⬜ | Record-field scope |
+| `if` statement | ✅ | Includes nearest-`if` binding for `else` |
+| `while` and `repeat` statements | ✅ | Boolean conditions are semantically validated |
+| `for` statement | ✅ | Integer `to` and `downto`; active control assignment is rejected |
+| `case` statement | ✅ | Scalar ordinal selectors, multi-label branches, `else`, and compatibility checks |
+| `goto` and labeled statements | ✅ | Numeric labels with same-compound-block target restriction |
+| `with` statement | ✅ | Fixed record-field scope |
 
 ## Predefined routines and runtime services
 
 | Feature | Status | Notes |
 | --- | :---: | --- |
 | Numeric functions | ⬜ | `abs`, `sqr`, `sqrt`, trigonometric, exponential, and logarithmic functions |
-| Ordinal functions | ⬜ | `ord`, `chr`, `succ`, and `pred` |
-| Real conversion functions | ⬜ | `round` and `trunc` |
+| Ordinal functions | ✅ | `ord`, `chr`, `succ`, and `pred` for integer and character ordinals |
+| Real conversion functions | ✅ | `round` and `trunc` |
 | Text output | 🚧 | `write` and `writeln` output scalar expressions; field widths remain |
 | Text input | ⬜ | `read` and `readln` |
 | File operations | ⬜ | Standard file and text-file operations |

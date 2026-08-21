@@ -197,6 +197,21 @@ public sealed class ProgramExecutionTest
         Assert.AreEqual("Goto target '20' is not declared in this block.", exception.Message);
     }
 
+    [TestMethod]
+    public void Execute_Downto_Case_And_With_Integrates_Phase2_Features()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Integration; type Level = 1..3; Point = record total: integer; end; var level: Level; index: integer; point: Point; begin with point do total := 0; for index := 3 downto 1 do with point do total := total + index; level := 2; case level of 1: writeln('low'); 2: with point do writeln(total); else writeln('high'); end; end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("6" + Environment.NewLine, output.Text);
+    }
+
     private sealed class BufferOutput : IOutput
     {
         public string Text { get; private set; } = string.Empty;

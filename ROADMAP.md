@@ -29,14 +29,14 @@ This roadmap describes the staged completion of the ISO 7185 Standard Pascal int
 
 ## Phase 2: Structured Statements and Ordinal Semantics
 
-- [ ] Implement `if`, `while`, `repeat ... until`, and `for ... to/downto`.
-- [ ] Implement `case` with ordinal selectors and compatible labels.
-- [ ] Implement labeled statements and `goto` where permitted by the selected ISO restrictions.
-- [ ] Implement `with` after record values and field lookup exist.
-- [ ] Add enumerated and subrange types with ordinal operations and range checks.
-- [ ] Add `ord`, `chr`, `succ`, `pred`, `round`, and `trunc`.
-- [ ] Enforce Boolean conditions, loop-control rules, selector compatibility, and structured-statement restrictions during semantic analysis.
-- [ ] Add control-flow integration programs and source-correlated diagnostics.
+- [x] Implement `if`, `while`, `repeat ... until`, and `for ... to/downto`.
+- [x] Implement `case` with ordinal selectors and compatible labels.
+- [x] Implement labeled statements and `goto` where permitted by the selected ISO restrictions.
+- [x] Implement `with` after record values and field lookup exist.
+- [x] Add enumerated and subrange types with ordinal operations and range checks.
+- [x] Add `ord`, `chr`, `succ`, `pred`, `round`, and `trunc`.
+- [x] Enforce Boolean conditions, loop-control rules, selector compatibility, and structured-statement restrictions during semantic analysis.
+- [x] Add control-flow integration programs and source-correlated diagnostics.
 
 ## Phase 3: Procedures, Functions, and Lexical Scopes
 
@@ -84,6 +84,12 @@ Each implementation slice should begin with a focused failing MSTest, followed b
 - Input/output service abstractions and deterministic CLI exit codes.
 - Whether `Print` remains as a documented transitional extension after `write`/`writeln` are implemented.
 - The exact ISO restrictions selected for labels, `goto`, forward declarations, files, and pointers.
+
+## Selected Phase 2 Restrictions
+
+- Labels are numeric and `goto` targets must be labels in the same compound block.
+- `for` control variables are integer variables and cannot be assigned within the active loop body.
+- `with` supports fixed scalar record fields; variant fields and nested record selectors remain composite-type work.
 
 ## Relevant Files
 
