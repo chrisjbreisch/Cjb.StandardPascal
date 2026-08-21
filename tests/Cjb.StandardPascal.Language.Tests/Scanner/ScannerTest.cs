@@ -102,6 +102,25 @@ public sealed class ScannerTest
     }
 
     [TestMethod]
+    public void Scanner_Recognizes_Array_Type_Keywords()
+    {
+        List<Token> tokens = _scanner.ScanTokens(new SourceText("packed array[1..3] of integer"));
+
+        AssertTokenTypes(
+            tokens,
+            TokenType.Packed,
+            TokenType.Array,
+            TokenType.LeftBracket,
+            TokenType.Number,
+            TokenType.Range,
+            TokenType.Number,
+            TokenType.RightBracket,
+            TokenType.Of,
+            TokenType.Integer,
+            TokenType.EndOfFile);
+    }
+
+    [TestMethod]
     public void Scanner_Skips_Comments_And_Normalizes_Delimiter_Aliases()
     {
         List<Token> tokens = _scanner.ScanTokens(
