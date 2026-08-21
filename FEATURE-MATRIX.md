@@ -91,7 +91,7 @@ behavior, or conformance change.
 | Pointer types | ⬜ | Includes forward type references and `nil` |
 | Packed types | ⬜ | Initially semantic metadata; physical packing is optional |
 | Type compatibility | ⬜ | Identity, ordinal/subrange, set, and string rules |
-| Assignment compatibility | ⬜ | Includes integer-to-real promotion and range checks |
+| Assignment compatibility | 🚧 | Type model supports identity and integer-to-real assignment compatibility; structured and range rules remain |
 
 ## Statements
 
@@ -121,6 +121,7 @@ behavior, or conformance change.
 | Packing procedures | ⬜ | `pack` and `unpack` |
 | Dynamic allocation | ⬜ | `new` and `dispose` |
 | Runtime diagnostics | 🚧 | Expression type, undefined identifier, overflow, and division errors are source-correlated |
+| Typed symbols and routine signatures | ✅ | Case-insensitive declaration/identifier resolution, duplicate diagnostics, variables, constants, parameters, and routine signatures are available for semantic analysis |
 
 ## Quality and conformance
 
