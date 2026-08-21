@@ -476,6 +476,17 @@ public sealed class Interpreter : IInterpreter
             return array;
         }
 
+        if (_values.TryGetValue(statement.Name.Lexeme, out object? structuredTarget)
+            && structuredTarget is ArrayValue or Dictionary<string, object> or FileValue or PointerValue)
+        {
+            object structuredValue = Evaluate(statement.Value);
+            if (structuredValue is ArrayValue or Dictionary<string, object> or FileValue or PointerValue)
+            {
+                _values[statement.Name.Lexeme] = structuredValue;
+                return structuredValue;
+            }
+        }
+
         if (_activeFields is not null && _activeFields.ContainsKey(statement.Name.Lexeme))
         {
             object fieldValue = Evaluate(statement.Value);

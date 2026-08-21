@@ -392,6 +392,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Array_Assignment_Uses_Reference_Aliasing()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Arrays; var source, alias: array[1..1] of integer; begin source[1] := 1; alias := source; alias[1] := 2; writeln(source[1]); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("2" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Pack_Copies_Array_Elements()
     {
         IScanner scanner = new Language.Scanner.Scanner();
