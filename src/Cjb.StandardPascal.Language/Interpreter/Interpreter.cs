@@ -264,15 +264,12 @@ public sealed class Interpreter : IInterpreter
 
         try
         {
-            _values.Clear();
-            _types.Clear();
-
             for (int index = 0; index < procedure.Parameters.Count; index++)
             {
                 RoutineParameter parameter = procedure.Parameters[index];
                 PascalType type = ResolveType(parameter.Type);
-                _values.Add(parameter.Name.Lexeme, arguments[index]);
-                _types.Add(parameter.Name.Lexeme, type);
+                _values[parameter.Name.Lexeme] = arguments[index];
+                _types[parameter.Name.Lexeme] = type;
 
                 if (parameter.IsVariable)
                 {
@@ -285,6 +282,7 @@ public sealed class Interpreter : IInterpreter
                 }
             }
 
+            InitializeRoutineBlock(procedure.Body);
             object result = Interpret(new BlockStatement(procedure.Body));
 
             foreach ((string parameterName, string callerName) in variableArguments)
@@ -718,6 +716,30 @@ public sealed class Interpreter : IInterpreter
             _types.Clear();
             foreach ((string name, object value) in callerValues) { _values.Add(name, value); }
             foreach ((string name, PascalType type) in callerTypes) { _types.Add(name, type); }
+        }
+    }
+
+    private void InitializeRoutineBlock(Block block)
+    {
+        foreach (Declaration declaration in block.Declarations)
+        {
+            switch (declaration)
+            {
+                case VariableDeclaration variable:
+                    foreach (Token name in variable.Names)
+                    {
+                        PascalType type = ResolveType(variable.Type);
+                        _values[name.Lexeme] = DefaultValue(type);
+                        _types[name.Lexeme] = type;
+                    }
+                    break;
+                case ProcedureDeclaration procedure:
+                    _procedures[procedure.Name.Lexeme] = procedure;
+                    break;
+                case FunctionDeclaration function:
+                    _functions[function.Name.Lexeme] = function;
+                    break;
+            }
         }
     }
 
