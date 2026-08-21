@@ -407,14 +407,7 @@ public sealed class Interpreter : IInterpreter
             throw Error(statement.Name, $"{statement.Name.Lexeme} requires array arguments.");
         }
 
-        if (string.Equals(statement.Name.Lexeme, "pack", StringComparison.OrdinalIgnoreCase))
-        {
-            target.CopyFrom(source, start, statement.Span);
-        }
-        else
-        {
-            source.CopyFrom(target, start, statement.Span);
-        }
+        target.CopyFrom(source, start, statement.Span);
 
         return string.Empty;
     }
