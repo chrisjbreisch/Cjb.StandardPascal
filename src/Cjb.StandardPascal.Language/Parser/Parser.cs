@@ -33,7 +33,7 @@ public sealed class Parser : IParser
 
         IStatement body = Statement();
         Consume(TokenType.EndOfFile, "Expected the end of the program.");
-        return new Program(body, GetSpan(body));
+        return new Program(body, body.Span);
     }
 
     private IStatement Statement()
@@ -51,17 +51,6 @@ public sealed class Parser : IParser
             print.Span.Line,
             print.Span.Column);
         return new Print(expression, span);
-    }
-
-    private static SourceSpan GetSpan(IStatement statement)
-    {
-        return statement switch
-        {
-            Print print => print.Span,
-            _ => throw new ArgumentOutOfRangeException(
-                nameof(statement),
-                "The statement does not have a source span."),
-        };
     }
 
     private void Initialize(List<Token> tokens)

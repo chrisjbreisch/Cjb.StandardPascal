@@ -64,6 +64,7 @@ behavior, or conformance change.
 
 | Feature | Status | Notes |
 | --- | :---: | --- |
+| Source-spanned AST abstractions | ✅ | Common AST bases cover programs, blocks, declarations, types, expressions, l-values, statements, and routines; concrete grammar support follows in later phases |
 | Program AST and execution boundary | ✅ | `Program` retains a source-spanned statement body and is parsed/executed through `IParser.ParseProgram` and `IInterpreter.Execute`; expression and temporary-statement APIs remain available during migration |
 | Program heading | ⬜ | `program name(...);` |
 | Block structure | ⬜ | Declaration part followed by a statement part |

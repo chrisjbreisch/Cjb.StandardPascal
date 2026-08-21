@@ -3,15 +3,13 @@ using Cjb.StandardPascal.Language.Scanner;
 
 namespace Cjb.StandardPascal.Language.Parser;
 
-public sealed class Program
+public sealed class Program : AstNode
 {
     public Program(IStatement body, SourceSpan span)
+        : base(span)
     {
         Body = body ?? throw new ArgumentNullException(nameof(body));
-        Span = span;
     }
 
     public IStatement Body { get; }
-
-    public SourceSpan Span { get; }
 }
