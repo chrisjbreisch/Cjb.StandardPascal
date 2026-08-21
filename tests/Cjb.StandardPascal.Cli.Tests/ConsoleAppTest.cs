@@ -34,7 +34,7 @@ public sealed class ConsoleAppTest
     [TestMethod]
     public void Run_Invalid_Expression_Prints_Error_And_Continues()
     {
-        TestConsole console = new(["1 @ 2", "3", ""]);
+        TestConsole console = new(["1 # 2", "3", ""]);
         ConsoleApp application = new(
             NullLogger<ConsoleApp>.Instance,
             new Scanner(),
@@ -45,7 +45,7 @@ public sealed class ConsoleAppTest
         int exitCode = application.Run([]);
 
         Assert.AreEqual(0, exitCode);
-        Assert.Contains("error (1,3): Unexpected character '@'.", console.Output);
+        Assert.Contains("error (1,3): Unexpected character '#'.", console.Output);
         Assert.Contains($"> 3{Environment.NewLine}", console.Output);
     }
 
@@ -135,6 +135,33 @@ public sealed class ConsoleAppTest
 
         Assert.AreEqual(0, exitCode);
         Assert.Contains($"> isn't this useful?{Environment.NewLine}", console.Output);
+    }
+
+    [TestMethod]
+    public void Run_Source_File_Executes_Program_And_Returns_Success()
+    {
+        string path = Path.GetTempFileName();
+
+        try
+        {
+            File.WriteAllText(path, "program Demo; begin writeln('done'); end.");
+            TestConsole console = new([]);
+            ConsoleApp application = new(
+                NullLogger<ConsoleApp>.Instance,
+                new Scanner(),
+                new Parser(),
+                new Interpreter(new ConsoleOutput(console)),
+                console);
+
+            int exitCode = application.Run([path]);
+
+            Assert.AreEqual(0, exitCode);
+            Assert.AreEqual($"done{Environment.NewLine}", console.Output);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
     }
 
     private sealed class TestConsole : IConsole

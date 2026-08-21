@@ -5,6 +5,7 @@ using Cjb.StandardPascal.Language.Parser;
 using Cjb.StandardPascal.Language.Parser.Expressions;
 using Cjb.StandardPascal.Language.Parser.Statements;
 using Cjb.StandardPascal.Language.Scanner;
+using Cjb.StandardPascal.Language.Semantics;
 
 using Microsoft.Extensions.Logging;
 
@@ -12,6 +13,9 @@ namespace Cjb.StandardPascal.Application;
 
 public sealed class ConsoleApp : IConsoleApp
 {
+    private const int FileErrorExitCode = 1;
+    private const int SyntaxErrorExitCode = 2;
+    private const int RuntimeErrorExitCode = 3;
     private readonly ILogger<ConsoleApp> _logger;
     private readonly IScanner _scanner;
     private readonly IParser _parser;
@@ -39,6 +43,12 @@ public sealed class ConsoleApp : IConsoleApp
         _logger.LogInformation(
             "Cjb.StandardPascal started with {ArgumentCount} source arguments.",
             arguments.Count);
+
+        if (arguments.Count > 0)
+        {
+            return RunFiles(arguments);
+        }
+
         _console.WriteLine("Cjb.StandardPascal expression interpreter");
         _console.WriteLine("Enter an expression. Submit a blank line to exit.");
 
@@ -94,6 +104,61 @@ public sealed class ConsoleApp : IConsoleApp
             _console.WriteLine(
                 $"error ({exception.Span.Line},{exception.Span.Column}): {exception.Message}");
         }
+        catch (SemanticException exception)
+        {
+            WriteError(exception.Message, exception.Span);
+        }
+    }
+
+    private int RunFiles(IReadOnlyList<string> arguments)
+    {
+        foreach (string path in arguments)
+        {
+            try
+            {
+                string source = File.ReadAllText(path);
+                Program program = _parser.ParseProgram(
+                    _scanner.ScanTokens(new SourceText(source, path)));
+                _interpreter.Execute(program);
+            }
+            catch (IOException exception)
+            {
+                _console.WriteLine($"error: {exception.Message}");
+                return FileErrorExitCode;
+            }
+            catch (UnauthorizedAccessException exception)
+            {
+                _console.WriteLine($"error: {exception.Message}");
+                return FileErrorExitCode;
+            }
+            catch (ScanException exception)
+            {
+                WriteError(exception.Message, exception.Span);
+                return SyntaxErrorExitCode;
+            }
+            catch (ParseException exception)
+            {
+                WriteError(exception.Message, exception.Span);
+                return SyntaxErrorExitCode;
+            }
+            catch (SemanticException exception)
+            {
+                WriteError(exception.Message, exception.Span);
+                return SyntaxErrorExitCode;
+            }
+            catch (RuntimeException exception)
+            {
+                WriteError(exception.Message, exception.Span);
+                return RuntimeErrorExitCode;
+            }
+        }
+
+        return 0;
+    }
+
+    private void WriteError(string message, SourceSpan span)
+    {
+        _console.WriteLine($"error ({span.Line},{span.Column}): {message}");
     }
 
     private object ParseAndInterpret(List<Token> tokens)

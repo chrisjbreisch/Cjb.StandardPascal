@@ -67,12 +67,12 @@ behavior, or conformance change.
 | --- | :---: | --- |
 | Source-spanned AST abstractions | ✅ | Common AST bases cover programs, blocks, declarations, types, expressions, l-values, statements, and routines; concrete grammar support follows in later phases |
 | Program AST and execution boundary | ✅ | `Program` retains a source-spanned statement body and is parsed/executed through `IParser.ParseProgram` and `IInterpreter.Execute`; expression and temporary-statement APIs remain available during migration |
-| Program heading | ⬜ | `program name(...);` |
-| Block structure | ⬜ | Declaration part followed by a statement part |
-| Declaration ordering | ⬜ | Label, constant, type, variable, and routine sections |
+| Program heading | ✅ | `program name(...);` with optional file parameters |
+| Block structure | ✅ | Constant/variable declarations followed by `begin ... end` statements |
+| Declaration ordering | 🚧 | Constant and variable sections are supported; label, type, and routine sections follow later |
 | Label declarations | ⬜ | Numeric labels in the ISO-defined range |
-| Constant declarations | ⬜ | Integer, real, character, and named constants |
-| Type and variable declarations | ⬜ | Named types, aliases, and grouped variables |
+| Constant declarations | ✅ | Scalar constant expressions |
+| Type and variable declarations | 🚧 | Grouped scalar variables are supported; named types and aliases follow later |
 | Procedure and function declarations | ⬜ | Nested routines and function-result assignment |
 | Forward declarations | ⬜ | Routine signature matching required |
 | Nested lexical scopes | ⬜ | Programs, procedures, and functions |
@@ -82,7 +82,7 @@ behavior, or conformance change.
 
 | Feature | Status | Notes |
 | --- | :---: | --- |
-| `integer`, `real`, `boolean`, and `char` | ⬜ | Predefined scalar types |
+| `integer`, `real`, `boolean`, and `char` | ✅ | 64-bit signed integer (`maxint` = `9223372036854775807`), double real, Boolean, and single-character string values |
 | Enumerated and subrange types | ⬜ | User-defined ordinals and range checks |
 | Array types | ⬜ | Any ordinal index type and multiple dimensions |
 | Packed character arrays | ⬜ | Standard Pascal string representation |
@@ -92,15 +92,15 @@ behavior, or conformance change.
 | Pointer types | ⬜ | Includes forward type references and `nil` |
 | Packed types | ⬜ | Initially semantic metadata; physical packing is optional |
 | Type compatibility | ⬜ | Identity, ordinal/subrange, set, and string rules |
-| Assignment compatibility | 🚧 | Type model supports identity and integer-to-real assignment compatibility; structured and range rules remain |
+| Assignment compatibility | 🚧 | Scalar identity and integer-to-real promotion are enforced; structured and range rules remain |
 
 ## Statements
 
 | Feature | Status | Notes |
 | --- | :---: | --- |
-| Empty and compound statements | ⬜ | Statement sequences and `begin ... end` |
-| Temporary `Print` statement | ✅ | `Print expression;` evaluates and writes the resulting value |
-| Assignment | ⬜ | Variable access on the left of `:=` |
+| Empty and compound statements | ✅ | Semicolon-separated statements in `begin ... end`, including empty statements |
+| Temporary `Print` statement | ✅ | Retained as a documented transitional extension for interactive migration |
+| Assignment | ✅ | Scalar identifier assignment with compatibility checks |
 | Procedure call | ⬜ | Value, variable, and routine parameters |
 | `if` statement | ⬜ | Includes nearest-`if` binding for `else` |
 | `while` and `repeat` statements | ⬜ | Boolean loop conditions |
@@ -116,12 +116,12 @@ behavior, or conformance change.
 | Numeric functions | ⬜ | `abs`, `sqr`, `sqrt`, trigonometric, exponential, and logarithmic functions |
 | Ordinal functions | ⬜ | `ord`, `chr`, `succ`, and `pred` |
 | Real conversion functions | ⬜ | `round` and `trunc` |
-| Text output | ⬜ | `write` and `writeln`, including field widths |
+| Text output | 🚧 | `write` and `writeln` output scalar expressions; field widths remain |
 | Text input | ⬜ | `read` and `readln` |
 | File operations | ⬜ | Standard file and text-file operations |
 | Packing procedures | ⬜ | `pack` and `unpack` |
 | Dynamic allocation | ⬜ | `new` and `dispose` |
-| Runtime diagnostics | 🚧 | Expression arithmetic errors are source-correlated; program identifier and type diagnostics are emitted during semantic analysis |
+| Runtime diagnostics | 🚧 | Arithmetic, undefined identifier, and scalar assignment errors are source-correlated; advanced semantic diagnostics follow |
 | Typed symbols and routine signatures | ✅ | Case-insensitive declaration/identifier resolution, duplicate diagnostics, variables, constants, parameters, and routine signatures are available for semantic analysis |
 | Runtime values and activation records | ✅ | Typed variable bindings support lexical-parent lookup, shadowing, compatible assignment, and source-correlated runtime errors |
 

@@ -17,13 +17,13 @@ This roadmap describes the staged completion of the ISO 7185 Standard Pascal int
 
 - [x] Add Pascal reserved words and punctuation needed for program headings, declarations, blocks, assignments, and control flow.
 - [x] Add brace comments, parenthesis-star comments, supported delimiter aliases, and diagnostics for unterminated comments/literals and invalid tokens.
-- [ ] Parse `program name(...);`, declaration sections in ISO order, and `begin ... end` blocks.
-- [ ] Implement `integer`, `real`, `boolean`, and `char` types, constants, variables, scalar literals, and assignments.
-- [ ] Implement empty and compound statements and statement sequencing.
-- [ ] Define integer width/`maxint`, integer-to-real promotion, character/string representation, range checks, and type errors.
-- [ ] Add `write` and `writeln`; decide whether the temporary `Print` extension remains supported.
-- [ ] Add source-file execution, input/output abstractions, and deterministic CLI exit codes.
-- [ ] Add a minimal complete-program test covering declarations, assignment, expressions, output, malformed input, and runtime errors.
+- [x] Parse `program name(...);`, declaration sections in ISO order, and `begin ... end` blocks.
+- [x] Implement `integer`, `real`, `boolean`, and `char` types, constants, variables, scalar literals, and assignments.
+- [x] Implement empty and compound statements and statement sequencing.
+- [x] Define integer width/`maxint`, integer-to-real promotion, character/string representation, range checks, and type errors.
+- [x] Add `write` and `writeln`; decide whether the temporary `Print` extension remains supported.
+- [x] Add source-file execution, input/output abstractions, and deterministic CLI exit codes.
+- [x] Add a minimal complete-program test covering declarations, assignment, expressions, output, malformed input, and runtime errors.
 
 **Primary areas:** `Scanner/`, `Parser/`, `Interpreter/`, `ConsoleApp.cs`, `Program.cs`, and focused language/CLI tests.
 
