@@ -3,6 +3,7 @@ using Cjb.StandardPascal.Language.Parser;
 using Cjb.StandardPascal.Language.Parser.Expressions;
 using Cjb.StandardPascal.Language.Parser.Statements;
 using Cjb.StandardPascal.Language.Scanner;
+using Cjb.StandardPascal.Language.Semantics;
 
 namespace Cjb.StandardPascal.Language.Tests.Interpreter;
 
@@ -76,6 +77,20 @@ public sealed class InterpreterTest
         object result = _interpreter.Execute(program);
 
         Assert.AreEqual(15L, result);
+    }
+
+    [TestMethod]
+    public void Execute_Program_With_Invalid_Expression_Throws_Semantic_Exception()
+    {
+        List<Token> tokens = _scanner.ScanTokens(
+            new SourceText("Print 1 and 2;", "semantic.pas"));
+        Program program = _parser.ParseProgram(tokens);
+
+        SemanticException exception = Assert.ThrowsExactly<SemanticException>(
+            () => _interpreter.Execute(program));
+
+        Assert.AreEqual("Operands of 'and' must be Boolean.", exception.Message);
+        Assert.AreEqual(9, exception.Span.Column);
     }
 
     [TestMethod]

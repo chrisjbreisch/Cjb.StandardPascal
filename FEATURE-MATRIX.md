@@ -57,7 +57,8 @@ behavior, or conformance change.
 | Identifier expressions | 🚧 | `true` and `false` resolve; declared identifiers remain |
 | Function calls | ⬜ | Depends on routine declarations |
 | Set constructors | ⬜ | Includes individual elements and ranges |
-| Static expression type checking | ⬜ | Required before general program execution |
+| Static expression type checking | 🚧 | Program execution validates current expression operators and identifiers before interpretation; declared and structured types remain |
+| Program semantic analysis | ✅ | Program execution performs source-correlated expression type and identifier validation before interpretation |
 | Checked runtime arithmetic | ✅ | Integer overflow and division by zero produce source-positioned runtime errors |
 
 ## Program structure and declarations
@@ -120,7 +121,7 @@ behavior, or conformance change.
 | File operations | ⬜ | Standard file and text-file operations |
 | Packing procedures | ⬜ | `pack` and `unpack` |
 | Dynamic allocation | ⬜ | `new` and `dispose` |
-| Runtime diagnostics | 🚧 | Expression type, undefined identifier, overflow, and division errors are source-correlated |
+| Runtime diagnostics | 🚧 | Expression arithmetic errors are source-correlated; program identifier and type diagnostics are emitted during semantic analysis |
 | Typed symbols and routine signatures | ✅ | Case-insensitive declaration/identifier resolution, duplicate diagnostics, variables, constants, parameters, and routine signatures are available for semantic analysis |
 | Runtime values and activation records | ✅ | Typed variable bindings support lexical-parent lookup, shadowing, compatible assignment, and source-correlated runtime errors |
 

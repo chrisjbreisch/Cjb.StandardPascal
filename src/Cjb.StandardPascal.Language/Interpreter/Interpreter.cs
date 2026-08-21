@@ -2,11 +2,25 @@ using Cjb.StandardPascal.Language.Parser;
 using Cjb.StandardPascal.Language.Parser.Expressions;
 using Cjb.StandardPascal.Language.Parser.Statements;
 using Cjb.StandardPascal.Language.Scanner;
+using Cjb.StandardPascal.Language.Semantics;
 
 namespace Cjb.StandardPascal.Language.Interpreter;
 
 public sealed class Interpreter : IInterpreter
 {
+    private readonly ISemanticAnalyzer _semanticAnalyzer;
+
+    public Interpreter()
+        : this(new SemanticAnalyzer())
+    {
+    }
+
+    public Interpreter(ISemanticAnalyzer semanticAnalyzer)
+    {
+        _semanticAnalyzer = semanticAnalyzer
+            ?? throw new ArgumentNullException(nameof(semanticAnalyzer));
+    }
+
     public object Evaluate(Expression expression)
     {
         ArgumentNullException.ThrowIfNull(expression);
@@ -22,6 +36,7 @@ public sealed class Interpreter : IInterpreter
     public object Execute(Program program)
     {
         ArgumentNullException.ThrowIfNull(program);
+        _semanticAnalyzer.Analyze(program);
         return Interpret(program.Body);
     }
 
