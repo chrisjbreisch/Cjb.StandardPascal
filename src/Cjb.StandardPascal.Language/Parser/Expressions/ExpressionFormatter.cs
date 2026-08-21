@@ -8,6 +8,8 @@ public sealed class ExpressionFormatter : IExpressionFormatter, IVisitor<string>
 
     public string VisitDereferenceExpression(Dereference expression) => "(^)";
 
+    public string VisitFieldExpression(Field expression) => "(.)";
+
     public string VisitIndexExpression(Index expression) => "(index)";
 
     public string VisitSetLiteralExpression(SetLiteral expression) => "(set)";

@@ -385,6 +385,14 @@ public sealed class Parser : IParser
         {
             Token name = Advance();
 
+            if (Match(TokenType.Dot))
+            {
+                Token field = Consume(TokenType.Identifier, "Expected a record field name.");
+                Consume(TokenType.Assign, "Expected ':=' after record field.");
+                Expression value = Expression();
+                return new FieldAssignment(name, field, value, Span(name, value.Span));
+            }
+
             if (Match(TokenType.Caret))
             {
                 if (!Match(TokenType.Assign)) { throw Error(Peek(), "Expected ':=' after pointer dereference."); }
@@ -555,6 +563,12 @@ public sealed class Parser : IParser
         if (Match(TokenType.Identifier))
         {
             Token name = Previous();
+
+            if (Match(TokenType.Dot))
+            {
+                Token field = Consume(TokenType.Identifier, "Expected a record field name.");
+                return new Field(name, field, Span(name, field));
+            }
 
             if (Match(TokenType.Caret))
             {

@@ -392,6 +392,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Record_Field_Access_Reads_And_Writes_Field()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Records; type Point = record x: integer; end; var point: Point; begin point.x := 9; writeln(point.x); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("9" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Function_With_Incompatible_Argument_Throws_Runtime_Exception()
     {
         IScanner scanner = new Language.Scanner.Scanner();

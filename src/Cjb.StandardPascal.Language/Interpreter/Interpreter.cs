@@ -214,6 +214,11 @@ public sealed class Interpreter : IInterpreter
         return RequirePointer(expression.Name).Read(expression.Span);
     }
 
+    public object VisitFieldExpression(Field expression)
+    {
+        return RequireRecord(expression.Record)[expression.Name.Lexeme];
+    }
+
     public object VisitIndexExpression(Cjb.StandardPascal.Language.Parser.Expressions.Index expression)
     {
         if (!_values.TryGetValue(expression.Name.Lexeme, out object? value) || value is not ArrayValue array)
@@ -447,6 +452,13 @@ public sealed class Interpreter : IInterpreter
     {
         object value = Evaluate(statement.Value);
         RequirePointer(statement.Name).Write(value, statement.Span);
+        return value;
+    }
+
+    public object VisitFieldAssignmentStatement(FieldAssignment statement)
+    {
+        object value = Evaluate(statement.Value);
+        RequireRecord(statement.Record)[statement.Field.Lexeme] = value;
         return value;
     }
 
@@ -914,6 +926,13 @@ public sealed class Interpreter : IInterpreter
         return _values.TryGetValue(name.Lexeme, out object? value) && value is PointerValue pointer
             ? pointer
             : throw Error(name, $"'{name.Lexeme}' is not a pointer.");
+    }
+
+    private Dictionary<string, object> RequireRecord(Token name)
+    {
+        return _values.TryGetValue(name.Lexeme, out object? value) && value is Dictionary<string, object> record
+            ? record
+            : throw Error(name, $"'{name.Lexeme}' is not a record.");
     }
 
     private static object DefaultValue(PascalType type) => ReferenceEquals(type, PascalTypes.Integer) ? 0L

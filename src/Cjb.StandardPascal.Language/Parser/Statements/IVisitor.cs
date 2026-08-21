@@ -20,6 +20,8 @@ public interface IVisitor<out T>
 
     T VisitDereferenceAssignmentStatement(DereferenceAssignment statement);
 
+    T VisitFieldAssignmentStatement(FieldAssignment statement);
+
     T VisitLabeledStatement(Labeled statement);
 
     T VisitPrintStatement(Print statement);

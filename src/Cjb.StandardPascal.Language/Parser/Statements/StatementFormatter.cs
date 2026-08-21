@@ -48,6 +48,8 @@ public sealed class StatementFormatter : IStatementFormatter, IVisitor<string>
 
     public string VisitDereferenceAssignmentStatement(DereferenceAssignment statement) => "(^ :=)";
 
+    public string VisitFieldAssignmentStatement(FieldAssignment statement) => "(. :=)";
+
     public string VisitLabeledStatement(Labeled statement) => "(label)";
 
     public string VisitWriteStatement(Write statement) => "(write)";
