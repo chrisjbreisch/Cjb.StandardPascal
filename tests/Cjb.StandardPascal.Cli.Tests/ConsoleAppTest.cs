@@ -164,6 +164,33 @@ public sealed class ConsoleAppTest
         }
     }
 
+    [TestMethod]
+    public void Run_Source_File_ReadLn_Uses_Console_Input()
+    {
+        string path = Path.GetTempFileName();
+
+        try
+        {
+            File.WriteAllText(path, "program Input; var value: integer; begin readln(value); writeln(value); end.");
+            TestConsole console = new(["42"]);
+            ConsoleApp application = new(
+                NullLogger<ConsoleApp>.Instance,
+                new Scanner(),
+                new Parser(),
+                new Interpreter(new ConsoleInput(console), new ConsoleOutput(console)),
+                console);
+
+            int exitCode = application.Run([path]);
+
+            Assert.AreEqual(0, exitCode);
+            Assert.AreEqual($"42{Environment.NewLine}", console.Output);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
     private sealed class TestConsole : IConsole
     {
         private readonly Queue<string> _input;

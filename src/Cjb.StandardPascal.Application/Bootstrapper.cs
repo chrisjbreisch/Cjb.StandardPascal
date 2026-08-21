@@ -84,6 +84,7 @@ public sealed class Bootstrapper : IDisposable
     {
         _services.AddSingleton(Configuration);
         _services.AddSingleton<IConsole, SystemConsole>();
+        _services.AddSingleton<IInput, ConsoleInput>();
         _services.AddSingleton<IOutput, ConsoleOutput>();
         _services.AddSingleton<IConsoleApp, ConsoleApp>();
         _services.AddSingleton<IScanner, Scanner>();
@@ -91,6 +92,7 @@ public sealed class Bootstrapper : IDisposable
         _services.AddSingleton<IExpressionFormatter, ExpressionFormatter>();
         _services.AddSingleton<IStatementFormatter, StatementFormatter>();
         _services.AddSingleton<IInterpreter>(serviceProvider => new Interpreter(
+            serviceProvider.GetRequiredService<IInput>(),
             serviceProvider.GetRequiredService<IOutput>()));
     }
 
