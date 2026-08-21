@@ -392,6 +392,20 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Disposed_Pointer_Dereference_Throws_Runtime_Exception()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter();
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Pointers; type IntPointer = ^integer; var pointer: IntPointer; begin new(pointer); dispose(pointer); writeln(pointer^); end.")));
+
+        RuntimeException exception = Assert.ThrowsExactly<RuntimeException>(() => interpreter.Execute(program));
+
+        Assert.AreEqual("Pointer is nil or disposed.", exception.Message);
+    }
+
+    [TestMethod]
     public void Execute_Record_Field_Access_Reads_And_Writes_Field()
     {
         IScanner scanner = new Language.Scanner.Scanner();
