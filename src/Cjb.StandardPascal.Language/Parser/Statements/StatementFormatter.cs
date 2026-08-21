@@ -45,4 +45,6 @@ public sealed class StatementFormatter : IStatementFormatter, IVisitor<string>
     public string VisitRepeatStatement(Repeat statement) => "(repeat)";
 
     public string VisitWhileStatement(While statement) => "(while)";
+
+    public string VisitWithStatement(With statement) => "(with)";
 }

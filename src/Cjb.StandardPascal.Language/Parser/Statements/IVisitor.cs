@@ -22,5 +22,7 @@ public interface IVisitor<out T>
 
     T VisitWhileStatement(While statement);
 
+    T VisitWithStatement(With statement);
+
     T VisitWriteStatement(Write statement);
 }

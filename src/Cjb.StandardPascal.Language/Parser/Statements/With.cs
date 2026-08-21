@@ -1,0 +1,3 @@
+using Cjb.StandardPascal.Language.Scanner;
+namespace Cjb.StandardPascal.Language.Parser.Statements;
+public sealed class With : IStatement { public With(Token record, IStatement body, SourceSpan span) { Record=record; Body=body; Span=span; } public Token Record { get; } public IStatement Body { get; } public SourceSpan Span { get; } public T Accept<T>(IVisitor<T> visitor) => visitor.VisitWithStatement(this); }

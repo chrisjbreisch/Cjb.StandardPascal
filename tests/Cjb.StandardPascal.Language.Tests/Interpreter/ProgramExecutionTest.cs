@@ -139,6 +139,21 @@ public sealed class ProgramExecutionTest
         Assert.AreEqual("Value 4 is outside subrange 1..3.", exception.Message);
     }
 
+    [TestMethod]
+    public void Execute_With_Assigns_And_Reads_Record_Field()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Records; type Point = record x: integer; end; var point: Point; begin with point do begin x := 7; writeln(x); end; end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("7" + Environment.NewLine, output.Text);
+    }
+
     private sealed class BufferOutput : IOutput
     {
         public string Text { get; private set; } = string.Empty;

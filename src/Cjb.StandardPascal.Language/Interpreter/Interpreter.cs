@@ -17,6 +17,7 @@ public sealed class Interpreter : IInterpreter
     private readonly Dictionary<string, object> _values = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, PascalType> _types = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, PascalType> _namedTypes = new(StringComparer.OrdinalIgnoreCase);
+    private Dictionary<string, object>? _activeFields;
 
     public Interpreter()
         : this(new SemanticAnalyzer(), new NullOutput())
@@ -59,6 +60,7 @@ public sealed class Interpreter : IInterpreter
         _values.Clear();
         _types.Clear();
         _namedTypes.Clear();
+        _activeFields = null;
 
         if (program.Block is not null)
         {
@@ -78,6 +80,9 @@ public sealed class Interpreter : IInterpreter
                     case SubrangeDeclaration subrange:
                         _namedTypes.Add(subrange.Name.Lexeme, new SubrangePascalType(subrange.Name.Lexeme, subrange.Minimum, subrange.Maximum));
                         break;
+                    case RecordDeclaration record:
+                        _namedTypes.Add(record.Name.Lexeme, new PrimitivePascalType(record.Name.Lexeme));
+                        break;
                     case ConstantDeclaration constant:
                         _values.Add(constant.Name.Lexeme, Evaluate(constant.Value));
                         _types.Add(constant.Name.Lexeme, TypeOf(_values[constant.Name.Lexeme]));
@@ -86,7 +91,9 @@ public sealed class Interpreter : IInterpreter
                         foreach (Token name in variable.Names)
                         {
                             PascalType variableType = ResolveType(variable.Type);
-                            _values.Add(name.Lexeme, DefaultValue(variableType));
+                            _values.Add(name.Lexeme, program.Block.Declarations.OfType<RecordDeclaration>().FirstOrDefault(record => string.Equals(record.Name.Lexeme, variableType.Name, StringComparison.OrdinalIgnoreCase)) is RecordDeclaration record
+                                ? record.Fields.ToDictionary(static field => field.Lexeme, static _ => (object)0L, StringComparer.OrdinalIgnoreCase)
+                                : DefaultValue(variableType));
                             _types.Add(name.Lexeme, variableType);
                         }
 
@@ -182,6 +189,11 @@ public sealed class Interpreter : IInterpreter
             return value;
         }
 
+        if (_activeFields is not null && _activeFields.TryGetValue(expression.Name.Lexeme, out object? fieldValue))
+        {
+            return fieldValue;
+        }
+
         throw Error(
             expression.Name,
             $"Undefined identifier '{expression.Name.Lexeme}'.");
@@ -242,6 +254,13 @@ public sealed class Interpreter : IInterpreter
 
     public object VisitAssignmentStatement(Assignment statement)
     {
+        if (_activeFields is not null && _activeFields.ContainsKey(statement.Name.Lexeme))
+        {
+            object fieldValue = Evaluate(statement.Value);
+            _activeFields[statement.Name.Lexeme] = fieldValue;
+            return fieldValue;
+        }
+
         if (!_types.TryGetValue(statement.Name.Lexeme, out PascalType? type))
         {
             throw Error(statement.Name, $"Undefined identifier '{statement.Name.Lexeme}'.");
@@ -282,6 +301,27 @@ public sealed class Interpreter : IInterpreter
         }
 
         return statement.ElseBranch is null ? string.Empty : Interpret(statement.ElseBranch);
+    }
+
+    public object VisitWithStatement(With statement)
+    {
+        if (!_values.TryGetValue(statement.Record.Lexeme, out object? value)
+            || value is not Dictionary<string, object> fields)
+        {
+            throw Error(statement.Record, $"'{statement.Record.Lexeme}' is not a record variable.");
+        }
+
+        Dictionary<string, object>? previousFields = _activeFields;
+        _activeFields = fields;
+
+        try
+        {
+            return Interpret(statement.Body);
+        }
+        finally
+        {
+            _activeFields = previousFields;
+        }
     }
 
     public object VisitIfStatement(If statement)

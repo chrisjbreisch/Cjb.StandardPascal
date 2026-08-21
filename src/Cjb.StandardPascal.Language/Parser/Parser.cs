@@ -109,6 +109,29 @@ public sealed class Parser : IParser
                     continue;
                 }
 
+                if (Match(TokenType.Record))
+                {
+                    List<Token> fields = [];
+
+                    while (!Check(TokenType.End))
+                    {
+                        fields.Add(Consume(TokenType.Identifier, "Expected a record field name."));
+                        while (Match(TokenType.Comma))
+                        {
+                            fields.Add(Consume(TokenType.Identifier, "Expected a record field name."));
+                        }
+
+                        Consume(TokenType.Colon, "Expected ':' after record field names.");
+                        ConsumeScalarType();
+                        Consume(TokenType.Semicolon, "Expected ';' after record field declaration.");
+                    }
+
+                    Token recordEnd = Consume(TokenType.End, "Expected 'end' after record fields.");
+                    Token semicolon = Consume(TokenType.Semicolon, "Expected ';' after type declaration.");
+                    declarations.Add(new RecordDeclaration(name, fields, Span(name, recordEnd)));
+                    continue;
+                }
+
                 Consume(TokenType.LeftParen, "Expected '(' to start an enumeration.");
                 List<Token> members = [Consume(TokenType.Identifier, "Expected an enumeration member.")];
                 while (Match(TokenType.Comma)) { members.Add(Consume(TokenType.Identifier, "Expected an enumeration member.")); }
@@ -164,6 +187,15 @@ public sealed class Parser : IParser
 
     private IStatement Statement()
     {
+        if (Match(TokenType.With))
+        {
+            Token keyword = Previous();
+            Token record = Consume(TokenType.Identifier, "Expected a record variable after 'with'.");
+            Consume(TokenType.Do, "Expected 'do' after with record variable.");
+            IStatement body = Statement();
+            return new With(record, body, Span(keyword, body.Span));
+        }
+
         if (Match(TokenType.Goto))
         {
             Token keyword = Previous();
