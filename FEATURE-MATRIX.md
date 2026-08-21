@@ -15,6 +15,7 @@ behavior, or conformance change.
 | Cross-platform .NET solution | ✅ | .NET 10 solution with separate language, CLI, and test projects |
 | Strict build configuration | ✅ | Compiler warnings are treated as errors |
 | Application composition root | ✅ | Bootstrapper configures JSON/environment settings, logging, DI, and application scope |
+| Execution contract | ✅ | `IScanner.ScanTokens(SourceText)` feeds `IParser.Parse`/`ParseStatement`; `IInterpreter.Evaluate`/`Interpret` execute the resulting expression or temporary statement; the application hosts the interactive loop and the CLI delegates process execution to it |
 | Command-line application project | 🚧 | Interactive expression scanning is available; parsing and execution remain |
 | Interactive expression input | ✅ | Reads expressions until a blank line or end-of-input and prints interpreted values or positioned errors |
 | Source-file arguments | ⬜ | Planned final interface: `cjb-pascal file.pas [file2.pas ...]` |
