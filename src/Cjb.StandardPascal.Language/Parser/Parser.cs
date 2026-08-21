@@ -360,6 +360,20 @@ public sealed class Parser : IParser
         {
             Token name = Advance();
 
+            if (Match(TokenType.LeftBracket))
+            {
+                Expression subscript = Expression();
+                Token rightBracket = Consume(TokenType.RightBracket, "Expected ']' after array subscript.");
+
+                if (Match(TokenType.Assign))
+                {
+                    Expression value = Expression();
+                    return new IndexedAssignment(name, subscript, value, Span(name, value.Span));
+                }
+
+                throw Error(rightBracket, "Expected ':=' after indexed variable.");
+            }
+
             if (Match(TokenType.Assign))
             {
                 Expression value = Expression();
@@ -495,6 +509,13 @@ public sealed class Parser : IParser
         {
             Token name = Previous();
 
+            if (Match(TokenType.LeftBracket))
+            {
+                Expression subscript = Expression();
+                Token rightBracket = Consume(TokenType.RightBracket, "Expected ']' after array subscript.");
+                return new Cjb.StandardPascal.Language.Parser.Expressions.Index(name, subscript, Span(name, rightBracket));
+            }
+
             if (!Match(TokenType.LeftParen))
             {
                 return new Identifier(name);
@@ -616,6 +637,21 @@ public sealed class Parser : IParser
 
     private TypeSyntax ParseTypeSyntax()
     {
+        Match(TokenType.Packed);
+
+        if (Match(TokenType.Array))
+        {
+            Token array = Previous();
+            Consume(TokenType.LeftBracket, "Expected '[' after 'array'.");
+            Token lowerBound = Consume(TokenType.Number, "Expected an array lower bound.");
+            Consume(TokenType.Range, "Expected '..' in array bounds.");
+            Token upperBound = Consume(TokenType.Number, "Expected an array upper bound.");
+            Consume(TokenType.RightBracket, "Expected ']' after array bounds.");
+            Consume(TokenType.Of, "Expected 'of' after array bounds.");
+            TypeSyntax elementType = ParseTypeSyntax();
+            return new ArrayTypeSyntax((long)lowerBound.Literal!, (long)upperBound.Literal!, elementType, Span(array, elementType.Span));
+        }
+
         if (Match(TokenType.Integer, TokenType.Real, TokenType.Boolean, TokenType.Char))
         {
             Token token = Previous();

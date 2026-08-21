@@ -6,6 +6,8 @@ public sealed class ExpressionFormatter : IExpressionFormatter, IVisitor<string>
 {
     public string VisitCallExpression(Call expression) => $"({expression.Name.Lexeme})";
 
+    public string VisitIndexExpression(Index expression) => "(index)";
+
     public string Format(Expression expression)
     {
         ArgumentNullException.ThrowIfNull(expression);

@@ -8,6 +8,8 @@ public interface IVisitor<out T>
 
     T VisitGroupingExpression(Grouping expression);
 
+    T VisitIndexExpression(Index expression);
+
     T VisitIdentifierExpression(Identifier expression);
 
     T VisitLiteralExpression(Literal expression);

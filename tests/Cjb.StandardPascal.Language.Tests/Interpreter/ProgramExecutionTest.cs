@@ -318,6 +318,35 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Array_Index_Assignment_And_Read_Returns_Element()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Arrays; var values: array[1..3] of integer; begin values[2] := 7; writeln(values[2]); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("7" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
+    public void Execute_Array_Index_Outside_Bounds_Throws_Runtime_Exception()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter();
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Arrays; var values: array[1..3] of integer; begin values[4] := 7; end.")));
+
+        RuntimeException exception = Assert.ThrowsExactly<RuntimeException>(() => interpreter.Execute(program));
+
+        Assert.AreEqual("Array index 4 is outside 1..3.", exception.Message);
+    }
+
+    [TestMethod]
     public void Execute_Function_With_Incompatible_Argument_Throws_Runtime_Exception()
     {
         IScanner scanner = new Language.Scanner.Scanner();

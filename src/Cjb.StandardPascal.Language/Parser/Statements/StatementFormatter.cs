@@ -40,6 +40,8 @@ public sealed class StatementFormatter : IStatementFormatter, IVisitor<string>
 
     public string VisitIfStatement(If statement) => "(if)";
 
+    public string VisitIndexedAssignmentStatement(IndexedAssignment statement) => "(index :=)";
+
     public string VisitLabeledStatement(Labeled statement) => "(label)";
 
     public string VisitWriteStatement(Write statement) => "(write)";

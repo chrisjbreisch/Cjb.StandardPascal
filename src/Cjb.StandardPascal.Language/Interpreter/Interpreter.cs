@@ -5,6 +5,7 @@ using Cjb.StandardPascal.Language.Parser.Types;
 using Cjb.StandardPascal.Language.Parser.Routines;
 using Cjb.StandardPascal.Language.Parser.Statements;
 using Cjb.StandardPascal.Language.Scanner;
+using Cjb.StandardPascal.Language.Interpreter.Runtime;
 using Cjb.StandardPascal.Language.Semantics;
 using Cjb.StandardPascal.Language.Semantics.Types;
 using System.Globalization;
@@ -102,7 +103,9 @@ public sealed class Interpreter : IInterpreter
                         foreach (Token name in variable.Names)
                         {
                             PascalType variableType = ResolveType(variable.Type);
-                            _values.Add(name.Lexeme, program.Block.Declarations.OfType<RecordDeclaration>().FirstOrDefault(record => string.Equals(record.Name.Lexeme, variableType.Name, StringComparison.OrdinalIgnoreCase)) is RecordDeclaration record
+                            _values.Add(name.Lexeme, variable.Type is ArrayTypeSyntax array
+                                ? new ArrayValue(array.LowerBound, array.UpperBound, DefaultValue(ResolveType(array.ElementType)))
+                                : program.Block.Declarations.OfType<RecordDeclaration>().FirstOrDefault(record => string.Equals(record.Name.Lexeme, variableType.Name, StringComparison.OrdinalIgnoreCase)) is RecordDeclaration record
                                 ? record.Fields.ToDictionary(static field => field.Lexeme, static _ => (object)0L, StringComparer.OrdinalIgnoreCase)
                                 : DefaultValue(variableType));
                             _types.Add(name.Lexeme, variableType);
@@ -189,6 +192,17 @@ public sealed class Interpreter : IInterpreter
     public object VisitGroupingExpression(Grouping expression)
     {
         return Evaluate(expression.InnerExpression);
+    }
+
+    public object VisitIndexExpression(Cjb.StandardPascal.Language.Parser.Expressions.Index expression)
+    {
+        if (!_values.TryGetValue(expression.Name.Lexeme, out object? value) || value is not ArrayValue array)
+        {
+            throw Error(expression.Name, $"'{expression.Name.Lexeme}' is not an array.");
+        }
+
+        long index = RequireInteger(expression.Name, Evaluate(expression.Subscript));
+        return array.Get(index, expression.Subscript.Span);
     }
 
     public object VisitIdentifierExpression(Identifier expression)
@@ -368,6 +382,19 @@ public sealed class Interpreter : IInterpreter
             ? (double)integer
             : value;
         return _values[statement.Name.Lexeme];
+    }
+
+    public object VisitIndexedAssignmentStatement(IndexedAssignment statement)
+    {
+        if (!_values.TryGetValue(statement.Name.Lexeme, out object? value) || value is not ArrayValue array)
+        {
+            throw Error(statement.Name, $"'{statement.Name.Lexeme}' is not an array.");
+        }
+
+        long index = RequireInteger(statement.Name, Evaluate(statement.Subscript));
+        object element = Evaluate(statement.Value);
+        array.Set(index, element, statement.Subscript.Span);
+        return element;
     }
 
     public object VisitCaseStatement(Case statement)
@@ -802,6 +829,7 @@ public sealed class Interpreter : IInterpreter
     private PascalType ResolveType(TypeSyntax type) => type switch
     {
         ScalarTypeSyntax scalar => scalar.Type,
+        ArrayTypeSyntax => new PrimitivePascalType("array"),
         NamedTypeSyntax named when _namedTypes.TryGetValue(named.Name.Lexeme, out PascalType? resolved) => resolved,
         NamedTypeSyntax named => throw new RuntimeException($"Undefined type '{named.Name.Lexeme}'.", named.Span),
         _ => throw new RuntimeException("Unsupported type.", type.Span),

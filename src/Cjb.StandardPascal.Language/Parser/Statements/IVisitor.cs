@@ -14,6 +14,8 @@ public interface IVisitor<out T>
 
     T VisitIfStatement(If statement);
 
+    T VisitIndexedAssignmentStatement(IndexedAssignment statement);
+
     T VisitLabeledStatement(Labeled statement);
 
     T VisitPrintStatement(Print statement);
