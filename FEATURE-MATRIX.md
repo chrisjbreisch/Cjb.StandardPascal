@@ -1,6 +1,6 @@
 # ISO 7185 Feature Matrix
 
-Last reviewed: **2026-08-14**
+Last reviewed: **2026-08-21**
 
 This matrix is the authoritative implementation-status summary for
 Cjb.StandardPascal. It must be updated in the same change as any feature,
@@ -51,12 +51,12 @@ behavior, or conformance change.
 | Unary `+`, `-`, and `not` | ✅ | Numeric signs and Boolean negation are evaluated with operand checks |
 | `*`, `/`, `div`, and `mod` | ✅ | `/` returns real; `div` and `mod` require integers and detect zero divisors |
 | `and`, `or` | ✅ | Boolean operands are required |
-| Binary `+` and `-` | 🚧 | Numeric semantics are implemented; set operations remain |
+| Binary `+` and `-` | 🚧 | Numeric semantics plus integer set union and difference are implemented |
 | Relational operators | 🚧 | Numeric and Boolean comparisons are implemented; other ISO types remain |
-| Set membership `in` | 🚧 | Syntax is parsed; set types and evaluation remain |
+| Set membership `in` | ✅ | Integer set membership is evaluated with ordinal operand checks |
 | Identifier expressions | 🚧 | `true` and `false` resolve; declared identifiers remain |
-| Function calls | ⬜ | Depends on routine declarations |
-| Set constructors | ⬜ | Includes individual elements and ranges |
+| Function calls | ✅ | User functions and predefined ordinal/numeric routines are evaluated with arity/type checks |
+| Set constructors | ✅ | Integer elements and inclusive integer ranges are supported |
 | Static expression type checking | 🚧 | Program execution validates current expression operators and identifiers before interpretation; declared and structured types remain |
 | Program semantic analysis | ✅ | Program execution performs source-correlated expression type and identifier validation before interpretation |
 | Checked runtime arithmetic | ✅ | Integer overflow and division by zero produce source-positioned runtime errors |
@@ -69,10 +69,10 @@ behavior, or conformance change.
 | Program AST and execution boundary | ✅ | `Program` retains a source-spanned statement body and is parsed/executed through `IParser.ParseProgram` and `IInterpreter.Execute`; expression and temporary-statement APIs remain available during migration |
 | Program heading | ✅ | `program name(...);` with optional file parameters |
 | Block structure | ✅ | Constant/variable declarations followed by `begin ... end` statements |
-| Declaration ordering | 🚧 | Constant and variable sections are supported; label, type, and routine sections follow later |
-| Label declarations | ⬜ | Numeric labels in the ISO-defined range |
+| Declaration ordering | ✅ | Label, constant, type, variable, procedure, and function sections are parsed in ISO order |
+| Label declarations | ✅ | Numeric labels are supported with same-block `goto` restrictions |
 | Constant declarations | ✅ | Scalar constant expressions |
-| Type and variable declarations | 🚧 | Grouped scalar variables are supported; named types and aliases follow later |
+| Type and variable declarations | 🚧 | Grouped variables, named ordinal/composite types, arrays, files, and pointers are supported; alias and full ISO identity rules remain |
 | Procedure and function declarations | ✅ | Procedures and functions support typed signatures and function-result assignment |
 | Forward declarations | ✅ | Forward procedure declarations can precede their executable definition |
 | Nested lexical scopes | ✅ | Nested procedures resolve enclosing routine locals with shadowing |
@@ -84,15 +84,15 @@ behavior, or conformance change.
 | --- | :---: | --- |
 | `integer`, `real`, `boolean`, and `char` | ✅ | 64-bit signed integer (`maxint` = `9223372036854775807`), double real, Boolean, and single-character string values |
 | Enumerated and subrange types | 🚧 | Enumerations and integer subranges are supported, including assignment range checks; advanced ordinal compatibility remains |
-| Array types | ⬜ | Any ordinal index type and multiple dimensions |
-| Packed character arrays | ⬜ | Standard Pascal string representation |
-| Record types | 🚧 | Fixed scalar fields support record variables and `with`; variant fields and nested selectors remain |
-| Set types | ⬜ | Ordinal base type |
-| File types | ⬜ | Files cannot contain file components |
-| Pointer types | ⬜ | Includes forward type references and `nil` |
-| Packed types | ⬜ | Initially semantic metadata; physical packing is optional |
+| Array types | 🚧 | Integer-bounded multidimensional arrays support indexed reads/writes and bounds diagnostics |
+| Packed character arrays | 🚧 | Packed character arrays support indexed storage; ISO string compatibility is incomplete |
+| Record types | 🚧 | Fixed scalar fields, direct selection, and `with` are supported; variant fields remain |
+| Set types | 🚧 | Runtime integer sets support constructors, ranges, membership, union, difference, and intersection |
+| File types | 🚧 | In-memory typed file queues support `write(file, value)` and `read(file, variable)` |
+| Pointer types | 🚧 | Named pointer types, `nil`, allocation, disposal, dereference, and lifetime diagnostics are supported; forward type references remain |
+| Packed types | 🚧 | `packed array` syntax is accepted; physical packing is not modeled |
 | Type compatibility | ⬜ | Identity, ordinal/subrange, set, and string rules |
-| Assignment compatibility | 🚧 | Scalar identity and integer-to-real promotion are enforced; structured and range rules remain |
+| Assignment compatibility | 🚧 | Scalar identity, integer-to-real promotion, pointer `nil`, and subrange checks are enforced; aggregate copy rules remain |
 
 ## Statements
 
@@ -100,7 +100,7 @@ behavior, or conformance change.
 | --- | :---: | --- |
 | Empty and compound statements | ✅ | Semicolon-separated statements in `begin ... end`, including empty statements |
 | Temporary `Print` statement | ✅ | Retained as a documented transitional extension for interactive migration |
-| Assignment | ✅ | Scalar identifier assignment with compatibility checks |
+| Assignment | 🚧 | Scalar, array-indexed, record-field, and pointer-dereference assignment are supported; aggregate copying remains |
 | Procedure call | ⬜ | Value, variable, and routine parameters |
 | `if` statement | ✅ | Includes nearest-`if` binding for `else` |
 | `while` and `repeat` statements | ✅ | Boolean conditions are semantically validated |
@@ -117,11 +117,11 @@ behavior, or conformance change.
 | Ordinal functions | ✅ | `ord`, `chr`, `succ`, and `pred` for integer and character ordinals |
 | Real conversion functions | ✅ | `round` and `trunc` |
 | Text output | 🚧 | `write` and `writeln` output scalar expressions; field widths remain |
-| Text input | ⬜ | `read` and `readln` |
-| File operations | ⬜ | Standard file and text-file operations |
-| Packing procedures | ⬜ | `pack` and `unpack` |
-| Dynamic allocation | ⬜ | `new` and `dispose` |
-| Runtime diagnostics | 🚧 | Arithmetic, undefined identifier, and scalar assignment errors are source-correlated; advanced semantic diagnostics follow |
+| Text input | ✅ | Injectable `read` and `readln` assign scalar console input |
+| File operations | 🚧 | In-memory file queues implement one-item `write`/`read`; external file services remain |
+| Packing procedures | ✅ | `pack` and `unpack` copy bounded array elements |
+| Dynamic allocation | ✅ | `new`, `dispose`, dereference, `nil`, and disposed-pointer lifetime errors are supported |
+| Runtime diagnostics | 🚧 | Arithmetic, bounds, undefined identifier, pointer lifetime, file-empty, and scalar assignment errors are source-correlated; advanced semantic diagnostics follow |
 | Typed symbols and routine signatures | ✅ | Case-insensitive declaration/identifier resolution, duplicate diagnostics, variables, constants, parameters, and routine signatures are available for semantic analysis |
 | Runtime values and activation records | ✅ | Typed variable bindings support lexical-parent lookup, shadowing, compatible assignment, and source-correlated runtime errors |
 
@@ -129,7 +129,7 @@ behavior, or conformance change.
 
 | Feature | Status | Notes |
 | --- | :---: | --- |
-| Scanner, parser, semantic, and interpreter tests | 🚧 | Scanner, parser, and interpreter tests cover the implemented expression subset |
+| Scanner, parser, semantic, and interpreter tests | 🚧 | Focused coverage includes expressions, structured control flow, routines, arrays, sets, files, pointers, and diagnostics |
 | CLI integration tests | 🚧 | Interpreter output, scanner/parser/runtime error paths, recovery, and end-of-input are covered |
 | ISO example corpus | ⬜ | Positive and negative conformance programs required |
 | Cross-platform validation | ⬜ | Windows, Linux, and macOS CI required |
