@@ -119,7 +119,7 @@ public sealed class Interpreter : IInterpreter
                         {
                             PascalType variableType = ResolveType(variable.Type);
                             _values.Add(name.Lexeme, variable.Type is ArrayTypeSyntax array
-                                ? new ArrayValue(array.LowerBound, array.UpperBound, DefaultValue(ResolveType(array.ElementType)))
+                                ? new ArrayValue(array.Bounds, DefaultValue(ResolveType(array.ElementType)))
                                 : variable.Type is FileTypeSyntax
                                     ? new FileValue()
                                 : variableType is PointerPascalType
@@ -228,8 +228,8 @@ public sealed class Interpreter : IInterpreter
             throw Error(expression.Name, $"'{expression.Name.Lexeme}' is not an array.");
         }
 
-        long index = RequireInteger(expression.Name, Evaluate(expression.Subscript));
-        return array.Get(index, expression.Subscript.Span);
+        long[] indices = expression.Subscripts.Select(subscript => RequireInteger(expression.Name, Evaluate(subscript))).ToArray();
+        return array.Get(indices, expression.Span);
     }
 
     public object VisitIdentifierExpression(Identifier expression)
@@ -489,9 +489,9 @@ public sealed class Interpreter : IInterpreter
             throw Error(statement.Name, $"'{statement.Name.Lexeme}' is not an array.");
         }
 
-        long index = RequireInteger(statement.Name, Evaluate(statement.Subscript));
+        long[] indices = statement.Subscripts.Select(subscript => RequireInteger(statement.Name, Evaluate(subscript))).ToArray();
         object element = Evaluate(statement.Value);
-        array.Set(index, element, statement.Subscript.Span);
+        array.Set(indices, element, statement.Span);
         return element;
     }
 

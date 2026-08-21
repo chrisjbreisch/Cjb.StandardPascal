@@ -347,6 +347,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Multidimensional_Array_Indexing_Returns_Element()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Arrays; var values: array[1..2, 1..2] of integer; begin values[2, 1] := 8; writeln(values[2, 1]); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("8" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Set_Constructor_And_Membership_Returns_Boolean()
     {
         IScanner scanner = new Language.Scanner.Scanner();

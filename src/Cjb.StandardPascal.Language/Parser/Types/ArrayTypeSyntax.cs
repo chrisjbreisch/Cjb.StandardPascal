@@ -2,10 +2,11 @@ using Cjb.StandardPascal.Language.Scanner;
 
 namespace Cjb.StandardPascal.Language.Parser.Types;
 
+public readonly record struct ArrayBound(long Lower, long Upper);
+
 public sealed class ArrayTypeSyntax : TypeSyntax
 {
-    public ArrayTypeSyntax(long lowerBound, long upperBound, TypeSyntax elementType, SourceSpan span) : base(span) { LowerBound = lowerBound; UpperBound = upperBound; ElementType = elementType; }
-    public long LowerBound { get; }
-    public long UpperBound { get; }
+    public ArrayTypeSyntax(IReadOnlyList<ArrayBound> bounds, TypeSyntax elementType, SourceSpan span) : base(span) { Bounds = bounds.ToArray(); ElementType = elementType; }
+    public IReadOnlyList<ArrayBound> Bounds { get; }
     public TypeSyntax ElementType { get; }
 }

@@ -4,8 +4,8 @@ namespace Cjb.StandardPascal.Language.Parser.Expressions;
 
 public sealed class Index : Expression
 {
-    public Index(Token name, Expression subscript, SourceSpan span) : base(span) { Name = name; Subscript = subscript; }
+    public Index(Token name, IReadOnlyList<Expression> subscripts, SourceSpan span) : base(span) { Name = name; Subscripts = subscripts.ToArray(); }
     public Token Name { get; }
-    public Expression Subscript { get; }
+    public IReadOnlyList<Expression> Subscripts { get; }
     public override T Accept<T>(IVisitor<T> visitor) => visitor.VisitIndexExpression(this);
 }

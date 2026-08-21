@@ -402,13 +402,14 @@ public sealed class Parser : IParser
 
             if (Match(TokenType.LeftBracket))
             {
-                Expression subscript = Expression();
+                List<Expression> subscripts = [Expression()];
+                while (Match(TokenType.Comma)) { subscripts.Add(Expression()); }
                 Token rightBracket = Consume(TokenType.RightBracket, "Expected ']' after array subscript.");
 
                 if (Match(TokenType.Assign))
                 {
                     Expression value = Expression();
-                    return new IndexedAssignment(name, subscript, value, Span(name, value.Span));
+                    return new IndexedAssignment(name, subscripts, value, Span(name, value.Span));
                 }
 
                 throw Error(rightBracket, "Expected ':=' after indexed variable.");
@@ -586,9 +587,10 @@ public sealed class Parser : IParser
 
             if (Match(TokenType.LeftBracket))
             {
-                Expression subscript = Expression();
+                List<Expression> subscripts = [Expression()];
+                while (Match(TokenType.Comma)) { subscripts.Add(Expression()); }
                 Token rightBracket = Consume(TokenType.RightBracket, "Expected ']' after array subscript.");
-                return new Cjb.StandardPascal.Language.Parser.Expressions.Index(name, subscript, Span(name, rightBracket));
+                return new Cjb.StandardPascal.Language.Parser.Expressions.Index(name, subscripts, Span(name, rightBracket));
             }
 
             if (!Match(TokenType.LeftParen))
@@ -726,13 +728,19 @@ public sealed class Parser : IParser
         {
             Token array = Previous();
             Consume(TokenType.LeftBracket, "Expected '[' after 'array'.");
-            Token lowerBound = Consume(TokenType.Number, "Expected an array lower bound.");
-            Consume(TokenType.Range, "Expected '..' in array bounds.");
-            Token upperBound = Consume(TokenType.Number, "Expected an array upper bound.");
+            List<ArrayBound> bounds = [];
+            do
+            {
+                Token lowerBound = Consume(TokenType.Number, "Expected an array lower bound.");
+                Consume(TokenType.Range, "Expected '..' in array bounds.");
+                Token upperBound = Consume(TokenType.Number, "Expected an array upper bound.");
+                bounds.Add(new ArrayBound((long)lowerBound.Literal!, (long)upperBound.Literal!));
+            }
+            while (Match(TokenType.Comma));
             Consume(TokenType.RightBracket, "Expected ']' after array bounds.");
             Consume(TokenType.Of, "Expected 'of' after array bounds.");
             TypeSyntax elementType = ParseTypeSyntax();
-            return new ArrayTypeSyntax((long)lowerBound.Literal!, (long)upperBound.Literal!, elementType, Span(array, elementType.Span));
+            return new ArrayTypeSyntax(bounds, elementType, Span(array, elementType.Span));
         }
 
         if (Match(TokenType.Integer, TokenType.Real, TokenType.Boolean, TokenType.Char))
