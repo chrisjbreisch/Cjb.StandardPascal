@@ -14,6 +14,8 @@ public sealed class ExpressionFormatter : IExpressionFormatter, IVisitor<string>
 
     public string VisitSetLiteralExpression(SetLiteral expression) => "(set)";
 
+    public string VisitSetRangeExpression(SetRange expression) => "(set range)";
+
     public string Format(Expression expression)
     {
         ArgumentNullException.ThrowIfNull(expression);

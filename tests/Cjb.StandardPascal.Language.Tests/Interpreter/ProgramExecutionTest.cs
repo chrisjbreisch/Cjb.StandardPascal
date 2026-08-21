@@ -362,6 +362,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Set_Ranges_And_Operations_Produce_Membership_Result()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Sets; begin writeln(4 in ([1..3] + [4])); writeln(2 in ([1..3] - [2])); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("TRUE" + Environment.NewLine + "FALSE" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_ReadLn_Assigns_Injected_Input()
     {
         IScanner scanner = new Language.Scanner.Scanner();

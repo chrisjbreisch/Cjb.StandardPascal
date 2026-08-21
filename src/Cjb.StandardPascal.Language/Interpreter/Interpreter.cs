@@ -148,9 +148,9 @@ public sealed class Interpreter : IInterpreter
         {
             return binaryOperator.Type switch
             {
-                TokenType.Plus => Add(binaryOperator, left, right),
-                TokenType.Minus => Subtract(binaryOperator, left, right),
-                TokenType.Star => Multiply(binaryOperator, left, right),
+                TokenType.Plus => SetOrNumeric(binaryOperator, left, right, static (leftSet, rightSet) => { leftSet.UnionWith(rightSet); return leftSet; }, Add),
+                TokenType.Minus => SetOrNumeric(binaryOperator, left, right, static (leftSet, rightSet) => { leftSet.ExceptWith(rightSet); return leftSet; }, Subtract),
+                TokenType.Star => SetOrNumeric(binaryOperator, left, right, static (leftSet, rightSet) => { leftSet.IntersectWith(rightSet); return leftSet; }, Multiply),
                 TokenType.Slash => Divide(binaryOperator, left, right),
                 TokenType.Div => IntegerDivide(binaryOperator, left, right),
                 TokenType.Mod => Modulo(binaryOperator, left, right),
@@ -276,10 +276,28 @@ public sealed class Interpreter : IInterpreter
 
         foreach (Expression element in expression.Elements)
         {
-            elements.Add(RequireInteger(new Token(TokenType.In, "in", null, element.Span), Evaluate(element)));
+            object value = Evaluate(element);
+
+            if (value is HashSet<long> range)
+            {
+                elements.UnionWith(range);
+            }
+            else
+            {
+                elements.Add(RequireInteger(new Token(TokenType.In, "in", null, element.Span), value));
+            }
         }
 
         return elements;
+    }
+
+    public object VisitSetRangeExpression(SetRange expression)
+    {
+        long lower = RequireInteger(new Token(TokenType.Range, "..", null, expression.Lower.Span), Evaluate(expression.Lower));
+        long upper = RequireInteger(new Token(TokenType.Range, "..", null, expression.Upper.Span), Evaluate(expression.Upper));
+        return Enumerable.Range(checked((int)lower), checked((int)(upper - lower + 1)))
+            .Select(static value => (long)value)
+            .ToHashSet();
     }
 
     public object VisitUnaryExpression(Unary expression)
@@ -700,6 +718,13 @@ public sealed class Interpreter : IInterpreter
         return set is HashSet<long> elements
             ? elements.Contains(RequireInteger(token, value))
             : throw Error(token, "Right operand of 'in' must be a set.");
+    }
+
+    private static object SetOrNumeric(Token token, object left, object right, Func<HashSet<long>, HashSet<long>, HashSet<long>> setOperation, Func<Token, object, object, object> numericOperation)
+    {
+        return left is HashSet<long> leftSet && right is HashSet<long> rightSet
+            ? setOperation(new HashSet<long>(leftSet), rightSet)
+            : numericOperation(token, left, right);
     }
 
     private static object Numeric(

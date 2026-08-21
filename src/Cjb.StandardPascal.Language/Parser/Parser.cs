@@ -547,8 +547,17 @@ public sealed class Parser : IParser
 
             if (!Check(TokenType.RightBracket))
             {
-                elements.Add(Expression());
-                while (Match(TokenType.Comma)) { elements.Add(Expression()); }
+                Expression element = Expression();
+                elements.Add(Match(TokenType.Range)
+                    ? new SetRange(element, Expression(), Span(leftBracket, Previous()))
+                    : element);
+                while (Match(TokenType.Comma))
+                {
+                    element = Expression();
+                    elements.Add(Match(TokenType.Range)
+                        ? new SetRange(element, Expression(), Span(leftBracket, Previous()))
+                        : element);
+                }
             }
 
             Token rightBracket = Consume(TokenType.RightBracket, "Expected ']' after set elements.");

@@ -1,0 +1,3 @@
+using Cjb.StandardPascal.Language.Scanner;
+namespace Cjb.StandardPascal.Language.Parser.Expressions;
+public sealed class SetRange : Expression { public SetRange(Expression lower, Expression upper, SourceSpan span) : base(span) { Lower=lower; Upper=upper; } public Expression Lower { get; } public Expression Upper { get; } public override T Accept<T>(IVisitor<T> visitor) => visitor.VisitSetRangeExpression(this); }
