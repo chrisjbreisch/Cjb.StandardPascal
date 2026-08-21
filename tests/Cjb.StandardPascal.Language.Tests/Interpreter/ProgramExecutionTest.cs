@@ -1,6 +1,7 @@
 using Cjb.StandardPascal.Language.Interpreter;
 using Cjb.StandardPascal.Language.Parser;
 using Cjb.StandardPascal.Language.Scanner;
+using Cjb.StandardPascal.Language.Semantics;
 
 namespace Cjb.StandardPascal.Language.Tests.Interpreter;
 
@@ -152,6 +153,20 @@ public sealed class ProgramExecutionTest
         interpreter.Execute(program);
 
         Assert.AreEqual("7" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
+    public void Execute_NonBoolean_If_Condition_Throws_Semantic_Exception()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter();
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Invalid; begin if 1 then writeln('no'); end.")));
+
+        SemanticException exception = Assert.ThrowsExactly<SemanticException>(() => interpreter.Execute(program));
+
+        Assert.AreEqual("Condition must be Boolean.", exception.Message);
     }
 
     private sealed class BufferOutput : IOutput

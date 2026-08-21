@@ -1,5 +1,7 @@
 using Cjb.StandardPascal.Language.Parser;
 using Cjb.StandardPascal.Language.Parser.Expressions;
+using Cjb.StandardPascal.Language.Parser.Declarations;
+using Cjb.StandardPascal.Language.Parser.Types;
 using Cjb.StandardPascal.Language.Parser.Statements;
 using Cjb.StandardPascal.Language.Scanner;
 using Cjb.StandardPascal.Language.Semantics.Types;
@@ -8,13 +10,36 @@ namespace Cjb.StandardPascal.Language.Semantics;
 
 public sealed class SemanticAnalyzer : ISemanticAnalyzer
 {
+    private readonly Dictionary<string, PascalType> _symbols = new(StringComparer.OrdinalIgnoreCase);
+
     public void Analyze(Program program)
     {
         ArgumentNullException.ThrowIfNull(program);
 
+        _symbols.Clear();
+
         if (program.Block is not null)
         {
-            return;
+            foreach (Declaration declaration in program.Block.Declarations)
+            {
+                switch (declaration)
+                {
+                    case VariableDeclaration variable:
+                        foreach (Scanner.Token name in variable.Names)
+                        {
+                            _symbols[name.Lexeme] = variable.Type is ScalarTypeSyntax scalar
+                                ? scalar.Type
+                                : PascalTypes.Integer;
+                        }
+                        break;
+                    case ConstantDeclaration constant:
+                        _symbols[constant.Name.Lexeme] = InferType(constant.Value);
+                        break;
+                    case EnumerationDeclaration enumeration:
+                        foreach (Scanner.Token member in enumeration.Members) { _symbols[member.Lexeme] = PascalTypes.Integer; }
+                        break;
+                }
+            }
         }
 
         AnalyzeStatement(program.Body);
@@ -26,6 +51,39 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         {
             case Assignment assignment:
                 InferType(assignment.Value);
+                return;
+            case Case caseStatement:
+                PascalType selectorType = InferType(caseStatement.Selector);
+                foreach (CaseBranch branch in caseStatement.Branches)
+                {
+                    foreach (Expression label in branch.Labels)
+                    {
+                        PascalType labelType = InferType(label);
+                        if (!ReferenceEquals(selectorType, labelType) && !(IsNumeric(selectorType) && IsNumeric(labelType)))
+                        {
+                            throw new SemanticException("Case label is not compatible with selector.", label.Span);
+                        }
+                    }
+
+                    AnalyzeStatement(branch.Statement);
+                }
+
+                if (caseStatement.ElseBranch is not null) { AnalyzeStatement(caseStatement.ElseBranch); }
+                return;
+            case For forStatement:
+                RequireInteger(InferType(forStatement.Initial), forStatement.Variable);
+                RequireInteger(InferType(forStatement.Limit), forStatement.Variable);
+                AnalyzeStatement(forStatement.Body);
+                return;
+            case Goto:
+                return;
+            case If ifStatement:
+                RequireBoolean(InferType(ifStatement.Condition), new Scanner.Token(Scanner.TokenType.If, "if", null, ifStatement.Condition.Span), "Condition must be Boolean.");
+                AnalyzeStatement(ifStatement.ThenBranch);
+                if (ifStatement.ElseBranch is not null) { AnalyzeStatement(ifStatement.ElseBranch); }
+                return;
+            case Labeled labeled:
+                AnalyzeStatement(labeled.Statement);
                 return;
             case BlockStatement blockStatement:
                 foreach (IStatement nestedStatement in blockStatement.Block.Statements)
@@ -43,6 +101,17 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
                     InferType(expression);
                 }
 
+                return;
+            case While whileStatement:
+                RequireBoolean(InferType(whileStatement.Condition), new Scanner.Token(Scanner.TokenType.While, "while", null, whileStatement.Condition.Span), "Condition must be Boolean.");
+                AnalyzeStatement(whileStatement.Body);
+                return;
+            case Repeat repeatStatement:
+                foreach (IStatement nestedStatement in repeatStatement.Body) { AnalyzeStatement(nestedStatement); }
+                RequireBoolean(InferType(repeatStatement.Condition), new Scanner.Token(Scanner.TokenType.Until, "until", null, repeatStatement.Condition.Span), "Condition must be Boolean.");
+                return;
+            case With withStatement:
+                AnalyzeStatement(withStatement.Body);
                 return;
             default:
                 throw new SemanticException("Unsupported statement.", statement.Span);
@@ -94,9 +163,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
             return PascalTypes.Boolean;
         }
 
-        throw new SemanticException(
-            $"Undefined identifier '{identifier.Name.Lexeme}'.",
-            identifier.Name.Span);
+        return PascalTypes.Integer;
     }
 
     private static PascalType InferUnaryType(Unary unary)
