@@ -16,7 +16,7 @@ This roadmap describes the staged completion of the ISO 7185 Standard Pascal int
 ## Phase 1: Program Shell and Scalar Execution
 
 - [x] Add Pascal reserved words and punctuation needed for program headings, declarations, blocks, assignments, and control flow.
-- [ ] Add brace comments, parenthesis-star comments, supported delimiter aliases, and diagnostics for unterminated comments/literals and invalid tokens.
+- [x] Add brace comments, parenthesis-star comments, supported delimiter aliases, and diagnostics for unterminated comments/literals and invalid tokens.
 - [ ] Parse `program name(...);`, declaration sections in ISO order, and `begin ... end` blocks.
 - [ ] Implement `integer`, `real`, `boolean`, and `char` types, constants, variables, scalar literals, and assignments.
 - [ ] Implement empty and compound statements and statement sequencing.

@@ -34,11 +34,11 @@ behavior, or conformance change.
 | Real literals | ✅ | Decimal and scientific notation use invariant culture |
 | Character and string literals | 🚧 | Single-quoted literals and doubled-quote escaping are implemented; ISO character/fixed-array typing remains |
 | Operators and delimiters | 🚧 | Expression tokens plus program punctuation, assignment, and block delimiters are implemented |
-| Delimiter aliases | ⬜ | `(.`/`[`, `.)`/`]`, `@`/`^`, and `(*`/`{` forms |
+| Delimiter aliases | ✅ | `(.`/`[`, `.)`/`]`, and `@`/`^` normalize to canonical tokens |
 | Whitespace | ✅ | Whitespace is ignored while source locations remain accurate |
-| Brace comments | ⬜ | `{ comment }` |
-| Parenthesis-star comments | ⬜ | `(* comment *)` |
-| Scanner diagnostics | 🚧 | Unexpected characters, invalid numeric syntax, and numeric overflow throw source-correlated `ScanException` errors |
+| Brace comments | ✅ | `{ comment }`, including source-correlated unterminated-comment diagnostics |
+| Parenthesis-star comments | ✅ | `(* comment *)`, including source-correlated unterminated-comment diagnostics |
+| Scanner diagnostics | ✅ | Unexpected characters, invalid numeric syntax, overflow, and unterminated comments/literals throw source-correlated `ScanException` errors |
 
 ## Expressions
 

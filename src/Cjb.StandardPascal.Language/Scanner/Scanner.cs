@@ -114,6 +114,7 @@ public sealed class Scanner : IScanner
 
         switch (character)
         {
+            case '@':
             case '^':
                 AddToken(TokenType.Caret);
                 break;
@@ -124,13 +125,23 @@ public sealed class Scanner : IScanner
                 AddToken(TokenType.Comma);
                 break;
             case '.':
-                AddToken(TokenType.Dot);
+                AddToken(Match(')') ? TokenType.RightBracket : TokenType.Dot);
                 break;
             case '(':
-                AddToken(TokenType.LeftParen);
+                if (Match('*'))
+                {
+                    SkipParenthesisStarComment();
+                }
+                else
+                {
+                    AddToken(Match('.') ? TokenType.LeftBracket : TokenType.LeftParen);
+                }
                 break;
             case '[':
                 AddToken(TokenType.LeftBracket);
+                break;
+            case '{':
+                SkipBraceComment();
                 break;
             case ')':
                 AddToken(TokenType.RightParen);
@@ -305,6 +316,32 @@ public sealed class Scanner : IScanner
         }
 
         throw Error("Unterminated string literal.");
+    }
+
+    private void SkipBraceComment()
+    {
+        while (!IsAtEnd())
+        {
+            if (Advance() == '}')
+            {
+                return;
+            }
+        }
+
+        throw Error("Unterminated comment.");
+    }
+
+    private void SkipParenthesisStarComment()
+    {
+        while (!IsAtEnd())
+        {
+            if (Advance() == '*' && Match(')'))
+            {
+                return;
+            }
+        }
+
+        throw Error("Unterminated comment.");
     }
 
     private ScanException Error(string message)

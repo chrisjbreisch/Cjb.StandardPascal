@@ -93,6 +93,37 @@ public sealed class ScannerTest
     }
 
     [TestMethod]
+    public void Scanner_Skips_Comments_And_Normalizes_Delimiter_Aliases()
+    {
+        List<Token> tokens = _scanner.ScanTokens(
+            new SourceText("{ heading } (. value .) (* body *) [item] @pointer"));
+
+        AssertTokenTypes(
+            tokens,
+            TokenType.LeftBracket,
+            TokenType.Identifier,
+            TokenType.RightBracket,
+            TokenType.LeftBracket,
+            TokenType.Identifier,
+            TokenType.RightBracket,
+            TokenType.Caret,
+            TokenType.Identifier,
+            TokenType.EndOfFile);
+    }
+
+    [TestMethod]
+    [DataRow("{ missing")]
+    [DataRow("(* missing")]
+    public void Scanner_Reports_Unterminated_Comments(string source)
+    {
+        ScanException exception = Assert.ThrowsExactly<ScanException>(
+            () => _scanner.ScanTokens(new SourceText(source, "comment.pas")));
+
+        Assert.AreEqual("Unterminated comment.", exception.Message);
+        Assert.AreEqual(new SourceSpan("comment.pas", 0, source.Length, 1, 1), exception.Span);
+    }
+
+    [TestMethod]
     [DataRow("1.0", 1.0)]
     [DataRow("1e-12", 1e-12)]
     [DataRow("25E+2", 2500.0)]
@@ -174,7 +205,7 @@ public sealed class ScannerTest
     public void Scanner_Reports_Unexpected_Characters()
     {
         ScanException exception = Assert.ThrowsExactly<ScanException>(
-            () => _scanner.ScanTokens(new SourceText("1 @ 2", "bad.pas")));
+            () => _scanner.ScanTokens(new SourceText("1 # 2", "bad.pas")));
 
         Assert.AreEqual(
             new SourceSpan("bad.pas", 2, 1, 1, 3),
