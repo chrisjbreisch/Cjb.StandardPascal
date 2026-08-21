@@ -169,6 +169,34 @@ public sealed class ProgramExecutionTest
         Assert.AreEqual("Condition must be Boolean.", exception.Message);
     }
 
+    [TestMethod]
+    public void Execute_Assignment_To_For_Control_Variable_Throws_Semantic_Exception()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter();
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Invalid; var index: integer; begin for index := 1 to 2 do index := 2; end.")));
+
+        SemanticException exception = Assert.ThrowsExactly<SemanticException>(() => interpreter.Execute(program));
+
+        Assert.AreEqual("Cannot assign to active for control variable 'index'.", exception.Message);
+    }
+
+    [TestMethod]
+    public void Execute_Goto_Unknown_Label_Throws_Semantic_Exception()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter();
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Invalid; label 10; begin goto 20; 10: writeln('no'); end.")));
+
+        SemanticException exception = Assert.ThrowsExactly<SemanticException>(() => interpreter.Execute(program));
+
+        Assert.AreEqual("Goto target '20' is not declared in this block.", exception.Message);
+    }
+
     private sealed class BufferOutput : IOutput
     {
         public string Text { get; private set; } = string.Empty;

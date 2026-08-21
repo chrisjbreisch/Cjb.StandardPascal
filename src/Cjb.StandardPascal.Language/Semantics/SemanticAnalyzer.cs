@@ -11,12 +11,16 @@ namespace Cjb.StandardPascal.Language.Semantics;
 public sealed class SemanticAnalyzer : ISemanticAnalyzer
 {
     private readonly Dictionary<string, PascalType> _symbols = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _activeForControls = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Stack<HashSet<long>> _blockLabels = [];
 
     public void Analyze(Program program)
     {
         ArgumentNullException.ThrowIfNull(program);
 
         _symbols.Clear();
+        _activeForControls.Clear();
+        _blockLabels.Clear();
 
         if (program.Block is not null)
         {
@@ -45,11 +49,18 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         AnalyzeStatement(program.Body);
     }
 
-    private static void AnalyzeStatement(IStatement statement)
+    private void AnalyzeStatement(IStatement statement)
     {
         switch (statement)
         {
             case Assignment assignment:
+                if (_activeForControls.Contains(assignment.Name.Lexeme))
+                {
+                    throw new SemanticException(
+                        $"Cannot assign to active for control variable '{assignment.Name.Lexeme}'.",
+                        assignment.Name.Span);
+                }
+
                 InferType(assignment.Value);
                 return;
             case Case caseStatement:
@@ -73,9 +84,18 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
             case For forStatement:
                 RequireInteger(InferType(forStatement.Initial), forStatement.Variable);
                 RequireInteger(InferType(forStatement.Limit), forStatement.Variable);
-                AnalyzeStatement(forStatement.Body);
+                _activeForControls.Add(forStatement.Variable.Lexeme);
+                try { AnalyzeStatement(forStatement.Body); }
+                finally { _activeForControls.Remove(forStatement.Variable.Lexeme); }
                 return;
-            case Goto:
+            case Goto gotoStatement:
+                if (_blockLabels.Count == 0 || !_blockLabels.Peek().Contains((long)gotoStatement.Label.Literal!))
+                {
+                    throw new SemanticException(
+                        $"Goto target '{gotoStatement.Label.Lexeme}' is not declared in this block.",
+                        gotoStatement.Label.Span);
+                }
+
                 return;
             case If ifStatement:
                 RequireBoolean(InferType(ifStatement.Condition), new Scanner.Token(Scanner.TokenType.If, "if", null, ifStatement.Condition.Span), "Condition must be Boolean.");
@@ -86,10 +106,20 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
                 AnalyzeStatement(labeled.Statement);
                 return;
             case BlockStatement blockStatement:
-                foreach (IStatement nestedStatement in blockStatement.Block.Statements)
+                HashSet<long> labels = blockStatement.Block.Statements
+                    .OfType<Labeled>()
+                    .Select(static labeled => (long)labeled.Label.Literal!)
+                    .ToHashSet();
+                _blockLabels.Push(labels);
+
+                try
                 {
-                    AnalyzeStatement(nestedStatement);
+                    foreach (IStatement nestedStatement in blockStatement.Block.Statements)
+                    {
+                        AnalyzeStatement(nestedStatement);
+                    }
                 }
+                finally { _blockLabels.Pop(); }
 
                 return;
             case Print print:
