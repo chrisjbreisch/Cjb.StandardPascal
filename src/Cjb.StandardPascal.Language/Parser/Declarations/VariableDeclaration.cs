@@ -5,7 +5,7 @@ namespace Cjb.StandardPascal.Language.Parser.Declarations;
 
 public sealed class VariableDeclaration : Declaration
 {
-    public VariableDeclaration(IReadOnlyList<Token> names, ScalarTypeSyntax type, SourceSpan span)
+    public VariableDeclaration(IReadOnlyList<Token> names, TypeSyntax type, SourceSpan span)
         : base(span)
     {
         Names = names.ToArray();
@@ -14,5 +14,5 @@ public sealed class VariableDeclaration : Declaration
 
     public IReadOnlyList<Token> Names { get; }
 
-    public ScalarTypeSyntax Type { get; }
+    public TypeSyntax Type { get; }
 }

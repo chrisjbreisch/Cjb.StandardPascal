@@ -110,6 +110,21 @@ public sealed class ProgramExecutionTest
         Assert.AreEqual("done" + Environment.NewLine, output.Text);
     }
 
+    [TestMethod]
+    public void Execute_Enumerated_Type_Uses_Ordinal_Values()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Enum; type Color = (red, green, blue); var color: Color; begin color := green; case color of green: writeln('yes'); else writeln('no'); end; end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("yes" + Environment.NewLine, output.Text);
+    }
+
     private sealed class BufferOutput : IOutput
     {
         public string Text { get; private set; } = string.Empty;

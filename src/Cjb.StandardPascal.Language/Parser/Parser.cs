@@ -93,6 +93,21 @@ public sealed class Parser : IParser
             }
         }
 
+        if (Match(TokenType.Type))
+        {
+            while (Check(TokenType.Identifier))
+            {
+                Token name = Advance();
+                Consume(TokenType.Equal, "Expected '=' after type name.");
+                Consume(TokenType.LeftParen, "Expected '(' to start an enumeration.");
+                List<Token> members = [Consume(TokenType.Identifier, "Expected an enumeration member.")];
+                while (Match(TokenType.Comma)) { members.Add(Consume(TokenType.Identifier, "Expected an enumeration member.")); }
+                Token rightParenthesis = Consume(TokenType.RightParen, "Expected ')' after enumeration members.");
+                Consume(TokenType.Semicolon, "Expected ';' after type declaration.");
+                declarations.Add(new EnumerationDeclaration(name, members, Span(name, rightParenthesis)));
+            }
+        }
+
         if (Match(TokenType.Var))
         {
             while (Check(TokenType.Identifier))
@@ -106,11 +121,11 @@ public sealed class Parser : IParser
                 }
 
                 Consume(TokenType.Colon, "Expected ':' after variable names.");
-                Token typeName = ConsumeScalarType();
+                TypeSyntax type = ParseTypeSyntax();
                 Token semicolon = Consume(TokenType.Semicolon, "Expected ';' after variable declaration.");
                 declarations.Add(new VariableDeclaration(
                     names,
-                    new ScalarTypeSyntax(typeName, TypeFor(typeName)),
+                    type,
                     Span(firstName, semicolon)));
             }
         }
@@ -503,6 +518,17 @@ public sealed class Parser : IParser
         }
 
         throw Error(Peek(), "Expected a scalar type.");
+    }
+
+    private TypeSyntax ParseTypeSyntax()
+    {
+        if (Match(TokenType.Integer, TokenType.Real, TokenType.Boolean, TokenType.Char))
+        {
+            Token token = Previous();
+            return new ScalarTypeSyntax(token, TypeFor(token));
+        }
+
+        return new NamedTypeSyntax(Consume(TokenType.Identifier, "Expected a type name."));
     }
 
     private static PascalType TypeFor(Token token)

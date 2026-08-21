@@ -1,6 +1,7 @@
 using Cjb.StandardPascal.Language.Parser;
 using Cjb.StandardPascal.Language.Parser.Expressions;
 using Cjb.StandardPascal.Language.Parser.Declarations;
+using Cjb.StandardPascal.Language.Parser.Types;
 using Cjb.StandardPascal.Language.Parser.Statements;
 using Cjb.StandardPascal.Language.Scanner;
 using Cjb.StandardPascal.Language.Semantics;
@@ -15,6 +16,7 @@ public sealed class Interpreter : IInterpreter
     private readonly IOutput _output;
     private readonly Dictionary<string, object> _values = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, PascalType> _types = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, PascalType> _namedTypes = new(StringComparer.OrdinalIgnoreCase);
 
     public Interpreter()
         : this(new SemanticAnalyzer(), new NullOutput())
@@ -56,6 +58,7 @@ public sealed class Interpreter : IInterpreter
         _semanticAnalyzer.Analyze(program);
         _values.Clear();
         _types.Clear();
+        _namedTypes.Clear();
 
         if (program.Block is not null)
         {
@@ -63,6 +66,15 @@ public sealed class Interpreter : IInterpreter
             {
                 switch (declaration)
                 {
+                    case EnumerationDeclaration enumeration:
+                        PascalType enumType = new PrimitivePascalType(enumeration.Name.Lexeme);
+                        _namedTypes.Add(enumeration.Name.Lexeme, enumType);
+                        foreach (Token member in enumeration.Members)
+                        {
+                            _values.Add(member.Lexeme, member.Lexeme);
+                            _types.Add(member.Lexeme, enumType);
+                        }
+                        break;
                     case ConstantDeclaration constant:
                         _values.Add(constant.Name.Lexeme, Evaluate(constant.Value));
                         _types.Add(constant.Name.Lexeme, TypeOf(_values[constant.Name.Lexeme]));
@@ -70,8 +82,9 @@ public sealed class Interpreter : IInterpreter
                     case VariableDeclaration variable:
                         foreach (Token name in variable.Names)
                         {
-                            _values.Add(name.Lexeme, DefaultValue(variable.Type.Type));
-                            _types.Add(name.Lexeme, variable.Type.Type);
+                            PascalType variableType = ResolveType(variable.Type);
+                            _values.Add(name.Lexeme, DefaultValue(variableType));
+                            _types.Add(name.Lexeme, variableType);
                         }
 
                         break;
@@ -232,7 +245,10 @@ public sealed class Interpreter : IInterpreter
         }
 
         object value = Evaluate(statement.Value);
-        PascalType sourceType = TypeOf(value);
+        PascalType sourceType = statement.Value is Identifier identifier
+            && _types.TryGetValue(identifier.Name.Lexeme, out PascalType? identifierType)
+            ? identifierType
+            : TypeOf(value);
 
         if (!type.IsAssignmentCompatibleWith(sourceType))
         {
@@ -542,6 +558,14 @@ public sealed class Interpreter : IInterpreter
         bool => PascalTypes.Boolean,
         string => PascalTypes.Character,
         _ => throw new InvalidOperationException("Unsupported runtime value."),
+    };
+
+    private PascalType ResolveType(TypeSyntax type) => type switch
+    {
+        ScalarTypeSyntax scalar => scalar.Type,
+        NamedTypeSyntax named when _namedTypes.TryGetValue(named.Name.Lexeme, out PascalType? resolved) => resolved,
+        NamedTypeSyntax named => throw new RuntimeException($"Undefined type '{named.Name.Lexeme}'.", named.Span),
+        _ => throw new RuntimeException("Unsupported type.", type.Span),
     };
 
     private static object DefaultValue(PascalType type) => ReferenceEquals(type, PascalTypes.Integer) ? 0L

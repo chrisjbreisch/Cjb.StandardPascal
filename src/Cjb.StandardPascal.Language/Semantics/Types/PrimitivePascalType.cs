@@ -2,7 +2,7 @@ namespace Cjb.StandardPascal.Language.Semantics.Types;
 
 public sealed class PrimitivePascalType : PascalType
 {
-    internal PrimitivePascalType(string name)
+    public PrimitivePascalType(string name)
         : base(name)
     {
     }
