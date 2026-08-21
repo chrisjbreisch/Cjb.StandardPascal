@@ -18,6 +18,13 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
     {
         switch (statement)
         {
+            case BlockStatement blockStatement:
+                foreach (IStatement nestedStatement in blockStatement.Block.Statements)
+                {
+                    AnalyzeStatement(nestedStatement);
+                }
+
+                return;
             case Print print:
                 InferType(print.Expression);
                 return;

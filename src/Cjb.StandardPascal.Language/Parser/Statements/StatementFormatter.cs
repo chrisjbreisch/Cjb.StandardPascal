@@ -22,4 +22,9 @@ public sealed class StatementFormatter : IStatementFormatter, IVisitor<string>
     {
         return $"(print {_expressionFormatter.Format(statement.Expression)})";
     }
+
+    public string VisitBlockStatement(BlockStatement statement)
+    {
+        return "(block)";
+    }
 }

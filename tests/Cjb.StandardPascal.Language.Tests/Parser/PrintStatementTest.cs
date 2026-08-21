@@ -58,4 +58,20 @@ public sealed class PrintStatementTest
             program.Span);
         Assert.AreEqual(TokenType.Star, ((Binary)print.Expression).BinaryOperator.Type);
     }
+
+    [TestMethod]
+    public void ParseProgram_Empty_Headed_Block_Returns_Program_Block()
+    {
+        List<Token> tokens = _scanner.ScanTokens(
+            new SourceText("program Demo(input, output); begin end.", "demo.pas"));
+
+        Program program = _parser.ParseProgram(tokens);
+
+        Assert.AreEqual("Demo", program.Name!.Lexeme);
+        Assert.HasCount(2, program.FileParameters);
+        Assert.IsNotNull(program.Block);
+        Assert.IsEmpty(program.Block.Declarations);
+        Assert.IsEmpty(program.Block.Statements);
+        Assert.AreEqual(new SourceSpan("demo.pas", 0, 39, 1, 1), program.Span);
+    }
 }

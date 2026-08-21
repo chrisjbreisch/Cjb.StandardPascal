@@ -31,9 +31,42 @@ public sealed class Parser : IParser
     {
         Initialize(tokens);
 
+        if (Match(TokenType.Program))
+        {
+            Program program = StandardProgram(Previous());
+            Consume(TokenType.EndOfFile, "Expected the end of the program.");
+            return program;
+        }
+
         IStatement body = Statement();
         Consume(TokenType.EndOfFile, "Expected the end of the program.");
         return new Program(body, body.Span);
+    }
+
+    private Program StandardProgram(Token programKeyword)
+    {
+        Token name = Consume(TokenType.Identifier, "Expected a program name.");
+        List<Token> fileParameters = [];
+
+        if (Match(TokenType.LeftParen))
+        {
+            fileParameters.Add(Consume(TokenType.Identifier, "Expected a file parameter."));
+
+            while (Match(TokenType.Comma))
+            {
+                fileParameters.Add(Consume(TokenType.Identifier, "Expected a file parameter."));
+            }
+
+            Consume(TokenType.RightParen, "Expected ')' after program file parameters.");
+        }
+
+        Consume(TokenType.Semicolon, "Expected ';' after program heading.");
+        Token begin = Consume(TokenType.Begin, "Expected 'begin' to start the program block.");
+        Token end = Consume(TokenType.End, "Expected 'end' to close the program block.");
+        Token dot = Consume(TokenType.Dot, "Expected '.' after the program block.");
+        SourceSpan blockSpan = Span(begin, end);
+        SourceSpan programSpan = Span(programKeyword, dot);
+        return new Program(name, fileParameters, new Block([], [], blockSpan), programSpan);
     }
 
     private IStatement Statement()
@@ -223,5 +256,15 @@ public sealed class Parser : IParser
     private static ParseException Error(Token token, string message)
     {
         return new ParseException(message, token.Span);
+    }
+
+    private static SourceSpan Span(Token start, Token end)
+    {
+        return new SourceSpan(
+            start.Span.FilePath,
+            start.Span.Start,
+            end.Span.Start + end.Span.Length - start.Span.Start,
+            start.Span.Line,
+            start.Span.Column);
     }
 }

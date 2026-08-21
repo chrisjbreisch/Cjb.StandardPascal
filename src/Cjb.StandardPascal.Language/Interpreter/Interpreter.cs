@@ -134,6 +134,18 @@ public sealed class Interpreter : IInterpreter
         return Evaluate(statement.Expression);
     }
 
+    public object VisitBlockStatement(BlockStatement statement)
+    {
+        object result = string.Empty;
+
+        foreach (IStatement nestedStatement in statement.Block.Statements)
+        {
+            result = Interpret(nestedStatement);
+        }
+
+        return result;
+    }
+
     private static object Add(Token token, object left, object right)
     {
         return Numeric(
