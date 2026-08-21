@@ -470,6 +470,12 @@ public sealed class Interpreter : IInterpreter
 
     public object VisitAssignmentStatement(Assignment statement)
     {
+        if (_values.TryGetValue(statement.Name.Lexeme, out object? target) && target is ArrayValue array && statement.Value is Literal { Value: string text })
+        {
+            array.SetCharacters(text, statement.Value.Span);
+            return array;
+        }
+
         if (_activeFields is not null && _activeFields.ContainsKey(statement.Name.Lexeme))
         {
             object fieldValue = Evaluate(statement.Value);

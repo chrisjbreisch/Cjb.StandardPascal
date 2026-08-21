@@ -377,6 +377,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Packed_Character_Array_Accepts_Exact_Length_String()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Characters; var letters: packed array[1..2] of char; begin letters := 'AB'; writeln(letters[1], letters[2]); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("AB" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Pack_Copies_Array_Elements()
     {
         IScanner scanner = new Language.Scanner.Scanner();

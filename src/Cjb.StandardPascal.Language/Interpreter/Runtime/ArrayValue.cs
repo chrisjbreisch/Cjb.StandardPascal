@@ -28,6 +28,19 @@ public sealed class ArrayValue
         }
     }
 
+    public void SetCharacters(string value, SourceSpan span)
+    {
+        if (value.Length != _elements.Length)
+        {
+            throw new RuntimeException($"String length {value.Length} does not match array length {_elements.Length}.", span);
+        }
+
+        for (int index = 0; index < value.Length; index++)
+        {
+            _elements[index] = value[index].ToString();
+        }
+    }
+
     private int Offset(IReadOnlyList<long> indices, SourceSpan span)
     {
         if (indices.Count != _bounds.Count)
