@@ -22,12 +22,27 @@ public sealed class Parser : IParser
     {
         Initialize(tokens);
 
+        IStatement statement = Statement();
+        Consume(TokenType.EndOfFile, "Expected the end of the statement.");
+        return statement;
+    }
+
+    public Program ParseProgram(List<Token> tokens)
+    {
+        Initialize(tokens);
+
+        IStatement body = Statement();
+        Consume(TokenType.EndOfFile, "Expected the end of the program.");
+        return new Program(body, GetSpan(body));
+    }
+
+    private IStatement Statement()
+    {
         Token print = Consume(TokenType.Print, "Expected 'Print'.");
         Expression expression = Expression();
         Token semicolon = Consume(
             TokenType.Semicolon,
             "Expected ';' after the Print expression.");
-        Consume(TokenType.EndOfFile, "Expected the end of the statement.");
 
         SourceSpan span = new(
             print.Span.FilePath,
@@ -36,6 +51,17 @@ public sealed class Parser : IParser
             print.Span.Line,
             print.Span.Column);
         return new Print(expression, span);
+    }
+
+    private static SourceSpan GetSpan(IStatement statement)
+    {
+        return statement switch
+        {
+            Print print => print.Span,
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(statement),
+                "The statement does not have a source span."),
+        };
     }
 
     private void Initialize(List<Token> tokens)

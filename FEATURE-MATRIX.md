@@ -64,6 +64,7 @@ behavior, or conformance change.
 
 | Feature | Status | Notes |
 | --- | :---: | --- |
+| Program AST and execution boundary | ✅ | `Program` retains a source-spanned statement body and is parsed/executed through `IParser.ParseProgram` and `IInterpreter.Execute`; expression and temporary-statement APIs remain available during migration |
 | Program heading | ⬜ | `program name(...);` |
 | Block structure | ⬜ | Declaration part followed by a statement part |
 | Declaration ordering | ⬜ | Label, constant, type, variable, and routine sections |

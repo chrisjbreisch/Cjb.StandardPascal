@@ -1,3 +1,4 @@
+using Cjb.StandardPascal.Language.Parser;
 using Cjb.StandardPascal.Language.Parser.Expressions;
 using Cjb.StandardPascal.Language.Parser.Statements;
 
@@ -10,4 +11,6 @@ public interface IInterpreter :
     object Evaluate(Expression expression);
 
     object Interpret(IStatement statement);
+
+    object Execute(Program program);
 }

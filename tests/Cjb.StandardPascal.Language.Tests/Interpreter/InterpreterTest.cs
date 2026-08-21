@@ -68,6 +68,17 @@ public sealed class InterpreterTest
     }
 
     [TestMethod]
+    public void Execute_Program_Returns_Body_Result()
+    {
+        List<Token> tokens = _scanner.ScanTokens(new SourceText("Print 3 * 5;"));
+        Program program = _parser.ParseProgram(tokens);
+
+        object result = _interpreter.Execute(program);
+
+        Assert.AreEqual(15L, result);
+    }
+
+    [TestMethod]
     public void Interpret_Print_String_Returns_String_Value()
     {
         List<Token> tokens = _scanner.ScanTokens(

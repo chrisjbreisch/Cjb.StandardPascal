@@ -5,7 +5,7 @@ This roadmap describes the staged completion of the ISO 7185 Standard Pascal int
 ## Phase 0: Architecture Foundation
 
 - [x] Confirm the execution contract across `IScanner`, `IParser`, `IInterpreter`, the application layer, and the CLI.
-- [ ] Replace the expression/temporary-statement-only boundary with a program AST and execution boundary while retaining expression APIs during migration.
+- [x] Replace the expression/temporary-statement-only boundary with a program AST and execution boundary while retaining expression APIs during migration.
 - [ ] Add source-spanned AST abstractions for programs, blocks, declarations, types, expressions, l-values, statements, and routines.
 - [ ] Introduce a typed symbol and type model with duplicate-declaration checks, identifier resolution, assignment compatibility, and routine signatures.
 - [ ] Introduce scoped environments, lexical-parent lookup, runtime values, and activation records.

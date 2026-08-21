@@ -9,4 +9,6 @@ public interface IParser
     Expression Parse(List<Token> tokens);
 
     IStatement ParseStatement(List<Token> tokens);
+
+    Program ParseProgram(List<Token> tokens);
 }

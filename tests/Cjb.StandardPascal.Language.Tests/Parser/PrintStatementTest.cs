@@ -43,4 +43,19 @@ public sealed class PrintStatementTest
             exception.Message);
         Assert.AreEqual(12, exception.Span.Column);
     }
+
+    [TestMethod]
+    public void ParseProgram_Print_Statement_Returns_Source_Spanned_Program()
+    {
+        List<Token> tokens = _scanner.ScanTokens(
+            new SourceText("Print 3 * 5;", "program.pas"));
+
+        Program program = _parser.ParseProgram(tokens);
+
+        Print print = Assert.IsInstanceOfType<Print>(program.Body);
+        Assert.AreEqual(
+            new SourceSpan("program.pas", 0, 12, 1, 1),
+            program.Span);
+        Assert.AreEqual(TokenType.Star, ((Binary)print.Expression).BinaryOperator.Type);
+    }
 }

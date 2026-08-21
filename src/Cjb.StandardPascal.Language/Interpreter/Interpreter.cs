@@ -1,3 +1,4 @@
+using Cjb.StandardPascal.Language.Parser;
 using Cjb.StandardPascal.Language.Parser.Expressions;
 using Cjb.StandardPascal.Language.Parser.Statements;
 using Cjb.StandardPascal.Language.Scanner;
@@ -16,6 +17,12 @@ public sealed class Interpreter : IInterpreter
     {
         ArgumentNullException.ThrowIfNull(statement);
         return statement.Accept(this);
+    }
+
+    public object Execute(Program program)
+    {
+        ArgumentNullException.ThrowIfNull(program);
+        return Interpret(program.Body);
     }
 
     public object VisitBinaryExpression(Binary expression)
