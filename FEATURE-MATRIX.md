@@ -122,6 +122,7 @@ behavior, or conformance change.
 | Dynamic allocation | ⬜ | `new` and `dispose` |
 | Runtime diagnostics | 🚧 | Expression type, undefined identifier, overflow, and division errors are source-correlated |
 | Typed symbols and routine signatures | ✅ | Case-insensitive declaration/identifier resolution, duplicate diagnostics, variables, constants, parameters, and routine signatures are available for semantic analysis |
+| Runtime values and activation records | ✅ | Typed variable bindings support lexical-parent lookup, shadowing, compatible assignment, and source-correlated runtime errors |
 
 ## Quality and conformance
 

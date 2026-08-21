@@ -8,7 +8,7 @@ This roadmap describes the staged completion of the ISO 7185 Standard Pascal int
 - [x] Replace the expression/temporary-statement-only boundary with a program AST and execution boundary while retaining expression APIs during migration.
 - [x] Add source-spanned AST abstractions for programs, blocks, declarations, types, expressions, l-values, statements, and routines.
 - [x] Introduce a typed symbol and type model with duplicate-declaration checks, identifier resolution, assignment compatibility, and routine signatures.
-- [ ] Introduce scoped environments, lexical-parent lookup, runtime values, and activation records.
+- [x] Introduce scoped environments, lexical-parent lookup, runtime values, and activation records.
 - [ ] Add semantic analysis between parsing and interpretation with source-correlated diagnostics.
 
 **Primary areas:** `Parser/`, `Interpreter/`, AST visitor contracts, and language tests.
