@@ -132,6 +132,58 @@ public sealed class Parser : IParser
 
     private IStatement Statement()
     {
+        if (Match(TokenType.If))
+        {
+            Token keyword = Previous();
+            Expression condition = Expression();
+            Consume(TokenType.Then, "Expected 'then' after if condition.");
+            IStatement thenBranch = Statement();
+            IStatement? elseBranch = Match(TokenType.Else) ? Statement() : null;
+            return new If(condition, thenBranch, elseBranch, Span(keyword, (elseBranch ?? thenBranch).Span));
+        }
+
+        if (Match(TokenType.While))
+        {
+            Token keyword = Previous();
+            Expression condition = Expression();
+            Consume(TokenType.Do, "Expected 'do' after while condition.");
+            IStatement body = Statement();
+            return new While(condition, body, Span(keyword, body.Span));
+        }
+
+        if (Match(TokenType.Repeat))
+        {
+            Token keyword = Previous();
+            List<IStatement> body = [];
+
+            do
+            {
+                body.Add(Statement());
+            }
+            while (Match(TokenType.Semicolon) && !Check(TokenType.Until));
+
+            Consume(TokenType.Until, "Expected 'until' after repeat body.");
+            Expression condition = Expression();
+            return new Repeat(body, condition, Span(keyword, condition.Span));
+        }
+
+        if (Match(TokenType.For))
+        {
+            Token keyword = Previous();
+            Token variable = Consume(TokenType.Identifier, "Expected a for control variable.");
+            Consume(TokenType.Assign, "Expected ':=' after for control variable.");
+            Expression initial = Expression();
+            ForDirection direction = Match(TokenType.To)
+                ? ForDirection.To
+                : Match(TokenType.DownTo)
+                    ? ForDirection.DownTo
+                    : throw Error(Peek(), "Expected 'to' or 'downto' in for statement.");
+            Expression limit = Expression();
+            Consume(TokenType.Do, "Expected 'do' after for bounds.");
+            IStatement body = Statement();
+            return new For(variable, initial, direction, limit, body, Span(keyword, body.Span));
+        }
+
         if (Match(TokenType.Begin))
         {
             _current--;

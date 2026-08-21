@@ -50,6 +50,21 @@ public sealed class ProgramExecutionTest
         Assert.AreEqual("Division by zero.", exception.Message);
     }
 
+    [TestMethod]
+    public void Execute_Structured_Statements_Controls_Program_Flow()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Flow; var count: integer; begin count := 0; while count < 2 do count := count + 1; repeat count := count + 1 until count = 3; if count = 3 then writeln('ok') else writeln('bad'); for count := 1 to 2 do write(count); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("ok" + Environment.NewLine + "12", output.Text);
+    }
+
     private sealed class BufferOutput : IOutput
     {
         public string Text { get; private set; } = string.Empty;

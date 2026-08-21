@@ -30,5 +30,13 @@ public sealed class StatementFormatter : IStatementFormatter, IVisitor<string>
 
     public string VisitAssignmentStatement(Assignment statement) => "(:=)";
 
+    public string VisitForStatement(For statement) => "(for)";
+
+    public string VisitIfStatement(If statement) => "(if)";
+
     public string VisitWriteStatement(Write statement) => "(write)";
+
+    public string VisitRepeatStatement(Repeat statement) => "(repeat)";
+
+    public string VisitWhileStatement(While statement) => "(while)";
 }

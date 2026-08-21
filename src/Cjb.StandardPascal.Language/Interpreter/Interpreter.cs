@@ -214,6 +214,67 @@ public sealed class Interpreter : IInterpreter
         return _values[statement.Name.Lexeme];
     }
 
+    public object VisitIfStatement(If statement)
+    {
+        return RequireBoolean(statement.Condition.Span, Evaluate(statement.Condition))
+            ? Interpret(statement.ThenBranch)
+            : statement.ElseBranch is null ? string.Empty : Interpret(statement.ElseBranch);
+    }
+
+    public object VisitWhileStatement(While statement)
+    {
+        object result = string.Empty;
+
+        while (RequireBoolean(statement.Condition.Span, Evaluate(statement.Condition)))
+        {
+            result = Interpret(statement.Body);
+        }
+
+        return result;
+    }
+
+    public object VisitRepeatStatement(Repeat statement)
+    {
+        object result;
+
+        do
+        {
+            result = string.Empty;
+
+            foreach (IStatement nestedStatement in statement.Body)
+            {
+                result = Interpret(nestedStatement);
+            }
+        }
+        while (!RequireBoolean(statement.Condition.Span, Evaluate(statement.Condition)));
+
+        return result;
+    }
+
+    public object VisitForStatement(For statement)
+    {
+        if (!_types.TryGetValue(statement.Variable.Lexeme, out PascalType? type)
+            || !ReferenceEquals(type, PascalTypes.Integer))
+        {
+            throw new RuntimeException("For control variable must be an integer variable.", statement.Variable.Span);
+        }
+
+        long initial = RequireInteger(statement.Variable, Evaluate(statement.Initial));
+        long limit = RequireInteger(statement.Variable, Evaluate(statement.Limit));
+        _values[statement.Variable.Lexeme] = initial;
+        object result = string.Empty;
+
+        for (long value = initial;
+            statement.Direction == ForDirection.To ? value <= limit : value >= limit;
+            value = checked(value + (statement.Direction == ForDirection.To ? 1 : -1)))
+        {
+            _values[statement.Variable.Lexeme] = value;
+            result = Interpret(statement.Body);
+        }
+
+        return result;
+    }
+
     public object VisitWriteStatement(Write statement)
     {
         string value = string.Concat(statement.Expressions.Select(expression => FormatValue(Evaluate(expression))));
@@ -382,6 +443,13 @@ public sealed class Interpreter : IInterpreter
         return value is bool boolean
             ? boolean
             : throw Error(token, "Operand must be Boolean.");
+    }
+
+    private static bool RequireBoolean(SourceSpan span, object value)
+    {
+        return value is bool boolean
+            ? boolean
+            : throw new RuntimeException("Condition must be Boolean.", span);
     }
 
     private static long RequireInteger(Token token, object value)
