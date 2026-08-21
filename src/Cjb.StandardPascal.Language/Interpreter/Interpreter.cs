@@ -75,6 +75,9 @@ public sealed class Interpreter : IInterpreter
                             _types.Add(member.Lexeme, enumType);
                         }
                         break;
+                    case SubrangeDeclaration subrange:
+                        _namedTypes.Add(subrange.Name.Lexeme, new SubrangePascalType(subrange.Name.Lexeme, subrange.Minimum, subrange.Maximum));
+                        break;
                     case ConstantDeclaration constant:
                         _values.Add(constant.Name.Lexeme, Evaluate(constant.Value));
                         _types.Add(constant.Name.Lexeme, TypeOf(_values[constant.Name.Lexeme]));
@@ -253,6 +256,11 @@ public sealed class Interpreter : IInterpreter
         if (!type.IsAssignmentCompatibleWith(sourceType))
         {
             throw Error(statement.Name, $"Cannot assign {sourceType.Name} to {type.Name} '{statement.Name.Lexeme}'.");
+        }
+
+        if (type is SubrangePascalType subrange && value is long subrangeValue && (subrangeValue < subrange.Minimum || subrangeValue > subrange.Maximum))
+        {
+            throw Error(statement.Name, $"Value {subrangeValue} is outside subrange {subrange.Minimum}..{subrange.Maximum}.");
         }
 
         _values[statement.Name.Lexeme] = ReferenceEquals(type, PascalTypes.Real) && value is long integer

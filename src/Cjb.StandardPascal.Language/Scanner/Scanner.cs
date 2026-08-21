@@ -125,7 +125,7 @@ public sealed class Scanner : IScanner
                 AddToken(TokenType.Comma);
                 break;
             case '.':
-                AddToken(Match(')') ? TokenType.RightBracket : TokenType.Dot);
+                AddToken(Match(')') ? TokenType.RightBracket : Match('.') ? TokenType.Range : TokenType.Dot);
                 break;
             case '(':
                 if (Match('*'))

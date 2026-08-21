@@ -13,6 +13,7 @@ public enum TokenType
     Plus,
     RightParen,
     RightBracket,
+    Range,
     Semicolon,
     Slash,
     Star,

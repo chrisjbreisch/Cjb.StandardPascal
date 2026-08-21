@@ -125,6 +125,20 @@ public sealed class ProgramExecutionTest
         Assert.AreEqual("yes" + Environment.NewLine, output.Text);
     }
 
+    [TestMethod]
+    public void Execute_Subrange_Assignment_Outside_Bounds_Throws_Runtime_Exception()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter();
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Range; type Small = 1..3; var value: Small; begin value := 4; end.")));
+
+        RuntimeException exception = Assert.ThrowsExactly<RuntimeException>(() => interpreter.Execute(program));
+
+        Assert.AreEqual("Value 4 is outside subrange 1..3.", exception.Message);
+    }
+
     private sealed class BufferOutput : IOutput
     {
         public string Text { get; private set; } = string.Empty;

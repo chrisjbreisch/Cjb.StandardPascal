@@ -99,6 +99,16 @@ public sealed class Parser : IParser
             {
                 Token name = Advance();
                 Consume(TokenType.Equal, "Expected '=' after type name.");
+                if (Check(TokenType.Number) && _current + 1 < _tokens.Count && _tokens[_current + 1].Type == TokenType.Range)
+                {
+                    Token minimum = Advance();
+                    Advance();
+                    Token maximum = Consume(TokenType.Number, "Expected a subrange maximum.");
+                    Token semicolon = Consume(TokenType.Semicolon, "Expected ';' after type declaration.");
+                    declarations.Add(new SubrangeDeclaration(name, (long)minimum.Literal!, (long)maximum.Literal!, Span(name, semicolon)));
+                    continue;
+                }
+
                 Consume(TokenType.LeftParen, "Expected '(' to start an enumeration.");
                 List<Token> members = [Consume(TokenType.Identifier, "Expected an enumeration member.")];
                 while (Match(TokenType.Comma)) { members.Add(Consume(TokenType.Identifier, "Expected an enumeration member.")); }
