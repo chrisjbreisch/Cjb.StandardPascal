@@ -54,6 +54,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         return expression switch
         {
             Literal literal => InferLiteralType(literal),
+            Call call => InferCallType(call),
             Identifier identifier => InferIdentifierType(identifier),
             Grouping grouping => InferType(grouping.InnerExpression),
             Unary unary => InferUnaryType(unary),
@@ -71,6 +72,18 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
             string => PascalTypes.Character,
             _ => throw new SemanticException("Unsupported literal.", literal.Span),
         };
+    }
+
+    private static PascalType InferCallType(Call call)
+    {
+        foreach (Expression argument in call.Arguments)
+        {
+            InferType(argument);
+        }
+
+        return call.Name.Lexeme.Equals("chr", StringComparison.OrdinalIgnoreCase)
+            ? PascalTypes.Character
+            : PascalTypes.Integer;
     }
 
     private static PascalType InferIdentifierType(Identifier identifier)

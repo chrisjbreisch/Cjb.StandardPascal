@@ -4,6 +4,8 @@ public interface IVisitor<out T>
 {
     T VisitBinaryExpression(Binary expression);
 
+    T VisitCallExpression(Call expression);
+
     T VisitGroupingExpression(Grouping expression);
 
     T VisitIdentifierExpression(Identifier expression);

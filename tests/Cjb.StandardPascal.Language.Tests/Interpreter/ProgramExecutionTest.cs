@@ -80,6 +80,21 @@ public sealed class ProgramExecutionTest
         Assert.AreEqual("many" + Environment.NewLine, output.Text);
     }
 
+    [TestMethod]
+    public void Execute_Ordinal_Routines_Return_Converted_Values()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Ordinals; begin writeln(ord('A'), chr(66), succ(2), pred(2), round(2.6), trunc(2.6)); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("65B3132" + Environment.NewLine, output.Text);
+    }
+
     private sealed class BufferOutput : IOutput
     {
         public string Text { get; private set; } = string.Empty;

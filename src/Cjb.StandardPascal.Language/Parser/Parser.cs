@@ -363,7 +363,26 @@ public sealed class Parser : IParser
 
         if (Match(TokenType.Identifier))
         {
-            return new Identifier(Previous());
+            Token name = Previous();
+
+            if (!Match(TokenType.LeftParen))
+            {
+                return new Identifier(name);
+            }
+
+            List<Expression> arguments = [];
+
+            if (!Check(TokenType.RightParen))
+            {
+                arguments.Add(Expression());
+                while (Match(TokenType.Comma))
+                {
+                    arguments.Add(Expression());
+                }
+            }
+
+            Token rightParenthesis = Consume(TokenType.RightParen, "Expected ')' after routine arguments.");
+            return new Call(name, arguments, Span(name, rightParenthesis));
         }
 
         if (Match(TokenType.LeftParen))

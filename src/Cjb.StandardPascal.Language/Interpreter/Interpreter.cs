@@ -118,6 +118,26 @@ public sealed class Interpreter : IInterpreter
         }
     }
 
+    public object VisitCallExpression(Call expression)
+    {
+        if (expression.Arguments.Count != 1)
+        {
+            throw Error(expression.Name, $"Routine '{expression.Name.Lexeme}' expects one argument.");
+        }
+
+        object argument = Evaluate(expression.Arguments[0]);
+        return expression.Name.Lexeme.ToLowerInvariant() switch
+        {
+            "ord" when argument is string { Length: 1 } character => (long)character[0],
+            "chr" => char.ConvertFromUtf32(checked((int)RequireInteger(expression.Name, argument))),
+            "succ" => Successor(expression.Name, argument, 1),
+            "pred" => Successor(expression.Name, argument, -1),
+            "round" => checked((long)Math.Round(ToDouble(expression.Name, argument), MidpointRounding.AwayFromZero)),
+            "trunc" => checked((long)Math.Truncate(ToDouble(expression.Name, argument))),
+            _ => throw Error(expression.Name, $"Unsupported routine '{expression.Name.Lexeme}'."),
+        };
+    }
+
     public object VisitGroupingExpression(Grouping expression)
     {
         return Evaluate(expression.InnerExpression);
@@ -472,6 +492,16 @@ public sealed class Interpreter : IInterpreter
         return value is long integer
             ? integer
             : throw Error(token, "Operands must be integers.");
+    }
+
+    private static object Successor(Token token, object value, int delta)
+    {
+        return value switch
+        {
+            long integer => checked(integer + delta),
+            string { Length: 1 } character => char.ConvertFromUtf32(checked(character[0] + delta)),
+            _ => throw Error(token, "Operand must be ordinal."),
+        };
     }
 
     private static double ToDouble(Token token, object value)

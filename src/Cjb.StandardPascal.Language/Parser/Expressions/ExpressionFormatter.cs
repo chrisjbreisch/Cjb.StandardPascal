@@ -4,6 +4,8 @@ namespace Cjb.StandardPascal.Language.Parser.Expressions;
 
 public sealed class ExpressionFormatter : IExpressionFormatter, IVisitor<string>
 {
+    public string VisitCallExpression(Call expression) => $"({expression.Name.Lexeme})";
+
     public string Format(Expression expression)
     {
         ArgumentNullException.ThrowIfNull(expression);
