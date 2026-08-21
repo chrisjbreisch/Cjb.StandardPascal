@@ -14,5 +14,7 @@ public interface IVisitor<out T>
 
     T VisitLiteralExpression(Literal expression);
 
+    T VisitSetLiteralExpression(SetLiteral expression);
+
     T VisitUnaryExpression(Unary expression);
 }

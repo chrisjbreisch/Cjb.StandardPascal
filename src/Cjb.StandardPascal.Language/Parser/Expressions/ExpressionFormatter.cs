@@ -8,6 +8,8 @@ public sealed class ExpressionFormatter : IExpressionFormatter, IVisitor<string>
 
     public string VisitIndexExpression(Index expression) => "(index)";
 
+    public string VisitSetLiteralExpression(SetLiteral expression) => "(set)";
+
     public string Format(Expression expression)
     {
         ArgumentNullException.ThrowIfNull(expression);

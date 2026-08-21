@@ -143,9 +143,7 @@ public sealed class Interpreter : IInterpreter
                 TokenType.LessThanOrEqual => Compare(binaryOperator, left, right) <= 0,
                 TokenType.GreaterThan => Compare(binaryOperator, left, right) > 0,
                 TokenType.GreaterThanOrEqual => Compare(binaryOperator, left, right) >= 0,
-                TokenType.In => throw Error(
-                    binaryOperator,
-                    "Set membership is not implemented."),
+                TokenType.In => IsMember(binaryOperator, left, right),
                 _ => throw Error(binaryOperator, "Unsupported binary operator."),
             };
         }
@@ -241,6 +239,18 @@ public sealed class Interpreter : IInterpreter
     public object VisitLiteralExpression(Literal expression)
     {
         return expression.Value;
+    }
+
+    public object VisitSetLiteralExpression(SetLiteral expression)
+    {
+        HashSet<long> elements = [];
+
+        foreach (Expression element in expression.Elements)
+        {
+            elements.Add(RequireInteger(new Token(TokenType.In, "in", null, element.Span), Evaluate(element)));
+        }
+
+        return elements;
     }
 
     public object VisitUnaryExpression(Unary expression)
@@ -613,6 +623,13 @@ public sealed class Interpreter : IInterpreter
         }
 
         throw Error(token, "Operands are not comparable.");
+    }
+
+    private static bool IsMember(Token token, object value, object set)
+    {
+        return set is HashSet<long> elements
+            ? elements.Contains(RequireInteger(token, value))
+            : throw Error(token, "Right operand of 'in' must be a set.");
     }
 
     private static object Numeric(

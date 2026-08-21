@@ -347,6 +347,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Set_Constructor_And_Membership_Returns_Boolean()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Sets; begin writeln(2 in [1, 2, 3]); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("TRUE" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Function_With_Incompatible_Argument_Throws_Runtime_Exception()
     {
         IScanner scanner = new Language.Scanner.Scanner();

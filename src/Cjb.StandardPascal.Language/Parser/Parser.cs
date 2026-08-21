@@ -500,6 +500,21 @@ public sealed class Parser : IParser
 
     private Expression Primary()
     {
+        if (Match(TokenType.LeftBracket))
+        {
+            Token leftBracket = Previous();
+            List<Expression> elements = [];
+
+            if (!Check(TokenType.RightBracket))
+            {
+                elements.Add(Expression());
+                while (Match(TokenType.Comma)) { elements.Add(Expression()); }
+            }
+
+            Token rightBracket = Consume(TokenType.RightBracket, "Expected ']' after set elements.");
+            return new SetLiteral(elements, Span(leftBracket, rightBracket));
+        }
+
         if (Match(TokenType.Number, TokenType.String))
         {
             return new Literal(Previous());
