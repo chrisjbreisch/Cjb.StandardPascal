@@ -18,6 +18,8 @@ public interface IVisitor<out T>
 
     T VisitPrintStatement(Print statement);
 
+    T VisitProcedureCallStatement(ProcedureCall statement);
+
     T VisitRepeatStatement(Repeat statement);
 
     T VisitWhileStatement(While statement);

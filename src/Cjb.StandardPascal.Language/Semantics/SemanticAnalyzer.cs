@@ -125,6 +125,8 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
             case Print print:
                 InferType(print.Expression);
                 return;
+            case ProcedureCall:
+                return;
             case Write write:
                 foreach (Expression expression in write.Expressions)
                 {

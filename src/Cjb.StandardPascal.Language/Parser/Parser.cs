@@ -163,6 +163,16 @@ public sealed class Parser : IParser
             }
         }
 
+        while (Match(TokenType.Procedure))
+        {
+            Token keyword = Previous();
+            Token name = Consume(TokenType.Identifier, "Expected a procedure name.");
+            Consume(TokenType.Semicolon, "Expected ';' after procedure heading.");
+            Block body = ParseBlock();
+            Token semicolon = Consume(TokenType.Semicolon, "Expected ';' after procedure declaration.");
+            declarations.Add(new ProcedureDeclaration(name, body, Span(keyword, semicolon)));
+        }
+
         Token begin = Consume(TokenType.Begin, "Expected 'begin' to start the program block.");
         List<IStatement> statements = [];
 
@@ -324,11 +334,17 @@ public sealed class Parser : IParser
             return new Write(expressions, keyword.Type == TokenType.WriteLn, keyword.Span);
         }
 
-        if (Match(TokenType.Identifier) && Match(TokenType.Assign))
+        if (Check(TokenType.Identifier))
         {
-            Token name = _tokens[_current - 2];
-            Expression value = Expression();
-            return new Assignment(name, value, Span(name, value.Span));
+            Token name = Advance();
+
+            if (Match(TokenType.Assign))
+            {
+                Expression value = Expression();
+                return new Assignment(name, value, Span(name, value.Span));
+            }
+
+            return new ProcedureCall(name, name.Span);
         }
 
         Token print = Consume(TokenType.Print, "Expected 'Print'.");

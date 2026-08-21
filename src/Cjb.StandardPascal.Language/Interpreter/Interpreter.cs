@@ -17,6 +17,7 @@ public sealed class Interpreter : IInterpreter
     private readonly Dictionary<string, object> _values = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, PascalType> _types = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, PascalType> _namedTypes = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, ProcedureDeclaration> _procedures = new(StringComparer.OrdinalIgnoreCase);
     private Dictionary<string, object>? _activeFields;
 
     public Interpreter()
@@ -60,6 +61,7 @@ public sealed class Interpreter : IInterpreter
         _values.Clear();
         _types.Clear();
         _namedTypes.Clear();
+        _procedures.Clear();
         _activeFields = null;
 
         if (program.Block is not null)
@@ -82,6 +84,9 @@ public sealed class Interpreter : IInterpreter
                         break;
                     case RecordDeclaration record:
                         _namedTypes.Add(record.Name.Lexeme, new PrimitivePascalType(record.Name.Lexeme));
+                        break;
+                    case ProcedureDeclaration procedure:
+                        _procedures.Add(procedure.Name.Lexeme, procedure);
                         break;
                     case ConstantDeclaration constant:
                         _values.Add(constant.Name.Lexeme, Evaluate(constant.Value));
@@ -227,6 +232,16 @@ public sealed class Interpreter : IInterpreter
     public object VisitPrintStatement(Print statement)
     {
         return Evaluate(statement.Expression);
+    }
+
+    public object VisitProcedureCallStatement(ProcedureCall statement)
+    {
+        if (!_procedures.TryGetValue(statement.Name.Lexeme, out ProcedureDeclaration? procedure))
+        {
+            throw Error(statement.Name, $"Undefined procedure '{statement.Name.Lexeme}'.");
+        }
+
+        return Interpret(new BlockStatement(procedure.Body));
     }
 
     public object VisitBlockStatement(BlockStatement statement)
