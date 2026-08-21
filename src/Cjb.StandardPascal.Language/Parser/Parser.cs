@@ -1,6 +1,9 @@
 using Cjb.StandardPascal.Language.Parser.Expressions;
+using Cjb.StandardPascal.Language.Parser.Declarations;
 using Cjb.StandardPascal.Language.Parser.Statements;
+using Cjb.StandardPascal.Language.Parser.Types;
 using Cjb.StandardPascal.Language.Scanner;
+using Cjb.StandardPascal.Language.Semantics.Types;
 
 namespace Cjb.StandardPascal.Language.Parser;
 
@@ -61,16 +64,110 @@ public sealed class Parser : IParser
         }
 
         Consume(TokenType.Semicolon, "Expected ';' after program heading.");
-        Token begin = Consume(TokenType.Begin, "Expected 'begin' to start the program block.");
-        Token end = Consume(TokenType.End, "Expected 'end' to close the program block.");
+        Block block = ParseBlock();
         Token dot = Consume(TokenType.Dot, "Expected '.' after the program block.");
-        SourceSpan blockSpan = Span(begin, end);
         SourceSpan programSpan = Span(programKeyword, dot);
-        return new Program(name, fileParameters, new Block([], [], blockSpan), programSpan);
+        return new Program(name, fileParameters, block, programSpan);
+    }
+
+    private Block ParseBlock()
+    {
+        List<Declaration> declarations = [];
+
+        if (Match(TokenType.Const))
+        {
+            while (Check(TokenType.Identifier))
+            {
+                Token name = Advance();
+                Consume(TokenType.Equal, "Expected '=' after constant name.");
+                Expression value = Expression();
+                Token semicolon = Consume(TokenType.Semicolon, "Expected ';' after constant declaration.");
+                declarations.Add(new ConstantDeclaration(name, value, Span(name, semicolon)));
+            }
+        }
+
+        if (Match(TokenType.Var))
+        {
+            while (Check(TokenType.Identifier))
+            {
+                Token firstName = Advance();
+                List<Token> names = [firstName];
+
+                while (Match(TokenType.Comma))
+                {
+                    names.Add(Consume(TokenType.Identifier, "Expected a variable name."));
+                }
+
+                Consume(TokenType.Colon, "Expected ':' after variable names.");
+                Token typeName = ConsumeScalarType();
+                Token semicolon = Consume(TokenType.Semicolon, "Expected ';' after variable declaration.");
+                declarations.Add(new VariableDeclaration(
+                    names,
+                    new ScalarTypeSyntax(typeName, TypeFor(typeName)),
+                    Span(firstName, semicolon)));
+            }
+        }
+
+        Token begin = Consume(TokenType.Begin, "Expected 'begin' to start the program block.");
+        List<IStatement> statements = [];
+
+        while (!Check(TokenType.End))
+        {
+            if (Match(TokenType.Semicolon))
+            {
+                continue;
+            }
+
+            statements.Add(Statement());
+
+            if (!Check(TokenType.End))
+            {
+                Consume(TokenType.Semicolon, "Expected ';' after statement.");
+            }
+        }
+
+        Token end = Consume(TokenType.End, "Expected 'end' to close the program block.");
+        return new Block(declarations, statements, Span(begin, end));
     }
 
     private IStatement Statement()
     {
+        if (Match(TokenType.Begin))
+        {
+            _current--;
+            return new BlockStatement(ParseBlock());
+        }
+
+        if (Match(TokenType.Write, TokenType.WriteLn))
+        {
+            Token keyword = Previous();
+            List<Expression> expressions = [];
+
+            if (Match(TokenType.LeftParen))
+            {
+                if (!Check(TokenType.RightParen))
+                {
+                    expressions.Add(Expression());
+                    while (Match(TokenType.Comma))
+                    {
+                        expressions.Add(Expression());
+                    }
+                }
+
+                Token rightParenthesis = Consume(TokenType.RightParen, "Expected ')' after output arguments.");
+                return new Write(expressions, keyword.Type == TokenType.WriteLn, Span(keyword, rightParenthesis));
+            }
+
+            return new Write(expressions, keyword.Type == TokenType.WriteLn, keyword.Span);
+        }
+
+        if (Match(TokenType.Identifier) && Match(TokenType.Assign))
+        {
+            Token name = _tokens[_current - 2];
+            Expression value = Expression();
+            return new Assignment(name, value, Span(name, value.Span));
+        }
+
         Token print = Consume(TokenType.Print, "Expected 'Print'.");
         Expression expression = Expression();
         Token semicolon = Consume(
@@ -266,5 +363,32 @@ public sealed class Parser : IParser
             end.Span.Start + end.Span.Length - start.Span.Start,
             start.Span.Line,
             start.Span.Column);
+    }
+
+    private static SourceSpan Span(Token start, SourceSpan end)
+    {
+        return new SourceSpan(start.Span.FilePath, start.Span.Start, end.Start + end.Length - start.Span.Start, start.Span.Line, start.Span.Column);
+    }
+
+    private Token ConsumeScalarType()
+    {
+        if (Match(TokenType.Integer, TokenType.Real, TokenType.Boolean, TokenType.Char))
+        {
+            return Previous();
+        }
+
+        throw Error(Peek(), "Expected a scalar type.");
+    }
+
+    private static PascalType TypeFor(Token token)
+    {
+        return token.Type switch
+        {
+            TokenType.Integer => PascalTypes.Integer,
+            TokenType.Real => PascalTypes.Real,
+            TokenType.Boolean => PascalTypes.Boolean,
+            TokenType.Char => PascalTypes.Character,
+            _ => throw new ArgumentOutOfRangeException(nameof(token)),
+        };
     }
 }

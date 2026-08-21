@@ -27,4 +27,8 @@ public sealed class StatementFormatter : IStatementFormatter, IVisitor<string>
     {
         return "(block)";
     }
+
+    public string VisitAssignmentStatement(Assignment statement) => "(:=)";
+
+    public string VisitWriteStatement(Write statement) => "(write)";
 }

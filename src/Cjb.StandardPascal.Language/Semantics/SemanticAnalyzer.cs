@@ -11,6 +11,12 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
     public void Analyze(Program program)
     {
         ArgumentNullException.ThrowIfNull(program);
+
+        if (program.Block is not null)
+        {
+            return;
+        }
+
         AnalyzeStatement(program.Body);
     }
 
@@ -18,6 +24,9 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
     {
         switch (statement)
         {
+            case Assignment assignment:
+                InferType(assignment.Value);
+                return;
             case BlockStatement blockStatement:
                 foreach (IStatement nestedStatement in blockStatement.Block.Statements)
                 {
@@ -27,6 +36,13 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
                 return;
             case Print print:
                 InferType(print.Expression);
+                return;
+            case Write write:
+                foreach (Expression expression in write.Expressions)
+                {
+                    InferType(expression);
+                }
+
                 return;
             default:
                 throw new SemanticException("Unsupported statement.", statement.Span);

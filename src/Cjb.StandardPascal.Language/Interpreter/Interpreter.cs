@@ -1,24 +1,41 @@
 using Cjb.StandardPascal.Language.Parser;
 using Cjb.StandardPascal.Language.Parser.Expressions;
+using Cjb.StandardPascal.Language.Parser.Declarations;
 using Cjb.StandardPascal.Language.Parser.Statements;
 using Cjb.StandardPascal.Language.Scanner;
 using Cjb.StandardPascal.Language.Semantics;
+using Cjb.StandardPascal.Language.Semantics.Types;
+using System.Globalization;
 
 namespace Cjb.StandardPascal.Language.Interpreter;
 
 public sealed class Interpreter : IInterpreter
 {
     private readonly ISemanticAnalyzer _semanticAnalyzer;
+    private readonly IOutput _output;
+    private readonly Dictionary<string, object> _values = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, PascalType> _types = new(StringComparer.OrdinalIgnoreCase);
 
     public Interpreter()
-        : this(new SemanticAnalyzer())
+        : this(new SemanticAnalyzer(), new NullOutput())
+    {
+    }
+
+    public Interpreter(IOutput output)
+        : this(new SemanticAnalyzer(), output)
     {
     }
 
     public Interpreter(ISemanticAnalyzer semanticAnalyzer)
+        : this(semanticAnalyzer, new NullOutput())
+    {
+    }
+
+    public Interpreter(ISemanticAnalyzer semanticAnalyzer, IOutput output)
     {
         _semanticAnalyzer = semanticAnalyzer
             ?? throw new ArgumentNullException(nameof(semanticAnalyzer));
+        _output = output ?? throw new ArgumentNullException(nameof(output));
     }
 
     public object Evaluate(Expression expression)
@@ -37,6 +54,31 @@ public sealed class Interpreter : IInterpreter
     {
         ArgumentNullException.ThrowIfNull(program);
         _semanticAnalyzer.Analyze(program);
+        _values.Clear();
+        _types.Clear();
+
+        if (program.Block is not null)
+        {
+            foreach (Declaration declaration in program.Block.Declarations)
+            {
+                switch (declaration)
+                {
+                    case ConstantDeclaration constant:
+                        _values.Add(constant.Name.Lexeme, Evaluate(constant.Value));
+                        _types.Add(constant.Name.Lexeme, TypeOf(_values[constant.Name.Lexeme]));
+                        break;
+                    case VariableDeclaration variable:
+                        foreach (Token name in variable.Names)
+                        {
+                            _values.Add(name.Lexeme, DefaultValue(variable.Type.Type));
+                            _types.Add(name.Lexeme, variable.Type.Type);
+                        }
+
+                        break;
+                }
+            }
+        }
+
         return Interpret(program.Body);
     }
 
@@ -99,6 +141,11 @@ public sealed class Interpreter : IInterpreter
             return false;
         }
 
+        if (_values.TryGetValue(expression.Name.Lexeme, out object? value))
+        {
+            return value;
+        }
+
         throw Error(
             expression.Name,
             $"Undefined identifier '{expression.Name.Lexeme}'.");
@@ -144,6 +191,43 @@ public sealed class Interpreter : IInterpreter
         }
 
         return result;
+    }
+
+    public object VisitAssignmentStatement(Assignment statement)
+    {
+        if (!_types.TryGetValue(statement.Name.Lexeme, out PascalType? type))
+        {
+            throw Error(statement.Name, $"Undefined identifier '{statement.Name.Lexeme}'.");
+        }
+
+        object value = Evaluate(statement.Value);
+        PascalType sourceType = TypeOf(value);
+
+        if (!type.IsAssignmentCompatibleWith(sourceType))
+        {
+            throw Error(statement.Name, $"Cannot assign {sourceType.Name} to {type.Name} '{statement.Name.Lexeme}'.");
+        }
+
+        _values[statement.Name.Lexeme] = ReferenceEquals(type, PascalTypes.Real) && value is long integer
+            ? (double)integer
+            : value;
+        return _values[statement.Name.Lexeme];
+    }
+
+    public object VisitWriteStatement(Write statement)
+    {
+        string value = string.Concat(statement.Expressions.Select(expression => FormatValue(Evaluate(expression))));
+
+        if (statement.AppendNewLine)
+        {
+            _output.WriteLine(value);
+        }
+        else
+        {
+            _output.Write(value);
+        }
+
+        return value;
     }
 
     private static object Add(Token token, object left, object right)
@@ -326,4 +410,24 @@ public sealed class Interpreter : IInterpreter
     {
         return new RuntimeException(message, token.Span);
     }
+
+    private static PascalType TypeOf(object value) => value switch
+    {
+        long => PascalTypes.Integer,
+        double => PascalTypes.Real,
+        bool => PascalTypes.Boolean,
+        string => PascalTypes.Character,
+        _ => throw new InvalidOperationException("Unsupported runtime value."),
+    };
+
+    private static object DefaultValue(PascalType type) => ReferenceEquals(type, PascalTypes.Integer) ? 0L
+        : ReferenceEquals(type, PascalTypes.Real) ? 0d
+        : ReferenceEquals(type, PascalTypes.Boolean) ? false
+        : string.Empty;
+
+    private static string FormatValue(object value) => value switch
+    {
+        bool boolean => boolean ? "TRUE" : "FALSE",
+        _ => Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty,
+    };
 }
