@@ -257,6 +257,21 @@ public sealed class ProgramExecutionTest
         Assert.AreEqual("2" + Environment.NewLine, output.Text);
     }
 
+    [TestMethod]
+    public void Execute_Recursive_Function_Uses_Isolated_Activations()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Routines; function Factorial(value: integer): integer; begin if value = 0 then Factorial := 1 else Factorial := value * Factorial(value - 1); end; begin writeln(Factorial(5)); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("120" + Environment.NewLine, output.Text);
+    }
+
     private sealed class BufferOutput : IOutput
     {
         public string Text { get; private set; } = string.Empty;
