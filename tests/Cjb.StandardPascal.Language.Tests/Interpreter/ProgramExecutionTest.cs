@@ -510,6 +510,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Variant_Record_Field_Is_Accessible()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Records; type Choice = record kind: integer; case kind of 1: (value: integer); end; var item: Choice; begin item.value := 5; writeln(item.value); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("5" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_File_Type_Declaration_Initializes_File_Value()
     {
         IScanner scanner = new Language.Scanner.Scanner();

@@ -124,6 +124,39 @@ public sealed class Parser : IParser
 
                     while (!Check(TokenType.End))
                     {
+                        if (Match(TokenType.Case))
+                        {
+                            Consume(TokenType.Identifier, "Expected a variant tag name.");
+
+                            if (Match(TokenType.Colon))
+                            {
+                                ConsumeScalarType();
+                            }
+
+                            Consume(TokenType.Of, "Expected 'of' after variant tag.");
+
+                            while (!Check(TokenType.End))
+                            {
+                                Consume(TokenType.Number, "Expected a variant label.");
+                                Consume(TokenType.Colon, "Expected ':' after variant label.");
+                                Consume(TokenType.LeftParen, "Expected '(' before variant fields.");
+
+                                while (!Check(TokenType.RightParen))
+                                {
+                                    fields.Add(Consume(TokenType.Identifier, "Expected a variant field name."));
+                                    while (Match(TokenType.Comma)) { fields.Add(Consume(TokenType.Identifier, "Expected a variant field name.")); }
+                                    Consume(TokenType.Colon, "Expected ':' after variant field names.");
+                                    ConsumeScalarType();
+                                    Match(TokenType.Semicolon);
+                                }
+
+                                Consume(TokenType.RightParen, "Expected ')' after variant fields.");
+                                Match(TokenType.Semicolon);
+                            }
+
+                            break;
+                        }
+
                         fields.Add(Consume(TokenType.Identifier, "Expected a record field name."));
                         while (Match(TokenType.Comma))
                         {
