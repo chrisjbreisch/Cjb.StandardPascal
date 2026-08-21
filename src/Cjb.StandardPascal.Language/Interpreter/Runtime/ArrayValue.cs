@@ -20,6 +20,14 @@ public sealed class ArrayValue
 
     public void Set(IReadOnlyList<long> indices, object value, SourceSpan span) => _elements[Offset(indices, span)] = value;
 
+    public void CopyFrom(ArrayValue source, long sourceStart, SourceSpan span)
+    {
+        for (int offset = 0; offset < _elements.Length; offset++)
+        {
+            _elements[offset] = source.Get([sourceStart + offset], span);
+        }
+    }
+
     private int Offset(IReadOnlyList<long> indices, SourceSpan span)
     {
         if (indices.Count != _bounds.Count)

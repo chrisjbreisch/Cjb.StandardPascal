@@ -327,6 +327,12 @@ public sealed class Interpreter : IInterpreter
 
     public object VisitProcedureCallStatement(ProcedureCall statement)
     {
+        if (string.Equals(statement.Name.Lexeme, "pack", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(statement.Name.Lexeme, "unpack", StringComparison.OrdinalIgnoreCase))
+        {
+            return PackOrUnpack(statement);
+        }
+
         if (!_procedures.TryGetValue(statement.Name.Lexeme, out ProcedureDeclaration? procedure))
         {
             throw Error(statement.Name, $"Undefined procedure '{statement.Name.Lexeme}'.");
@@ -380,6 +386,35 @@ public sealed class Interpreter : IInterpreter
             foreach ((string name, object value) in callerValues) { _values.Add(name, value); }
             foreach ((string name, PascalType type) in callerTypes) { _types.Add(name, type); }
         }
+    }
+
+    private object PackOrUnpack(ProcedureCall statement)
+    {
+        if (statement.Arguments.Count != 3
+            || statement.Arguments[0] is not Identifier sourceName
+            || statement.Arguments[1] is not Literal startLiteral
+            || startLiteral.Value is not long start
+            || statement.Arguments[2] is not Identifier targetName)
+        {
+            throw Error(statement.Name, $"{statement.Name.Lexeme} requires (array, integer, array).");
+        }
+
+        if (!_values.TryGetValue(sourceName.Name.Lexeme, out object? sourceValue) || sourceValue is not ArrayValue source
+            || !_values.TryGetValue(targetName.Name.Lexeme, out object? targetValue) || targetValue is not ArrayValue target)
+        {
+            throw Error(statement.Name, $"{statement.Name.Lexeme} requires array arguments.");
+        }
+
+        if (string.Equals(statement.Name.Lexeme, "pack", StringComparison.OrdinalIgnoreCase))
+        {
+            target.CopyFrom(source, start, statement.Span);
+        }
+        else
+        {
+            source.CopyFrom(target, start, statement.Span);
+        }
+
+        return string.Empty;
     }
 
     public object VisitReadStatement(Read statement)

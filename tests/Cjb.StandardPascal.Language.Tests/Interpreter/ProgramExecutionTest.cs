@@ -377,6 +377,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Pack_Copies_Array_Elements()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Packing; var source, target: array[1..2] of integer; begin source[1] := 3; source[2] := 4; pack(source, 1, target); writeln(target[1], target[2]); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("34" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Set_Constructor_And_Membership_Returns_Boolean()
     {
         IScanner scanner = new Language.Scanner.Scanner();
