@@ -40,13 +40,13 @@ This roadmap describes the staged completion of the ISO 7185 Standard Pascal int
 
 ## Phase 3: Procedures, Functions, and Lexical Scopes
 
-- [ ] Implement procedure and function declarations and signatures.
-- [ ] Implement value parameters, `var` parameters, function-result assignment, calls, and arity/type validation.
-- [ ] Implement forward declarations, nested lexical scopes, activation records, lexical parents, and recursion.
-- [ ] Define routine compatibility and overload behavior explicitly; do not substitute approximate handlers for unsupported routines.
-- [ ] Add predefined numeric routines: `abs`, `sqr`, `sqrt`, trigonometric, exponential, and logarithmic functions.
-- [ ] Define numeric conversion, domain-error, and output policies.
-- [ ] Test calls, parameter passing, shadowing, recursion, forward references, and call diagnostics.
+- [x] Implement procedure and function declarations and signatures.
+- [x] Implement value parameters, `var` parameters, function-result assignment, calls, and arity/type validation.
+- [x] Implement forward declarations, nested lexical scopes, activation records, lexical parents, and recursion.
+- [x] Define routine compatibility and overload behavior explicitly; do not substitute approximate handlers for unsupported routines.
+- [x] Add predefined numeric routines: `abs`, `sqr`, `sqrt`, trigonometric, exponential, and logarithmic functions.
+- [x] Define numeric conversion, domain-error, and output policies.
+- [x] Test calls, parameter passing, shadowing, recursion, forward references, and call diagnostics.
 
 ## Phase 4: Composite, Set, String, File, and Pointer Types
 
@@ -90,6 +90,12 @@ Each implementation slice should begin with a focused failing MSTest, followed b
 - Labels are numeric and `goto` targets must be labels in the same compound block.
 - `for` control variables are integer variables and cannot be assigned within the active loop body.
 - `with` supports fixed scalar record fields; variant fields and nested record selectors remain composite-type work.
+
+## Selected Phase 3 Policies
+
+- Routine names are case-insensitive and do not overload; each routine name has one compatible declaration/definition.
+- Value parameters are copied into the callee; `var` parameters require a caller identifier and write their final value back on return.
+- Numeric routines use invariant output. `sqrt` rejects negative operands and `ln` rejects nonpositive operands.
 
 ## Relevant Files
 

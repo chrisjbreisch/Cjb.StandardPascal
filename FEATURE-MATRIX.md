@@ -73,10 +73,10 @@ behavior, or conformance change.
 | Label declarations | ⬜ | Numeric labels in the ISO-defined range |
 | Constant declarations | ✅ | Scalar constant expressions |
 | Type and variable declarations | 🚧 | Grouped scalar variables are supported; named types and aliases follow later |
-| Procedure and function declarations | ⬜ | Nested routines and function-result assignment |
-| Forward declarations | ⬜ | Routine signature matching required |
-| Nested lexical scopes | ⬜ | Programs, procedures, and functions |
-| Recursive routines | ⬜ | Requires activation records and lexical parents |
+| Procedure and function declarations | ✅ | Procedures and functions support typed signatures and function-result assignment |
+| Forward declarations | ✅ | Forward procedure declarations can precede their executable definition |
+| Nested lexical scopes | ✅ | Nested procedures resolve enclosing routine locals with shadowing |
+| Recursive routines | ✅ | Recursive function calls isolate and restore caller activations |
 
 ## Types
 
@@ -113,7 +113,7 @@ behavior, or conformance change.
 
 | Feature | Status | Notes |
 | --- | :---: | --- |
-| Numeric functions | ⬜ | `abs`, `sqr`, `sqrt`, trigonometric, exponential, and logarithmic functions |
+| Numeric functions | ✅ | `abs`, `sqr`, `sqrt`, `sin`, `cos`, `tan`, `arctan`, `exp`, and `ln` with source-correlated domain errors |
 | Ordinal functions | ✅ | `ord`, `chr`, `succ`, and `pred` for integer and character ordinals |
 | Real conversion functions | ✅ | `round` and `trunc` |
 | Text output | 🚧 | `write` and `writeln` output scalar expressions; field widths remain |

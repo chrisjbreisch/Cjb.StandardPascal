@@ -317,6 +317,35 @@ public sealed class ProgramExecutionTest
         Assert.AreEqual("31630111" + Environment.NewLine, output.Text);
     }
 
+    [TestMethod]
+    public void Execute_Function_With_Incompatible_Argument_Throws_Runtime_Exception()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter();
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Routines; function Twice(value: integer): integer; begin Twice := value * 2; end; begin writeln(Twice('x')); end.")));
+
+        RuntimeException exception = Assert.ThrowsExactly<RuntimeException>(() => interpreter.Execute(program));
+
+        Assert.AreEqual("Argument 1 for 'Twice' must be integer.", exception.Message);
+    }
+
+    [TestMethod]
+    public void Execute_Local_Variable_Shadowing_Preserves_Outer_Value()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Routines; var value: integer; procedure Show; var value: integer; begin value := 2; writeln(value); end; begin value := 1; Show; writeln(value); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("2" + Environment.NewLine + "1" + Environment.NewLine, output.Text);
+    }
+
     private sealed class BufferOutput : IOutput
     {
         public string Text { get; private set; } = string.Empty;

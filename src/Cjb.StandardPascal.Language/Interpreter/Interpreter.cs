@@ -267,6 +267,7 @@ public sealed class Interpreter : IInterpreter
         }
 
         object[] arguments = statement.Arguments.Select(Evaluate).ToArray();
+        ValidateArguments(procedure.Name, procedure.Parameters, arguments);
         Dictionary<string, object> callerValues = new(_values, StringComparer.OrdinalIgnoreCase);
         Dictionary<string, PascalType> callerTypes = new(_types, StringComparer.OrdinalIgnoreCase);
         Dictionary<string, string> variableArguments = [];
@@ -723,6 +724,7 @@ public sealed class Interpreter : IInterpreter
         }
 
         object[] arguments = call.Arguments.Select(Evaluate).ToArray();
+        ValidateArguments(function.Name, function.Parameters, arguments);
         Dictionary<string, object> callerValues = new(_values, StringComparer.OrdinalIgnoreCase);
         Dictionary<string, PascalType> callerTypes = new(_types, StringComparer.OrdinalIgnoreCase);
 
@@ -774,6 +776,25 @@ public sealed class Interpreter : IInterpreter
                 case FunctionDeclaration function:
                     _functions[function.Name.Lexeme] = function;
                     break;
+            }
+        }
+    }
+
+    private void ValidateArguments(
+        Token routine,
+        IReadOnlyList<RoutineParameter> parameters,
+        IReadOnlyList<object> arguments)
+    {
+        for (int index = 0; index < parameters.Count; index++)
+        {
+            PascalType expected = ResolveType(parameters[index].Type);
+            PascalType actual = TypeOf(arguments[index]);
+
+            if (!expected.IsAssignmentCompatibleWith(actual))
+            {
+                throw Error(
+                    routine,
+                    $"Argument {index + 1} for '{routine.Lexeme}' must be {expected.Name}.");
             }
         }
     }
