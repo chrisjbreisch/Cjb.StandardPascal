@@ -362,6 +362,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Packed_Character_Array_Stores_Characters()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Characters; var letters: packed array[1..2] of char; begin letters[1] := 'A'; letters[2] := 'B'; writeln(letters[1], letters[2]); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("AB" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Set_Constructor_And_Membership_Returns_Boolean()
     {
         IScanner scanner = new Language.Scanner.Scanner();
