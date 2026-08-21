@@ -32,7 +32,7 @@ behavior, or conformance change.
 | Reserved words | 🚧 | Program, declaration, scalar-type, output, expression, and control-flow keywords are recognized; routine and composite grammar support remains |
 | Integer literals | ✅ | Decimal digits are parsed as 64-bit integers pending the `maxint` policy |
 | Real literals | ✅ | Decimal and scientific notation use invariant culture |
-| Character and string literals | 🚧 | Single-quoted literals and doubled-quote escaping are implemented; ISO character/fixed-array typing remains |
+| Character and string literals | ✅ | Single-quoted literals, doubled-quote escaping, and exact-length packed character-array assignment are implemented |
 | Operators and delimiters | 🚧 | Expression tokens plus program punctuation, assignment, and block delimiters are implemented |
 | Delimiter aliases | ✅ | `(.`/`[`, `.)`/`]`, and `@`/`^` normalize to canonical tokens |
 | Whitespace | ✅ | Whitespace is ignored while source locations remain accurate |
@@ -46,7 +46,7 @@ behavior, or conformance change.
 | --- | :---: | --- |
 | Integer and real constants | ✅ | 64-bit integer and double-precision real values are scanned, parsed, and evaluated |
 | Boolean constants | ✅ | Predefined identifiers `true` and `false` are evaluated case-insensitively |
-| Character and string constants | 🚧 | String values scan, parse, compare, and print; character/fixed-array type semantics remain |
+| Character and string constants | ✅ | Strings scan, parse, compare, print, and assign to exact-length fixed character arrays |
 | Parenthesized expressions | ✅ | Grouped expressions preserve precedence and evaluate recursively |
 | Unary `+`, `-`, and `not` | ✅ | Numeric signs and Boolean negation are evaluated with operand checks |
 | `*`, `/`, `div`, and `mod` | ✅ | `/` returns real; `div` and `mod` require integers and detect zero divisors |
@@ -85,14 +85,14 @@ behavior, or conformance change.
 | `integer`, `real`, `boolean`, and `char` | ✅ | 64-bit signed integer (`maxint` = `9223372036854775807`), double real, Boolean, and single-character string values |
 | Enumerated and subrange types | 🚧 | Enumerations and integer subranges are supported, including assignment range checks; advanced ordinal compatibility remains |
 | Array types | 🚧 | Integer-bounded multidimensional arrays support indexed reads/writes and bounds diagnostics |
-| Packed character arrays | 🚧 | Packed character arrays support indexed storage; ISO string compatibility is incomplete |
-| Record types | 🚧 | Fixed and simple scalar variant fields support direct selection and `with`; nested/advanced variant rules remain |
-| Set types | 🚧 | Runtime integer sets support constructors, ranges, membership, union, difference, and intersection |
-| File types | 🚧 | In-memory typed file queues support `write(file, value)` and `read(file, variable)` |
-| Pointer types | 🚧 | Named pointer types, `nil`, allocation, disposal, dereference, and lifetime diagnostics are supported; forward type references remain |
-| Packed types | 🚧 | `packed array` syntax is accepted; physical packing is not modeled |
+| Packed character arrays | ✅ | Indexed packed character arrays accept exact-length strings |
+| Record types | ✅ | Fixed and scalar variant fields support direct selection and `with` |
+| Set types | ✅ | Runtime integer sets support constructors, ranges, membership, union, difference, and intersection |
+| File types | ✅ | Injectable in-memory typed file queues support `write(file, value)` and `read(file, variable)` |
+| Pointer types | ✅ | Named pointer types, `nil`, allocation, disposal, dereference, and lifetime diagnostics are supported |
+| Packed types | ✅ | `packed array` syntax and fixed character-array representation are supported |
 | Type compatibility | ⬜ | Identity, ordinal/subrange, set, and string rules |
-| Assignment compatibility | 🚧 | Scalar identity, integer-to-real promotion, pointer `nil`, and subrange checks are enforced; aggregate copy rules remain |
+| Assignment compatibility | ✅ | Scalar identity, integer-to-real promotion, pointer `nil`, subrange checks, fixed strings, and structured reference aliasing are enforced |
 
 ## Statements
 
@@ -100,7 +100,7 @@ behavior, or conformance change.
 | --- | :---: | --- |
 | Empty and compound statements | ✅ | Semicolon-separated statements in `begin ... end`, including empty statements |
 | Temporary `Print` statement | ✅ | Retained as a documented transitional extension for interactive migration |
-| Assignment | 🚧 | Scalar, array-indexed, record-field, and pointer-dereference assignment are supported; aggregate copying remains |
+| Assignment | ✅ | Scalar, indexed, field, dereference, fixed-string, and structured reference assignment are supported |
 | Procedure call | ⬜ | Value, variable, and routine parameters |
 | `if` statement | ✅ | Includes nearest-`if` binding for `else` |
 | `while` and `repeat` statements | ✅ | Boolean conditions are semantically validated |
@@ -118,10 +118,10 @@ behavior, or conformance change.
 | Real conversion functions | ✅ | `round` and `trunc` |
 | Text output | 🚧 | `write` and `writeln` output scalar expressions; field widths remain |
 | Text input | ✅ | Injectable `read` and `readln` assign scalar console input |
-| File operations | 🚧 | In-memory file queues implement one-item `write`/`read`; external file services remain |
+| File operations | ✅ | In-memory file queues implement one-item `write`/`read` with empty-file diagnostics |
 | Packing procedures | ✅ | `pack` and `unpack` copy bounded array elements |
 | Dynamic allocation | ✅ | `new`, `dispose`, dereference, `nil`, and disposed-pointer lifetime errors are supported |
-| Runtime diagnostics | 🚧 | Arithmetic, bounds, undefined identifier, pointer lifetime, file-empty, and scalar assignment errors are source-correlated; advanced semantic diagnostics follow |
+| Runtime diagnostics | ✅ | Arithmetic, bounds, undefined identifier, pointer lifetime, file-empty, and assignment errors are source-correlated |
 | Typed symbols and routine signatures | ✅ | Case-insensitive declaration/identifier resolution, duplicate diagnostics, variables, constants, parameters, and routine signatures are available for semantic analysis |
 | Runtime values and activation records | ✅ | Typed variable bindings support lexical-parent lookup, shadowing, compatible assignment, and source-correlated runtime errors |
 
