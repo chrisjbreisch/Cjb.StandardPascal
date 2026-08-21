@@ -173,6 +173,15 @@ public sealed class Interpreter : IInterpreter
             "pred" => Successor(expression.Name, argument, -1),
             "round" => checked((long)Math.Round(ToDouble(expression.Name, argument), MidpointRounding.AwayFromZero)),
             "trunc" => checked((long)Math.Truncate(ToDouble(expression.Name, argument))),
+            "abs" => Absolute(expression.Name, argument),
+            "sqr" => Square(expression.Name, argument),
+            "sqrt" => SquareRoot(expression.Name, argument),
+            "sin" => Math.Sin(ToDouble(expression.Name, argument)),
+            "cos" => Math.Cos(ToDouble(expression.Name, argument)),
+            "tan" => Math.Tan(ToDouble(expression.Name, argument)),
+            "arctan" => Math.Atan(ToDouble(expression.Name, argument)),
+            "exp" => Math.Exp(ToDouble(expression.Name, argument)),
+            "ln" => NaturalLogarithm(expression.Name, argument),
             _ => throw Error(expression.Name, $"Unsupported routine '{expression.Name.Lexeme}'."),
         };
     }
@@ -649,6 +658,32 @@ public sealed class Interpreter : IInterpreter
             string { Length: 1 } character => char.ConvertFromUtf32(checked(character[0] + delta)),
             _ => throw Error(token, "Operand must be ordinal."),
         };
+    }
+
+    private static object Absolute(Token token, object value) => value switch
+    {
+        long integer => checked(Math.Abs(integer)),
+        double real => Math.Abs(real),
+        _ => throw Error(token, "Operand must be numeric."),
+    };
+
+    private static object Square(Token token, object value) => value switch
+    {
+        long integer => checked(integer * integer),
+        double real => real * real,
+        _ => throw Error(token, "Operand must be numeric."),
+    };
+
+    private static double SquareRoot(Token token, object value)
+    {
+        double number = ToDouble(token, value);
+        return number < 0 ? throw Error(token, "Square root requires a nonnegative operand.") : Math.Sqrt(number);
+    }
+
+    private static double NaturalLogarithm(Token token, object value)
+    {
+        double number = ToDouble(token, value);
+        return number <= 0 ? throw Error(token, "Natural logarithm requires a positive operand.") : Math.Log(number);
     }
 
     private static double ToDouble(Token token, object value)

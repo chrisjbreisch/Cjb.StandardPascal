@@ -302,6 +302,21 @@ public sealed class ProgramExecutionTest
         Assert.AreEqual("4" + Environment.NewLine, output.Text);
     }
 
+    [TestMethod]
+    public void Execute_Numeric_Predefined_Routines_Return_Expected_Values()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Numeric; begin writeln(abs(-3), sqr(4), sqrt(9), sin(0), cos(0), exp(0), ln(exp(1))); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("31630111" + Environment.NewLine, output.Text);
+    }
+
     private sealed class BufferOutput : IOutput
     {
         public string Text { get; private set; } = string.Empty;
