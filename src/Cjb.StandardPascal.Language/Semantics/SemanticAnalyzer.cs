@@ -63,6 +63,18 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
 
                 InferType(assignment.Value);
                 return;
+            case IndexedAssignment indexedAssignment:
+                foreach (Expression subscript in indexedAssignment.Subscripts) { RequireInteger(InferType(subscript), indexedAssignment.Name); }
+                InferType(indexedAssignment.Value);
+                return;
+            case Allocation:
+                return;
+            case DereferenceAssignment dereferenceAssignment:
+                InferType(dereferenceAssignment.Value);
+                return;
+            case FieldAssignment fieldAssignment:
+                InferType(fieldAssignment.Value);
+                return;
             case Case caseStatement:
                 PascalType selectorType = InferType(caseStatement.Selector);
                 foreach (CaseBranch branch in caseStatement.Branches)
@@ -116,6 +128,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
                 {
                     foreach (IStatement nestedStatement in blockStatement.Block.Statements)
                     {
+                
                         AnalyzeStatement(nestedStatement);
                     }
                 }
@@ -126,6 +139,8 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
                 InferType(print.Expression);
                 return;
             case ProcedureCall:
+                return;
+            case Read:
                 return;
             case Write write:
                 foreach (Expression expression in write.Expressions)
@@ -155,8 +170,14 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         return expression switch
         {
             Literal literal => InferLiteralType(literal),
+            Nil => new PointerPascalType("pointer"),
             Call call => InferCallType(call),
+            SetLiteral setLiteral => InferSetLiteralType(setLiteral),
+            SetRange => new PrimitivePascalType("set"),
             Identifier identifier => InferIdentifierType(identifier),
+            Cjb.StandardPascal.Language.Parser.Expressions.Index index => InferIndexType(index),
+            Field => PascalTypes.Integer,
+            Dereference => PascalTypes.Integer,
             Grouping grouping => InferType(grouping.InnerExpression),
             Unary unary => InferUnaryType(unary),
             Binary binary => InferBinaryType(binary),
@@ -175,6 +196,12 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         };
     }
 
+    private static PascalType InferIndexType(Cjb.StandardPascal.Language.Parser.Expressions.Index index)
+    {
+        foreach (Expression subscript in index.Subscripts) { RequireInteger(InferType(subscript), index.Name); }
+        return PascalTypes.Integer;
+    }
+
     private static PascalType InferCallType(Call call)
     {
         foreach (Expression argument in call.Arguments)
@@ -185,6 +212,24 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         return call.Name.Lexeme.Equals("chr", StringComparison.OrdinalIgnoreCase)
             ? PascalTypes.Character
             : PascalTypes.Integer;
+    }
+
+    private static PascalType InferSetLiteralType(SetLiteral setLiteral)
+    {
+        foreach (Expression element in setLiteral.Elements)
+        {
+            if (element is SetRange range)
+            {
+                RequireInteger(InferType(range.Lower), new Scanner.Token(Scanner.TokenType.Range, "..", null, range.Lower.Span));
+                RequireInteger(InferType(range.Upper), new Scanner.Token(Scanner.TokenType.Range, "..", null, range.Upper.Span));
+            }
+            else
+            {
+                RequireInteger(InferType(element), new Scanner.Token(Scanner.TokenType.In, "in", null, element.Span));
+            }
+        }
+
+        return new PrimitivePascalType("set");
     }
 
     private static PascalType InferIdentifierType(Identifier identifier)
@@ -233,9 +278,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
             TokenType.Equal or TokenType.NotEqual or TokenType.LessThan
                 or TokenType.LessThanOrEqual or TokenType.GreaterThan
                 or TokenType.GreaterThanOrEqual => InferComparisonResult(left, right, binaryOperator),
-            TokenType.In => throw new SemanticException(
-                "Set membership is not implemented.",
-                binaryOperator.Span),
+            TokenType.In => InferMembershipResult(left, right, binaryOperator),
             _ => throw new SemanticException("Unsupported binary operator.", binaryOperator.Span),
         };
     }
@@ -245,6 +288,12 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         PascalType right,
         Token binaryOperator)
     {
+        if (string.Equals(left.Name, "set", StringComparison.Ordinal)
+            && string.Equals(right.Name, "set", StringComparison.Ordinal))
+        {
+            return new PrimitivePascalType("set");
+        }
+
         RequireNumeric(left, binaryOperator, "Operands must be numeric.");
         RequireNumeric(right, binaryOperator, "Operands must be numeric.");
         return ReferenceEquals(left, PascalTypes.Real) || ReferenceEquals(right, PascalTypes.Real)
@@ -294,6 +343,12 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         }
 
         throw new SemanticException("Operands are not comparable.", binaryOperator.Span);
+    }
+
+    private static PascalType InferMembershipResult(PascalType left, PascalType right, Token token)
+    {
+        RequireInteger(left, token);
+        return PascalTypes.Boolean;
     }
 
     private static PascalType RequireNumeric(PascalType type, Token token, string message)

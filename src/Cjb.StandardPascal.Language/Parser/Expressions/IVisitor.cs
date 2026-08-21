@@ -18,6 +18,8 @@ public interface IVisitor<out T>
 
     T VisitLiteralExpression(Literal expression);
 
+    T VisitNilExpression(Nil expression);
+
     T VisitSetLiteralExpression(SetLiteral expression);
 
     T VisitSetRangeExpression(SetRange expression);

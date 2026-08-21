@@ -270,6 +270,8 @@ public sealed class Interpreter : IInterpreter
         return expression.Value;
     }
 
+    public object VisitNilExpression(Nil expression) => new PointerValue();
+
     public object VisitSetLiteralExpression(SetLiteral expression)
     {
         HashSet<long> elements = [];
@@ -479,7 +481,8 @@ public sealed class Interpreter : IInterpreter
             ? identifierType
             : TypeOf(value);
 
-        if (!type.IsAssignmentCompatibleWith(sourceType))
+        if (!type.IsAssignmentCompatibleWith(sourceType)
+            && !(type is PointerPascalType && value is PointerValue))
         {
             throw Error(statement.Name, $"Cannot assign {sourceType.Name} to {type.Name} '{statement.Name.Lexeme}'.");
         }
@@ -887,6 +890,7 @@ public sealed class Interpreter : IInterpreter
         double => PascalTypes.Real,
         bool => PascalTypes.Boolean,
         string => PascalTypes.Character,
+        PointerValue => new PointerPascalType("pointer"),
         _ => throw new InvalidOperationException("Unsupported runtime value."),
     };
 

@@ -541,6 +541,11 @@ public sealed class Parser : IParser
 
     private Expression Primary()
     {
+        if (Match(TokenType.Nil))
+        {
+            return new Nil(Previous().Span);
+        }
+
         if (Match(TokenType.LeftBracket))
         {
             Token leftBracket = Previous();

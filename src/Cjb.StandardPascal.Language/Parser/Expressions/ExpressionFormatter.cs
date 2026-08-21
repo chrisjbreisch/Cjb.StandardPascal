@@ -10,6 +10,8 @@ public sealed class ExpressionFormatter : IExpressionFormatter, IVisitor<string>
 
     public string VisitFieldExpression(Field expression) => "(.)";
 
+    public string VisitNilExpression(Nil expression) => "nil";
+
     public string VisitIndexExpression(Index expression) => "(index)";
 
     public string VisitSetLiteralExpression(SetLiteral expression) => "(set)";
