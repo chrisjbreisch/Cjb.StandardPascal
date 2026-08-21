@@ -377,6 +377,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Pointer_New_Dereference_And_Dispose_Uses_Heap_Cell()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Pointers; type IntPointer = ^integer; var pointer: IntPointer; begin new(pointer); pointer^ := 7; writeln(pointer^); dispose(pointer); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("7" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Function_With_Incompatible_Argument_Throws_Runtime_Exception()
     {
         IScanner scanner = new Language.Scanner.Scanner();

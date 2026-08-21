@@ -16,6 +16,7 @@ public sealed class Scanner : IScanner
             ["char"] = TokenType.Char,
             ["const"] = TokenType.Const,
             ["div"] = TokenType.Div,
+            ["dispose"] = TokenType.Dispose,
             ["do"] = TokenType.Do,
             ["downto"] = TokenType.DownTo,
             ["else"] = TokenType.Else,

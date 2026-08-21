@@ -41,6 +41,7 @@ public enum TokenType
     Char,
     Const,
     Div,
+    Dispose,
     Do,
     DownTo,
     Else,

@@ -6,6 +6,8 @@ public interface IVisitor<out T>
 
     T VisitCallExpression(Call expression);
 
+    T VisitDereferenceExpression(Dereference expression);
+
     T VisitGroupingExpression(Grouping expression);
 
     T VisitIndexExpression(Index expression);

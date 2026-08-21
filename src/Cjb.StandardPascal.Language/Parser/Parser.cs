@@ -100,6 +100,14 @@ public sealed class Parser : IParser
             {
                 Token name = Advance();
                 Consume(TokenType.Equal, "Expected '=' after type name.");
+                if (Match(TokenType.Caret))
+                {
+                    Token caret = Previous();
+                    TypeSyntax target = ParseTypeSyntax();
+                    Token semicolon = Consume(TokenType.Semicolon, "Expected ';' after type declaration.");
+                    declarations.Add(new PointerDeclaration(name, new PointerTypeSyntax(target, Span(caret, target.Span)), Span(name, semicolon)));
+                    continue;
+                }
                 if (Check(TokenType.Number) && _current + 1 < _tokens.Count && _tokens[_current + 1].Type == TokenType.Range)
                 {
                     Token minimum = Advance();
@@ -219,6 +227,14 @@ public sealed class Parser : IParser
 
     private IStatement Statement()
     {
+        if (Match(TokenType.New, TokenType.Dispose))
+        {
+            Token keyword = Previous();
+            Consume(TokenType.LeftParen, "Expected '(' after allocation routine.");
+            Token target = Consume(TokenType.Identifier, "Expected pointer variable.");
+            Token rightParenthesis = Consume(TokenType.RightParen, "Expected ')' after pointer variable.");
+            return new Allocation(target, keyword.Type == TokenType.Dispose, Span(keyword, rightParenthesis));
+        }
         if (Match(TokenType.Read, TokenType.ReadLn))
         {
             Token keyword = Previous();
@@ -368,6 +384,13 @@ public sealed class Parser : IParser
         if (Check(TokenType.Identifier))
         {
             Token name = Advance();
+
+            if (Match(TokenType.Caret))
+            {
+                if (!Match(TokenType.Assign)) { throw Error(Peek(), "Expected ':=' after pointer dereference."); }
+                Expression value = Expression();
+                return new DereferenceAssignment(name, value, Span(name, value.Span));
+            }
 
             if (Match(TokenType.LeftBracket))
             {
@@ -532,6 +555,11 @@ public sealed class Parser : IParser
         if (Match(TokenType.Identifier))
         {
             Token name = Previous();
+
+            if (Match(TokenType.Caret))
+            {
+                return new Dereference(name, Span(name, Previous()));
+            }
 
             if (Match(TokenType.LeftBracket))
             {

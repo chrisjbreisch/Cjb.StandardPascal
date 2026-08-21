@@ -34,6 +34,8 @@ public sealed class StatementFormatter : IStatementFormatter, IVisitor<string>
 
     public string VisitAssignmentStatement(Assignment statement) => "(:=)";
 
+    public string VisitAllocationStatement(Allocation statement) => "(allocation)";
+
     public string VisitCaseStatement(Case statement) => "(case)";
 
     public string VisitForStatement(For statement) => "(for)";
@@ -43,6 +45,8 @@ public sealed class StatementFormatter : IStatementFormatter, IVisitor<string>
     public string VisitIfStatement(If statement) => "(if)";
 
     public string VisitIndexedAssignmentStatement(IndexedAssignment statement) => "(index :=)";
+
+    public string VisitDereferenceAssignmentStatement(DereferenceAssignment statement) => "(^ :=)";
 
     public string VisitLabeledStatement(Labeled statement) => "(label)";
 

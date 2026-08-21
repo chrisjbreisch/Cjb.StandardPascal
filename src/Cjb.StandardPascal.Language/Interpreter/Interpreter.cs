@@ -101,6 +101,9 @@ public sealed class Interpreter : IInterpreter
                     case RecordDeclaration record:
                         _namedTypes.Add(record.Name.Lexeme, new PrimitivePascalType(record.Name.Lexeme));
                         break;
+                    case PointerDeclaration pointer:
+                        _namedTypes.Add(pointer.Name.Lexeme, new PointerPascalType(pointer.Name.Lexeme));
+                        break;
                     case ProcedureDeclaration procedure:
                         _procedures.Add(procedure.Name.Lexeme, procedure);
                         break;
@@ -117,6 +120,8 @@ public sealed class Interpreter : IInterpreter
                             PascalType variableType = ResolveType(variable.Type);
                             _values.Add(name.Lexeme, variable.Type is ArrayTypeSyntax array
                                 ? new ArrayValue(array.LowerBound, array.UpperBound, DefaultValue(ResolveType(array.ElementType)))
+                                : variableType is PointerPascalType
+                                    ? new PointerValue()
                                 : program.Block.Declarations.OfType<RecordDeclaration>().FirstOrDefault(record => string.Equals(record.Name.Lexeme, variableType.Name, StringComparison.OrdinalIgnoreCase)) is RecordDeclaration record
                                 ? record.Fields.ToDictionary(static field => field.Lexeme, static _ => (object)0L, StringComparer.OrdinalIgnoreCase)
                                 : DefaultValue(variableType));
@@ -202,6 +207,11 @@ public sealed class Interpreter : IInterpreter
     public object VisitGroupingExpression(Grouping expression)
     {
         return Evaluate(expression.InnerExpression);
+    }
+
+    public object VisitDereferenceExpression(Dereference expression)
+    {
+        return RequirePointer(expression.Name).Read(expression.Span);
     }
 
     public object VisitIndexExpression(Cjb.StandardPascal.Language.Parser.Expressions.Index expression)
@@ -423,6 +433,21 @@ public sealed class Interpreter : IInterpreter
             ? (double)integer
             : value;
         return _values[statement.Name.Lexeme];
+    }
+
+    public object VisitAllocationStatement(Allocation statement)
+    {
+        PointerValue pointer = RequirePointer(statement.Target);
+        if (statement.Dispose) { pointer.Dispose(statement.Span); }
+        else { pointer.Allocate(0L); }
+        return string.Empty;
+    }
+
+    public object VisitDereferenceAssignmentStatement(DereferenceAssignment statement)
+    {
+        object value = Evaluate(statement.Value);
+        RequirePointer(statement.Name).Write(value, statement.Span);
+        return value;
     }
 
     public object VisitIndexedAssignmentStatement(IndexedAssignment statement)
@@ -878,10 +903,18 @@ public sealed class Interpreter : IInterpreter
     {
         ScalarTypeSyntax scalar => scalar.Type,
         ArrayTypeSyntax => new PrimitivePascalType("array"),
+        PointerTypeSyntax => new PointerPascalType("pointer"),
         NamedTypeSyntax named when _namedTypes.TryGetValue(named.Name.Lexeme, out PascalType? resolved) => resolved,
         NamedTypeSyntax named => throw new RuntimeException($"Undefined type '{named.Name.Lexeme}'.", named.Span),
         _ => throw new RuntimeException("Unsupported type.", type.Span),
     };
+
+    private PointerValue RequirePointer(Token name)
+    {
+        return _values.TryGetValue(name.Lexeme, out object? value) && value is PointerValue pointer
+            ? pointer
+            : throw Error(name, $"'{name.Lexeme}' is not a pointer.");
+    }
 
     private static object DefaultValue(PascalType type) => ReferenceEquals(type, PascalTypes.Integer) ? 0L
         : ReferenceEquals(type, PascalTypes.Real) ? 0d
