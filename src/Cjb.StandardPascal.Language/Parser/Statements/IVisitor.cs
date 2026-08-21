@@ -6,6 +6,8 @@ public interface IVisitor<out T>
 
     T VisitAssignmentStatement(Assignment statement);
 
+    T VisitCaseStatement(Case statement);
+
     T VisitForStatement(For statement);
 
     T VisitIfStatement(If statement);

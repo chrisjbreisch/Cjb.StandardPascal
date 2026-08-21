@@ -214,6 +214,21 @@ public sealed class Interpreter : IInterpreter
         return _values[statement.Name.Lexeme];
     }
 
+    public object VisitCaseStatement(Case statement)
+    {
+        object selector = Evaluate(statement.Selector);
+
+        foreach (CaseBranch branch in statement.Branches)
+        {
+            if (branch.Labels.Any(label => Equals(selector, Evaluate(label))))
+            {
+                return Interpret(branch.Statement);
+            }
+        }
+
+        return statement.ElseBranch is null ? string.Empty : Interpret(statement.ElseBranch);
+    }
+
     public object VisitIfStatement(If statement)
     {
         return RequireBoolean(statement.Condition.Span, Evaluate(statement.Condition))

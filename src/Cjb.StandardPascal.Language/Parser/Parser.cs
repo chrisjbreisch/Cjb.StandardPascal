@@ -132,6 +132,39 @@ public sealed class Parser : IParser
 
     private IStatement Statement()
     {
+        if (Match(TokenType.Case))
+        {
+            Token keyword = Previous();
+            Expression selector = Expression();
+            Consume(TokenType.Of, "Expected 'of' after case selector.");
+            List<CaseBranch> branches = [];
+
+            while (!Check(TokenType.Else) && !Check(TokenType.End))
+            {
+                List<Expression> labels = [Expression()];
+                while (Match(TokenType.Comma))
+                {
+                    labels.Add(Expression());
+                }
+
+                Consume(TokenType.Colon, "Expected ':' after case label.");
+                IStatement branch = Statement();
+                branches.Add(new CaseBranch(labels, branch));
+                Match(TokenType.Semicolon);
+            }
+
+            IStatement? elseBranch = null;
+
+            if (Match(TokenType.Else))
+            {
+                elseBranch = Statement();
+                Match(TokenType.Semicolon);
+            }
+
+            Token end = Consume(TokenType.End, "Expected 'end' after case statement.");
+            return new Case(selector, branches, elseBranch, Span(keyword, end));
+        }
+
         if (Match(TokenType.If))
         {
             Token keyword = Previous();

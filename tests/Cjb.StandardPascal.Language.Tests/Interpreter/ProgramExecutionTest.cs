@@ -65,6 +65,21 @@ public sealed class ProgramExecutionTest
         Assert.AreEqual("ok" + Environment.NewLine + "12", output.Text);
     }
 
+    [TestMethod]
+    public void Execute_Case_Statement_Selects_Matching_Ordinal_Label()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Choice; var value: integer; begin value := 2; case value of 1: writeln('one'); 2, 3: writeln('many'); else writeln('other'); end; end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("many" + Environment.NewLine, output.Text);
+    }
+
     private sealed class BufferOutput : IOutput
     {
         public string Text { get; private set; } = string.Empty;

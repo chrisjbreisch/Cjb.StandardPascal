@@ -30,6 +30,8 @@ public sealed class StatementFormatter : IStatementFormatter, IVisitor<string>
 
     public string VisitAssignmentStatement(Assignment statement) => "(:=)";
 
+    public string VisitCaseStatement(Case statement) => "(case)";
+
     public string VisitForStatement(For statement) => "(for)";
 
     public string VisitIfStatement(If statement) => "(if)";
