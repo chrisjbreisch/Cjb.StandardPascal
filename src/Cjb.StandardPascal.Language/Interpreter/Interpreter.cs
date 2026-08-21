@@ -419,14 +419,28 @@ public sealed class Interpreter : IInterpreter
             throw Error(statement.Target, $"Undefined identifier '{statement.Target.Lexeme}'.");
         }
 
-        string text = _input.ReadLine();
-        object value = ReferenceEquals(type, PascalTypes.Integer)
-            ? long.Parse(text, CultureInfo.InvariantCulture)
-            : ReferenceEquals(type, PascalTypes.Real)
-                ? double.Parse(text, CultureInfo.InvariantCulture)
-                : ReferenceEquals(type, PascalTypes.Boolean)
-                    ? bool.Parse(text)
-                    : text;
+        object value;
+
+        if (statement.File is not null)
+        {
+            if (!_values.TryGetValue(statement.File.Lexeme, out object? fileValue) || fileValue is not FileValue file || file.Items.Count == 0)
+            {
+                throw Error(statement.File, "File has no readable item.");
+            }
+
+            value = file.Items.Dequeue();
+        }
+        else
+        {
+            string text = _input.ReadLine();
+            value = ReferenceEquals(type, PascalTypes.Integer)
+                ? long.Parse(text, CultureInfo.InvariantCulture)
+                : ReferenceEquals(type, PascalTypes.Real)
+                    ? double.Parse(text, CultureInfo.InvariantCulture)
+                    : ReferenceEquals(type, PascalTypes.Boolean)
+                        ? bool.Parse(text)
+                        : text;
+        }
         _values[statement.Target.Lexeme] = value;
         return value;
     }
@@ -625,6 +639,15 @@ public sealed class Interpreter : IInterpreter
 
     public object VisitWriteStatement(Write statement)
     {
+        if (statement.Expressions.Count > 1
+            && statement.Expressions[0] is Identifier fileName
+            && _values.TryGetValue(fileName.Name.Lexeme, out object? fileValue)
+            && fileValue is FileValue file)
+        {
+            foreach (Expression expression in statement.Expressions.Skip(1)) { file.Items.Enqueue(Evaluate(expression)); }
+            return string.Empty;
+        }
+
         string value = string.Concat(statement.Expressions.Select(expression => FormatValue(Evaluate(expression))));
 
         if (statement.AppendNewLine)

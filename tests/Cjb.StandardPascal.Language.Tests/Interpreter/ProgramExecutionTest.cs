@@ -521,6 +521,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_File_Write_And_Read_Transfers_Item()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Files; var numbers: file of integer; value: integer; begin write(numbers, 12); read(numbers, value); writeln(value); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("12" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Function_With_Incompatible_Argument_Throws_Runtime_Exception()
     {
         IScanner scanner = new Language.Scanner.Scanner();

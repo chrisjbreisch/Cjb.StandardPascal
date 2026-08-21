@@ -4,7 +4,8 @@ namespace Cjb.StandardPascal.Language.Parser.Statements;
 
 public sealed class Read : IStatement
 {
-    public Read(Token target, bool readLine, SourceSpan span) { Target = target; ReadLine = readLine; Span = span; }
+    public Read(Token? file, Token target, bool readLine, SourceSpan span) { File = file; Target = target; ReadLine = readLine; Span = span; }
+    public Token? File { get; }
     public Token Target { get; }
     public bool ReadLine { get; }
     public SourceSpan Span { get; }
