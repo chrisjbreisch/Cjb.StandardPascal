@@ -120,6 +120,8 @@ public sealed class Interpreter : IInterpreter
                             PascalType variableType = ResolveType(variable.Type);
                             _values.Add(name.Lexeme, variable.Type is ArrayTypeSyntax array
                                 ? new ArrayValue(array.LowerBound, array.UpperBound, DefaultValue(ResolveType(array.ElementType)))
+                                : variable.Type is FileTypeSyntax
+                                    ? new FileValue()
                                 : variableType is PointerPascalType
                                     ? new PointerValue()
                                 : program.Block.Declarations.OfType<RecordDeclaration>().FirstOrDefault(record => string.Equals(record.Name.Lexeme, variableType.Name, StringComparison.OrdinalIgnoreCase)) is RecordDeclaration record
@@ -915,6 +917,7 @@ public sealed class Interpreter : IInterpreter
     {
         ScalarTypeSyntax scalar => scalar.Type,
         ArrayTypeSyntax => new PrimitivePascalType("array"),
+        FileTypeSyntax => new FilePascalType(),
         PointerTypeSyntax => new PointerPascalType("pointer"),
         NamedTypeSyntax named when _namedTypes.TryGetValue(named.Name.Lexeme, out PascalType? resolved) => resolved,
         NamedTypeSyntax named => throw new RuntimeException($"Undefined type '{named.Name.Lexeme}'.", named.Span),

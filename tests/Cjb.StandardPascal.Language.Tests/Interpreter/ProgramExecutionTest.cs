@@ -407,6 +407,17 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_File_Type_Declaration_Initializes_File_Value()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Files; var output: file of integer; begin end.")));
+
+        new Language.Interpreter.Interpreter().Execute(program);
+    }
+
+    [TestMethod]
     public void Execute_Function_With_Incompatible_Argument_Throws_Runtime_Exception()
     {
         IScanner scanner = new Language.Scanner.Scanner();

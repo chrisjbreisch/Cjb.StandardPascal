@@ -705,6 +705,14 @@ public sealed class Parser : IParser
     {
         Match(TokenType.Packed);
 
+        if (Match(TokenType.File))
+        {
+            Token file = Previous();
+            Consume(TokenType.Of, "Expected 'of' after 'file'.");
+            TypeSyntax elementType = ParseTypeSyntax();
+            return new FileTypeSyntax(elementType, Span(file, elementType.Span));
+        }
+
         if (Match(TokenType.Array))
         {
             Token array = Previous();
