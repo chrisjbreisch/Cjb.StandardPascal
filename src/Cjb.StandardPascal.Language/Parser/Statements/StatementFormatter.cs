@@ -25,6 +25,8 @@ public sealed class StatementFormatter : IStatementFormatter, IVisitor<string>
 
     public string VisitProcedureCallStatement(ProcedureCall statement) => "(call)";
 
+    public string VisitReadStatement(Read statement) => "(read)";
+
     public string VisitBlockStatement(BlockStatement statement)
     {
         return "(block)";

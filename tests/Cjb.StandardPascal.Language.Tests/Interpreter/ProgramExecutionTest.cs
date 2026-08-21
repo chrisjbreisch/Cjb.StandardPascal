@@ -362,6 +362,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_ReadLn_Assigns_Injected_Input()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(new FixedInput("1906"), output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Input; var year: integer; begin readln(year); writeln(year); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("1906" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Function_With_Incompatible_Argument_Throws_Runtime_Exception()
     {
         IScanner scanner = new Language.Scanner.Scanner();
@@ -397,5 +412,12 @@ public sealed class ProgramExecutionTest
         public void Write(string value) => Text += value;
 
         public void WriteLine(string value) => Text += value + Environment.NewLine;
+    }
+
+    private sealed class FixedInput : IInput
+    {
+        private readonly Queue<string> _values;
+        public FixedInput(params string[] values) => _values = new Queue<string>(values);
+        public string ReadLine() => _values.Dequeue();
     }
 }

@@ -16,6 +16,7 @@ public sealed class Interpreter : IInterpreter
 {
     private readonly ISemanticAnalyzer _semanticAnalyzer;
     private readonly IOutput _output;
+    private readonly IInput _input;
     private readonly Dictionary<string, object> _values = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, PascalType> _types = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, PascalType> _namedTypes = new(StringComparer.OrdinalIgnoreCase);
@@ -24,25 +25,36 @@ public sealed class Interpreter : IInterpreter
     private Dictionary<string, object>? _activeFields;
 
     public Interpreter()
-        : this(new SemanticAnalyzer(), new NullOutput())
+        : this(new SemanticAnalyzer(), new NullInput(), new NullOutput())
     {
     }
 
     public Interpreter(IOutput output)
-        : this(new SemanticAnalyzer(), output)
+        : this(new SemanticAnalyzer(), new NullInput(), output)
+    {
+    }
+
+    public Interpreter(IInput input, IOutput output)
+        : this(new SemanticAnalyzer(), input, output)
     {
     }
 
     public Interpreter(ISemanticAnalyzer semanticAnalyzer)
-        : this(semanticAnalyzer, new NullOutput())
+        : this(semanticAnalyzer, new NullInput(), new NullOutput())
     {
     }
 
     public Interpreter(ISemanticAnalyzer semanticAnalyzer, IOutput output)
+        : this(semanticAnalyzer, new NullInput(), output)
+    {
+    }
+
+    public Interpreter(ISemanticAnalyzer semanticAnalyzer, IInput input, IOutput output)
     {
         _semanticAnalyzer = semanticAnalyzer
             ?? throw new ArgumentNullException(nameof(semanticAnalyzer));
         _output = output ?? throw new ArgumentNullException(nameof(output));
+        _input = input ?? throw new ArgumentNullException(nameof(input));
     }
 
     public object Evaluate(Expression expression)
@@ -333,6 +345,25 @@ public sealed class Interpreter : IInterpreter
             foreach ((string name, object value) in callerValues) { _values.Add(name, value); }
             foreach ((string name, PascalType type) in callerTypes) { _types.Add(name, type); }
         }
+    }
+
+    public object VisitReadStatement(Read statement)
+    {
+        if (!_types.TryGetValue(statement.Target.Lexeme, out PascalType? type))
+        {
+            throw Error(statement.Target, $"Undefined identifier '{statement.Target.Lexeme}'.");
+        }
+
+        string text = _input.ReadLine();
+        object value = ReferenceEquals(type, PascalTypes.Integer)
+            ? long.Parse(text, CultureInfo.InvariantCulture)
+            : ReferenceEquals(type, PascalTypes.Real)
+                ? double.Parse(text, CultureInfo.InvariantCulture)
+                : ReferenceEquals(type, PascalTypes.Boolean)
+                    ? bool.Parse(text)
+                    : text;
+        _values[statement.Target.Lexeme] = value;
+        return value;
     }
 
     public object VisitBlockStatement(BlockStatement statement)

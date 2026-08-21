@@ -219,6 +219,15 @@ public sealed class Parser : IParser
 
     private IStatement Statement()
     {
+        if (Match(TokenType.Read, TokenType.ReadLn))
+        {
+            Token keyword = Previous();
+            Consume(TokenType.LeftParen, "Expected '(' after input routine.");
+            Token target = Consume(TokenType.Identifier, "Expected an input target.");
+            Token rightParenthesis = Consume(TokenType.RightParen, "Expected ')' after input target.");
+            return new Read(target, keyword.Type == TokenType.ReadLn, Span(keyword, rightParenthesis));
+        }
+
         if (Match(TokenType.With))
         {
             Token keyword = Previous();

@@ -22,6 +22,8 @@ public interface IVisitor<out T>
 
     T VisitProcedureCallStatement(ProcedureCall statement);
 
+    T VisitReadStatement(Read statement);
+
     T VisitRepeatStatement(Repeat statement);
 
     T VisitWhileStatement(While statement);
