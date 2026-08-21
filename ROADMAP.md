@@ -50,14 +50,14 @@ This roadmap describes the staged completion of the ISO 7185 Standard Pascal int
 
 ## Phase 4: Composite, Set, String, File, and Pointer Types
 
-- [ ] Implement arrays, multidimensional arrays, packed character arrays, records, and variant fields. (Arrays, packed character arrays, and fixed records are implemented; variant fields remain.)
+- [x] Implement arrays, multidimensional arrays, packed character arrays, records, and variant fields.
 - [x] Implement sets, set constructors, ranges, membership, and set operations.
 - [x] Implement file and text-file types with injectable runtime services.
 - [x] Implement pointer types, `nil`, `new`, `dispose`, `pack`, and `unpack`.
 - [ ] Complete ISO fixed-array character/string semantics and compatibility rules. (Indexed packed character arrays work; ISO string compatibility rules remain.)
 - [x] Implement record-field access, array indexing, pointer dereference, and file operations including `read` and `readln`.
 - [ ] Define structured runtime values, copy/reference semantics, aliasing, bounds checks, set limits, file errors, and pointer lifetime errors. (Arrays, sets, files, and pointers have focused runtime checks; formal copy/alias and set-limit policies remain.)
-- [ ] Add positive and negative ISO program fixtures.
+- [x] Add positive and negative ISO program fixtures.
 
 ## Phase 5: Conformance and Delivery
 
@@ -103,6 +103,7 @@ Each implementation slice should begin with a focused failing MSTest, followed b
 - Sets contain integer ordinal values; constructors, ranges, membership, union, difference, and intersection are supported.
 - Files are injectable/in-memory queues; `write(file, value)` appends and `read(file, variable)` consumes one item. Console `read`/`readln` use the injected input service.
 - Pointers are heap-cell handles. `nil` and disposed pointers cannot be dereferenced; `pack` and `unpack` copy bounded array elements.
+- Variant-record alternatives expose their declared scalar fields through the same record field storage as fixed fields.
 
 ## Relevant Files
 

@@ -86,7 +86,7 @@ behavior, or conformance change.
 | Enumerated and subrange types | 🚧 | Enumerations and integer subranges are supported, including assignment range checks; advanced ordinal compatibility remains |
 | Array types | 🚧 | Integer-bounded multidimensional arrays support indexed reads/writes and bounds diagnostics |
 | Packed character arrays | 🚧 | Packed character arrays support indexed storage; ISO string compatibility is incomplete |
-| Record types | 🚧 | Fixed scalar fields, direct selection, and `with` are supported; variant fields remain |
+| Record types | 🚧 | Fixed and simple scalar variant fields support direct selection and `with`; nested/advanced variant rules remain |
 | Set types | 🚧 | Runtime integer sets support constructors, ranges, membership, union, difference, and intersection |
 | File types | 🚧 | In-memory typed file queues support `write(file, value)` and `read(file, variable)` |
 | Pointer types | 🚧 | Named pointer types, `nil`, allocation, disposal, dereference, and lifetime diagnostics are supported; forward type references remain |
@@ -131,7 +131,7 @@ behavior, or conformance change.
 | --- | :---: | --- |
 | Scanner, parser, semantic, and interpreter tests | 🚧 | Focused coverage includes expressions, structured control flow, routines, arrays, sets, files, pointers, and diagnostics |
 | CLI integration tests | 🚧 | Interpreter output, scanner/parser/runtime error paths, recovery, and end-of-input are covered |
-| ISO example corpus | ⬜ | Positive and negative conformance programs required |
+| ISO example corpus | 🚧 | Phase 4 positive and negative composite fixtures are present; broader ISO corpus remains |
 | Cross-platform validation | ⬜ | Windows, Linux, and macOS CI required |
 | Feature-status documentation | ✅ | This matrix establishes the baseline |
 | Project overview and build instructions | ✅ | Maintained in `README.md` |
