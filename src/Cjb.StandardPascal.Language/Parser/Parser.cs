@@ -2,6 +2,7 @@ using Cjb.StandardPascal.Language.Parser.Expressions;
 using Cjb.StandardPascal.Language.Parser.Declarations;
 using Cjb.StandardPascal.Language.Parser.Statements;
 using Cjb.StandardPascal.Language.Parser.Types;
+using Cjb.StandardPascal.Language.Parser.Routines;
 using Cjb.StandardPascal.Language.Scanner;
 using Cjb.StandardPascal.Language.Semantics.Types;
 
@@ -171,6 +172,19 @@ public sealed class Parser : IParser
             Block body = ParseBlock();
             Token semicolon = Consume(TokenType.Semicolon, "Expected ';' after procedure declaration.");
             declarations.Add(new ProcedureDeclaration(name, body, Span(keyword, semicolon)));
+        }
+
+        while (Match(TokenType.Function))
+        {
+            Token keyword = Previous();
+            Token name = Consume(TokenType.Identifier, "Expected a function name.");
+            IReadOnlyList<RoutineParameter> parameters = ParseRoutineParameters();
+            Consume(TokenType.Colon, "Expected ':' before function return type.");
+            TypeSyntax returnType = ParseTypeSyntax();
+            Consume(TokenType.Semicolon, "Expected ';' after function heading.");
+            Block body = ParseBlock();
+            Token semicolon = Consume(TokenType.Semicolon, "Expected ';' after function declaration.");
+            declarations.Add(new FunctionDeclaration(name, parameters, returnType, body, Span(keyword, semicolon)));
         }
 
         Token begin = Consume(TokenType.Begin, "Expected 'begin' to start the program block.");
@@ -587,6 +601,30 @@ public sealed class Parser : IParser
         }
 
         return new NamedTypeSyntax(Consume(TokenType.Identifier, "Expected a type name."));
+    }
+
+    private IReadOnlyList<RoutineParameter> ParseRoutineParameters()
+    {
+        List<RoutineParameter> parameters = [];
+
+        if (!Match(TokenType.LeftParen))
+        {
+            return parameters;
+        }
+
+        do
+        {
+            bool isVariable = Match(TokenType.Var);
+            List<Token> names = [Consume(TokenType.Identifier, "Expected a parameter name.")];
+            while (Match(TokenType.Comma)) { names.Add(Consume(TokenType.Identifier, "Expected a parameter name.")); }
+            Consume(TokenType.Colon, "Expected ':' after parameter names.");
+            TypeSyntax type = ParseTypeSyntax();
+            parameters.AddRange(names.Select(name => new RoutineParameter(name, type, isVariable)));
+        }
+        while (Match(TokenType.Semicolon));
+
+        Consume(TokenType.RightParen, "Expected ')' after parameters.");
+        return parameters;
     }
 
     private static PascalType TypeFor(Token token)

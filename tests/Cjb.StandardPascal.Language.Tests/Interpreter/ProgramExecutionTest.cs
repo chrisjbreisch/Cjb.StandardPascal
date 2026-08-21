@@ -227,6 +227,21 @@ public sealed class ProgramExecutionTest
         Assert.AreEqual("hello" + Environment.NewLine, output.Text);
     }
 
+    [TestMethod]
+    public void Execute_Function_With_Value_Parameter_Returns_Result()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Routines; function Twice(value: integer): integer; begin Twice := value * 2; end; begin writeln(Twice(3)); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("6" + Environment.NewLine, output.Text);
+    }
+
     private sealed class BufferOutput : IOutput
     {
         public string Text { get; private set; } = string.Empty;

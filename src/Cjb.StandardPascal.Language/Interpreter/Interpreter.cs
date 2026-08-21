@@ -2,6 +2,7 @@ using Cjb.StandardPascal.Language.Parser;
 using Cjb.StandardPascal.Language.Parser.Expressions;
 using Cjb.StandardPascal.Language.Parser.Declarations;
 using Cjb.StandardPascal.Language.Parser.Types;
+using Cjb.StandardPascal.Language.Parser.Routines;
 using Cjb.StandardPascal.Language.Parser.Statements;
 using Cjb.StandardPascal.Language.Scanner;
 using Cjb.StandardPascal.Language.Semantics;
@@ -18,6 +19,7 @@ public sealed class Interpreter : IInterpreter
     private readonly Dictionary<string, PascalType> _types = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, PascalType> _namedTypes = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, ProcedureDeclaration> _procedures = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, FunctionDeclaration> _functions = new(StringComparer.OrdinalIgnoreCase);
     private Dictionary<string, object>? _activeFields;
 
     public Interpreter()
@@ -62,6 +64,7 @@ public sealed class Interpreter : IInterpreter
         _types.Clear();
         _namedTypes.Clear();
         _procedures.Clear();
+        _functions.Clear();
         _activeFields = null;
 
         if (program.Block is not null)
@@ -87,6 +90,9 @@ public sealed class Interpreter : IInterpreter
                         break;
                     case ProcedureDeclaration procedure:
                         _procedures.Add(procedure.Name.Lexeme, procedure);
+                        break;
+                    case FunctionDeclaration function:
+                        _functions.Add(function.Name.Lexeme, function);
                         break;
                     case ConstantDeclaration constant:
                         _values.Add(constant.Name.Lexeme, Evaluate(constant.Value));
@@ -148,6 +154,11 @@ public sealed class Interpreter : IInterpreter
 
     public object VisitCallExpression(Call expression)
     {
+        if (_functions.TryGetValue(expression.Name.Lexeme, out FunctionDeclaration? function))
+        {
+            return InvokeFunction(function, expression);
+        }
+
         if (expression.Arguments.Count != 1)
         {
             throw Error(expression.Name, $"Routine '{expression.Name.Lexeme}' expects one argument.");
@@ -622,6 +633,45 @@ public sealed class Interpreter : IInterpreter
         string => PascalTypes.Character,
         _ => throw new InvalidOperationException("Unsupported runtime value."),
     };
+
+    private object InvokeFunction(FunctionDeclaration function, Call call)
+    {
+        if (call.Arguments.Count != function.Parameters.Count)
+        {
+            throw Error(call.Name, $"Function '{function.Name.Lexeme}' expects {function.Parameters.Count} arguments.");
+        }
+
+        object[] arguments = call.Arguments.Select(Evaluate).ToArray();
+        Dictionary<string, object> callerValues = new(_values, StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, PascalType> callerTypes = new(_types, StringComparer.OrdinalIgnoreCase);
+
+        try
+        {
+            _values.Clear();
+            _types.Clear();
+
+            for (int index = 0; index < function.Parameters.Count; index++)
+            {
+                RoutineParameter parameter = function.Parameters[index];
+                PascalType type = ResolveType(parameter.Type);
+                _values.Add(parameter.Name.Lexeme, arguments[index]);
+                _types.Add(parameter.Name.Lexeme, type);
+            }
+
+            PascalType returnType = ResolveType(function.ReturnType);
+            _values.Add(function.Name.Lexeme, DefaultValue(returnType));
+            _types.Add(function.Name.Lexeme, returnType);
+            Interpret(new BlockStatement(function.Body));
+            return _values[function.Name.Lexeme];
+        }
+        finally
+        {
+            _values.Clear();
+            _types.Clear();
+            foreach ((string name, object value) in callerValues) { _values.Add(name, value); }
+            foreach ((string name, PascalType type) in callerTypes) { _types.Add(name, type); }
+        }
+    }
 
     private PascalType ResolveType(TypeSyntax type) => type switch
     {
