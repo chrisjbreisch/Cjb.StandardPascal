@@ -95,6 +95,21 @@ public sealed class ProgramExecutionTest
         Assert.AreEqual("65B3132" + Environment.NewLine, output.Text);
     }
 
+    [TestMethod]
+    public void Execute_Goto_Jumps_To_Label_In_The_Same_Block()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Jump; label 10; begin goto 10; writeln('skip'); 10: writeln('done'); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("done" + Environment.NewLine, output.Text);
+    }
+
     private sealed class BufferOutput : IOutput
     {
         public string Text { get; private set; } = string.Empty;

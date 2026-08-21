@@ -34,7 +34,11 @@ public sealed class StatementFormatter : IStatementFormatter, IVisitor<string>
 
     public string VisitForStatement(For statement) => "(for)";
 
+    public string VisitGotoStatement(Goto statement) => "(goto)";
+
     public string VisitIfStatement(If statement) => "(if)";
+
+    public string VisitLabeledStatement(Labeled statement) => "(label)";
 
     public string VisitWriteStatement(Write statement) => "(write)";
 

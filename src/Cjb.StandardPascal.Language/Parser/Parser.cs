@@ -74,6 +74,13 @@ public sealed class Parser : IParser
     {
         List<Declaration> declarations = [];
 
+        if (Match(TokenType.Label))
+        {
+            Consume(TokenType.Number, "Expected a numeric label.");
+            while (Match(TokenType.Comma)) { Consume(TokenType.Number, "Expected a numeric label."); }
+            Consume(TokenType.Semicolon, "Expected ';' after label declarations.");
+        }
+
         if (Match(TokenType.Const))
         {
             while (Check(TokenType.Identifier))
@@ -132,6 +139,20 @@ public sealed class Parser : IParser
 
     private IStatement Statement()
     {
+        if (Match(TokenType.Goto))
+        {
+            Token keyword = Previous();
+            Token label = Consume(TokenType.Number, "Expected a numeric goto label.");
+            return new Goto(label, Span(keyword, label));
+        }
+
+        if (Check(TokenType.Number) && _current + 1 < _tokens.Count && _tokens[_current + 1].Type == TokenType.Colon)
+        {
+            Token label = Advance();
+            Advance();
+            IStatement statement = Statement();
+            return new Labeled(label, statement, Span(label, statement.Span));
+        }
         if (Match(TokenType.Case))
         {
             Token keyword = Previous();

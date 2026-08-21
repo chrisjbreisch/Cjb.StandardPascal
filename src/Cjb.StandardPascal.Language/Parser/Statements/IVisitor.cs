@@ -10,7 +10,11 @@ public interface IVisitor<out T>
 
     T VisitForStatement(For statement);
 
+    T VisitGotoStatement(Goto statement);
+
     T VisitIfStatement(If statement);
+
+    T VisitLabeledStatement(Labeled statement);
 
     T VisitPrintStatement(Print statement);
 

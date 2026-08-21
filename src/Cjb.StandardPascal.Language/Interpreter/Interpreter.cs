@@ -204,14 +204,25 @@ public sealed class Interpreter : IInterpreter
     public object VisitBlockStatement(BlockStatement statement)
     {
         object result = string.Empty;
+        Dictionary<long, int> labels = statement.Block.Statements
+            .Select((nestedStatement, index) => (nestedStatement, index))
+            .Where(static item => item.nestedStatement is Labeled)
+            .ToDictionary(
+                static item => (long)((Labeled)item.nestedStatement).Label.Literal!,
+                static item => item.index);
 
-        foreach (IStatement nestedStatement in statement.Block.Statements)
+        for (int index = 0; index < statement.Block.Statements.Count; index++)
         {
-            result = Interpret(nestedStatement);
+            try { result = Interpret(statement.Block.Statements[index]); }
+            catch (GotoSignal signal) when (labels.TryGetValue(signal.Label, out int target)) { index = target - 1; }
         }
 
         return result;
     }
+
+    public object VisitGotoStatement(Goto statement) => throw new GotoSignal((long)statement.Label.Literal!);
+
+    public object VisitLabeledStatement(Labeled statement) => Interpret(statement.Statement);
 
     public object VisitAssignmentStatement(Assignment statement)
     {
@@ -543,4 +554,10 @@ public sealed class Interpreter : IInterpreter
         bool boolean => boolean ? "TRUE" : "FALSE",
         _ => Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty,
     };
+
+    private sealed class GotoSignal : Exception
+    {
+        public GotoSignal(long label) { Label = label; }
+        public long Label { get; }
+    }
 }
