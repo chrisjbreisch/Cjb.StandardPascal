@@ -59,6 +59,7 @@ public enum TokenType
     Procedure,
     Program,
     Real,
+    Record,
     Repeat,
     Then,
     To,

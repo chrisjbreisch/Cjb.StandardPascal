@@ -93,6 +93,15 @@ public sealed class ScannerTest
     }
 
     [TestMethod]
+    public void Scanner_Recognizes_Record_Declaration_Keywords()
+    {
+        List<Token> tokens = _scanner.ScanTokens(new SourceText("type Point = record x: integer; end; with point do x := 1"));
+
+        Assert.Contains(TokenType.Record, tokens.Select(static token => token.Type));
+        Assert.Contains(TokenType.With, tokens.Select(static token => token.Type));
+    }
+
+    [TestMethod]
     public void Scanner_Skips_Comments_And_Normalizes_Delimiter_Aliases()
     {
         List<Token> tokens = _scanner.ScanTokens(

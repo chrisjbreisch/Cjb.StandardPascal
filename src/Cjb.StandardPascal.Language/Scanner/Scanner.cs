@@ -34,6 +34,7 @@ public sealed class Scanner : IScanner
             ["procedure"] = TokenType.Procedure,
             ["program"] = TokenType.Program,
             ["real"] = TokenType.Real,
+            ["record"] = TokenType.Record,
             ["repeat"] = TokenType.Repeat,
             ["then"] = TokenType.Then,
             ["to"] = TokenType.To,
