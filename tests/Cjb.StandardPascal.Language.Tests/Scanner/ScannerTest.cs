@@ -59,6 +59,40 @@ public sealed class ScannerTest
     }
 
     [TestMethod]
+    public void Scanner_Recognizes_Program_Declaration_And_Block_Tokens()
+    {
+        List<Token> tokens = _scanner.ScanTokens(new SourceText(
+            "program Demo(input); const max = 1; var count: integer; begin count := max; end."));
+
+        AssertTokenTypes(
+            tokens,
+            TokenType.Program,
+            TokenType.Identifier,
+            TokenType.LeftParen,
+            TokenType.Identifier,
+            TokenType.RightParen,
+            TokenType.Semicolon,
+            TokenType.Const,
+            TokenType.Identifier,
+            TokenType.Equal,
+            TokenType.Number,
+            TokenType.Semicolon,
+            TokenType.Var,
+            TokenType.Identifier,
+            TokenType.Colon,
+            TokenType.Integer,
+            TokenType.Semicolon,
+            TokenType.Begin,
+            TokenType.Identifier,
+            TokenType.Assign,
+            TokenType.Identifier,
+            TokenType.Semicolon,
+            TokenType.End,
+            TokenType.Dot,
+            TokenType.EndOfFile);
+    }
+
+    [TestMethod]
     [DataRow("1.0", 1.0)]
     [DataRow("1e-12", 1e-12)]
     [DataRow("25E+2", 2500.0)]

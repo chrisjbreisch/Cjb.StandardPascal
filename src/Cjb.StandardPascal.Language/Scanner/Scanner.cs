@@ -9,12 +9,41 @@ public sealed class Scanner : IScanner
         new Dictionary<string, TokenType>(StringComparer.OrdinalIgnoreCase)
         {
             ["and"] = TokenType.And,
+            ["begin"] = TokenType.Begin,
+            ["boolean"] = TokenType.Boolean,
+            ["case"] = TokenType.Case,
+            ["char"] = TokenType.Char,
+            ["const"] = TokenType.Const,
             ["div"] = TokenType.Div,
+            ["do"] = TokenType.Do,
+            ["downto"] = TokenType.DownTo,
+            ["else"] = TokenType.Else,
+            ["end"] = TokenType.End,
+            ["for"] = TokenType.For,
+            ["function"] = TokenType.Function,
+            ["goto"] = TokenType.Goto,
             ["in"] = TokenType.In,
+            ["if"] = TokenType.If,
+            ["integer"] = TokenType.Integer,
+            ["label"] = TokenType.Label,
             ["mod"] = TokenType.Mod,
             ["not"] = TokenType.Not,
+            ["of"] = TokenType.Of,
             ["or"] = TokenType.Or,
             ["print"] = TokenType.Print,
+            ["procedure"] = TokenType.Procedure,
+            ["program"] = TokenType.Program,
+            ["real"] = TokenType.Real,
+            ["repeat"] = TokenType.Repeat,
+            ["then"] = TokenType.Then,
+            ["to"] = TokenType.To,
+            ["type"] = TokenType.Type,
+            ["until"] = TokenType.Until,
+            ["var"] = TokenType.Var,
+            ["while"] = TokenType.While,
+            ["with"] = TokenType.With,
+            ["write"] = TokenType.Write,
+            ["writeln"] = TokenType.WriteLn,
         };
 
     private string _source = string.Empty;
@@ -85,11 +114,29 @@ public sealed class Scanner : IScanner
 
         switch (character)
         {
+            case '^':
+                AddToken(TokenType.Caret);
+                break;
+            case ':':
+                AddToken(Match('=') ? TokenType.Assign : TokenType.Colon);
+                break;
+            case ',':
+                AddToken(TokenType.Comma);
+                break;
+            case '.':
+                AddToken(TokenType.Dot);
+                break;
             case '(':
                 AddToken(TokenType.LeftParen);
                 break;
+            case '[':
+                AddToken(TokenType.LeftBracket);
+                break;
             case ')':
                 AddToken(TokenType.RightParen);
+                break;
+            case ']':
+                AddToken(TokenType.RightBracket);
                 break;
             case ';':
                 AddToken(TokenType.Semicolon);

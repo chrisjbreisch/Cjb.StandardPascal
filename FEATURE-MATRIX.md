@@ -29,11 +29,11 @@ behavior, or conformance change.
 | --- | :---: | --- |
 | Source text and source spans | ✅ | Tokens and scan errors carry file, line, column, offset, and length |
 | Case-insensitive identifiers | ✅ | Keyword matching is case-insensitive; original spelling is preserved |
-| Reserved words | 🚧 | Expression keywords plus temporary `Print` are recognized |
+| Reserved words | 🚧 | Program, declaration, scalar-type, output, expression, and control-flow keywords are recognized; routine and composite grammar support remains |
 | Integer literals | ✅ | Decimal digits are parsed as 64-bit integers pending the `maxint` policy |
 | Real literals | ✅ | Decimal and scientific notation use invariant culture |
 | Character and string literals | 🚧 | Single-quoted literals and doubled-quote escaping are implemented; ISO character/fixed-array typing remains |
-| Operators and delimiters | 🚧 | Expression arithmetic, relational, and parenthesis tokens are implemented |
+| Operators and delimiters | 🚧 | Expression tokens plus program punctuation, assignment, and block delimiters are implemented |
 | Delimiter aliases | ⬜ | `(.`/`[`, `.)`/`]`, `@`/`^`, and `(*`/`{` forms |
 | Whitespace | ✅ | Whitespace is ignored while source locations remain accurate |
 | Brace comments | ⬜ | `{ comment }` |
