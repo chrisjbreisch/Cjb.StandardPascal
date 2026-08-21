@@ -20,6 +20,7 @@ public sealed class Scanner : IScanner
             ["else"] = TokenType.Else,
             ["end"] = TokenType.End,
             ["for"] = TokenType.For,
+            ["forward"] = TokenType.Forward,
             ["function"] = TokenType.Function,
             ["goto"] = TokenType.Goto,
             ["in"] = TokenType.In,

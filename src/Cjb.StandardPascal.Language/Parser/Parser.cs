@@ -170,6 +170,13 @@ public sealed class Parser : IParser
             Token name = Consume(TokenType.Identifier, "Expected a procedure name.");
             IReadOnlyList<RoutineParameter> parameters = ParseRoutineParameters();
             Consume(TokenType.Semicolon, "Expected ';' after procedure heading.");
+
+            if (Match(TokenType.Forward))
+            {
+                Consume(TokenType.Semicolon, "Expected ';' after forward declaration.");
+                continue;
+            }
+
             Block body = ParseBlock();
             Token semicolon = Consume(TokenType.Semicolon, "Expected ';' after procedure declaration.");
             declarations.Add(new ProcedureDeclaration(name, parameters, body, Span(keyword, semicolon)));

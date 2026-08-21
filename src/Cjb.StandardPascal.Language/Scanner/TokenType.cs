@@ -45,6 +45,7 @@ public enum TokenType
     Else,
     End,
     For,
+    Forward,
     Function,
     Goto,
     In,
