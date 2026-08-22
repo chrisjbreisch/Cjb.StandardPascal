@@ -98,6 +98,9 @@ public sealed class Interpreter : IInterpreter
                     case SubrangeDeclaration subrange:
                         _namedTypes.Add(subrange.Name.Lexeme, new SubrangePascalType(subrange.Name.Lexeme, subrange.Minimum, subrange.Maximum));
                         break;
+                    case TypeAliasDeclaration alias:
+                        _namedTypes.Add(alias.Name.Lexeme, ResolveType(alias.TargetType));
+                        break;
                     case RecordDeclaration record:
                         _namedTypes.Add(record.Name.Lexeme, new PrimitivePascalType(record.Name.Lexeme));
                         break;

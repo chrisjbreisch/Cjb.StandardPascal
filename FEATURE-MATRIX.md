@@ -72,7 +72,7 @@ behavior, or conformance change.
 | Declaration ordering | ✅ | Label, constant, type, variable, procedure, and function sections are parsed in ISO order |
 | Label declarations | ✅ | Numeric labels are supported with same-block `goto` restrictions |
 | Constant declarations | ✅ | Scalar constant expressions |
-| Type and variable declarations | 🚧 | Grouped variables, named ordinal/composite types, arrays, files, and pointers are supported; alias and full ISO identity rules remain |
+| Type and variable declarations | 🚧 | Grouped variables, named aliases, ordinal/composite types, arrays, files, and pointers are supported; full ISO identity rules remain |
 | Procedure and function declarations | ✅ | Procedures and functions support typed signatures and function-result assignment |
 | Forward declarations | ✅ | Forward procedure declarations can precede their executable definition |
 | Nested lexical scopes | ✅ | Nested procedures resolve enclosing routine locals with shadowing |

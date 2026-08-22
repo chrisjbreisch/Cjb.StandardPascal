@@ -100,6 +100,13 @@ public sealed class Parser : IParser
             {
                 Token name = Advance();
                 Consume(TokenType.Equal, "Expected '=' after type name.");
+                if (Check(TokenType.Integer) || Check(TokenType.Real) || Check(TokenType.Boolean) || Check(TokenType.Char) || Check(TokenType.Identifier))
+                {
+                    TypeSyntax targetType = ParseTypeSyntax();
+                    Token semicolon = Consume(TokenType.Semicolon, "Expected ';' after type declaration.");
+                    declarations.Add(new TypeAliasDeclaration(name, targetType, Span(name, semicolon)));
+                    continue;
+                }
                 if (Match(TokenType.Caret))
                 {
                     Token caret = Previous();
