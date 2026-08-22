@@ -16,6 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Fixtures\Phase4\*.pas">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Cjb.StandardPascal.Language\Cjb.StandardPascal.Language.csproj" />
   </ItemGroup>
 

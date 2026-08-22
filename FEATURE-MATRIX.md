@@ -131,7 +131,7 @@ behavior, or conformance change.
 | --- | :---: | --- |
 | Scanner, parser, semantic, and interpreter tests | 🚧 | Focused coverage includes expressions, structured control flow, routines, arrays, sets, files, pointers, and diagnostics |
 | CLI integration tests | 🚧 | Interpreter output, scanner/parser/runtime error paths, recovery, and end-of-input are covered |
-| ISO example corpus | 🚧 | Phase 4 positive and negative composite fixtures are present; broader ISO corpus remains |
+| ISO example corpus | 🚧 | Phase 4 positive and negative composite fixtures execute through a fixture runner; broader ISO corpus remains |
 | Cross-platform validation | ✅ | GitHub Actions runs restore, Release build, and tests on Ubuntu, Windows, and macOS |
 | Feature-status documentation | ✅ | This matrix establishes the baseline |
 | Project overview and build instructions | ✅ | Maintained in `README.md` |
