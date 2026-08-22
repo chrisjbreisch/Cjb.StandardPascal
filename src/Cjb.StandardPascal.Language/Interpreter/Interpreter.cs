@@ -450,6 +450,33 @@ public sealed class Interpreter : IInterpreter
 
         object result = string.Empty;
 
+        if (file is null && statement.ReadLine)
+        {
+            string[] lineFields = _input.ReadLine().Split(
+                [ ' ', '\t' ],
+                StringSplitOptions.RemoveEmptyEntries);
+
+            for (int index = 0; index < statement.Targets.Count; index++)
+            {
+                if (index >= lineFields.Length)
+                {
+                    throw Error(statement.Targets[index], "Input line does not contain enough values.");
+                }
+
+                Token target = statement.Targets[index];
+                if (!_types.TryGetValue(target.Lexeme, out PascalType? type))
+                {
+                    throw Error(target, $"Undefined identifier '{target.Lexeme}'.");
+                }
+
+                object value = ParseInputValue(lineFields[index], type, target);
+                _values[target.Lexeme] = value;
+                result = value;
+            }
+
+            return result;
+        }
+
         for (int index = targetStart; index < statement.Targets.Count; index++)
         {
             Token target = statement.Targets[index];
@@ -466,14 +493,7 @@ public sealed class Interpreter : IInterpreter
             }
             else
             {
-                string text = ReadInputField();
-                value = ReferenceEquals(type, PascalTypes.Integer)
-                    ? long.Parse(text, CultureInfo.InvariantCulture)
-                    : ReferenceEquals(type, PascalTypes.Real)
-                        ? double.Parse(text, CultureInfo.InvariantCulture)
-                        : ReferenceEquals(type, PascalTypes.Boolean)
-                            ? bool.Parse(text)
-                            : text;
+                value = ParseInputValue(ReadInputField(), type, target);
             }
 
             _values[target.Lexeme] = value;
@@ -481,6 +501,24 @@ public sealed class Interpreter : IInterpreter
         }
 
         return result;
+    }
+
+    private static object ParseInputValue(string text, PascalType type, Token target)
+    {
+        try
+        {
+            return ReferenceEquals(type, PascalTypes.Integer)
+                ? long.Parse(text, CultureInfo.InvariantCulture)
+                : ReferenceEquals(type, PascalTypes.Real)
+                    ? double.Parse(text, CultureInfo.InvariantCulture)
+                    : ReferenceEquals(type, PascalTypes.Boolean)
+                        ? bool.Parse(text)
+                        : text;
+        }
+        catch (FormatException)
+        {
+            throw Error(target, $"Input value '{text}' is not a valid {type.Name}.");
+        }
     }
 
     private string ReadInputField()

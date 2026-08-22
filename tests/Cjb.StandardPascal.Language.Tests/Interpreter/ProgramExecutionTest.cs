@@ -707,6 +707,23 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_ReadLn_Discards_Unused_Fields_From_Its_Line()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(
+            new FixedInput("1 2", "3"),
+            output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Input; var first, second: integer; begin readln(first); readln(second); writeln(first, second); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("13" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Multiple_Input_Values_Support_Numeric_Expressions()
     {
         IScanner scanner = new Language.Scanner.Scanner();
