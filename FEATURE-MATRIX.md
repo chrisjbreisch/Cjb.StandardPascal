@@ -117,7 +117,7 @@ behavior, or conformance change.
 | Ordinal functions | ✅ | `ord`, `chr`, `succ`, and `pred` for integer and character ordinals; character values are checked in the 0..255 range |
 | Real conversion functions | ✅ | `round` and `trunc` |
 | Text output | ✅ | `write` and `writeln` output supported values with minimum field widths and numeric precision; `StrictIsoSpacing` controls separators between items |
-| Text input | ✅ | Injectable `read` consumes whitespace-separated fields; `readln` assigns its targets from one line and discards unused fields |
+| Text input | ✅ | Injectable `read` consumes whitespace-separated fields; `readln` assigns its targets from one line, discards unused fields, and validates `char` inputs |
 | File operations | ✅ | In-memory file queues implement one-item `write`/`read` with empty-file diagnostics |
 | Packing procedures | ✅ | `pack` and `unpack` copy bounded array elements |
 | Dynamic allocation | ✅ | `new`, `dispose`, dereference, `nil`, and disposed-pointer lifetime errors are supported |

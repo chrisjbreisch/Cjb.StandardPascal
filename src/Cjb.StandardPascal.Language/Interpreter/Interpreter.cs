@@ -509,6 +509,11 @@ public sealed class Interpreter : IInterpreter
     {
         try
         {
+            if (ReferenceEquals(type, PascalTypes.Character) && text.Length != 1)
+            {
+                throw Error(target, "Character value must contain exactly one character.");
+            }
+
             return ReferenceEquals(type, PascalTypes.Integer)
                 ? long.Parse(text, CultureInfo.InvariantCulture)
                 : ReferenceEquals(type, PascalTypes.Real)
