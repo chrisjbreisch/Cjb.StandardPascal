@@ -142,7 +142,7 @@ public sealed class Interpreter : IInterpreter
                         {
                             PascalType variableType = ResolveType(variable.Type);
                             _values.Add(name.Lexeme, variable.Type is ArrayTypeSyntax array
-                                ? new ArrayValue(array.Bounds, DefaultValue(ResolveType(array.ElementType)))
+                                ? new ArrayValue(array.Bounds, ResolveType(array.ElementType), DefaultValue(ResolveType(array.ElementType)))
                                 : variable.Type is FileTypeSyntax
                                     ? new FileValue()
                                 : variable.Type is SetTypeSyntax || variableType is SetPascalType

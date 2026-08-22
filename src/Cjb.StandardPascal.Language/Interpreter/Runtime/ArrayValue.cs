@@ -1,5 +1,6 @@
 using Cjb.StandardPascal.Language.Scanner;
 using Cjb.StandardPascal.Language.Parser.Types;
+using Cjb.StandardPascal.Language.Semantics.Types;
 
 namespace Cjb.StandardPascal.Language.Interpreter.Runtime;
 
@@ -9,16 +10,27 @@ public sealed class ArrayValue
 
     private readonly IReadOnlyList<ArrayBound> _bounds;
 
-    public ArrayValue(IReadOnlyList<ArrayBound> bounds, object defaultValue)
+    public ArrayValue(IReadOnlyList<ArrayBound> bounds, PascalType elementType, object defaultValue)
     {
         _bounds = bounds;
+        ElementType = elementType ?? throw new ArgumentNullException(nameof(elementType));
         int count = bounds.Aggregate(1, static (size, bound) => checked(size * (int)(bound.Upper - bound.Lower + 1)));
         _elements = Enumerable.Repeat(defaultValue, count).ToArray();
     }
 
+    public PascalType ElementType { get; }
+
     public object Get(IReadOnlyList<long> indices, SourceSpan span) => _elements[Offset(indices, span)];
 
-    public void Set(IReadOnlyList<long> indices, object value, SourceSpan span) => _elements[Offset(indices, span)] = value;
+    public void Set(IReadOnlyList<long> indices, object value, SourceSpan span)
+    {
+        if (!IsCompatible(value))
+        {
+            throw new RuntimeException($"Cannot assign {ValueTypeName(value)} to {ElementType.Name} array element.", span);
+        }
+
+        _elements[Offset(indices, span)] = value;
+    }
 
     public void CopyFrom(ArrayValue source, long sourceStart, SourceSpan span)
     {
@@ -57,4 +69,25 @@ public sealed class ArrayValue
         }
         return offset;
     }
+
+    private bool IsCompatible(object value)
+    {
+        return ElementType switch
+        {
+            PrimitivePascalType type when ReferenceEquals(type, PascalTypes.Integer) => value is long,
+            PrimitivePascalType type when ReferenceEquals(type, PascalTypes.Real) => value is long or double,
+            PrimitivePascalType type when ReferenceEquals(type, PascalTypes.Boolean) => value is bool,
+            PrimitivePascalType type when ReferenceEquals(type, PascalTypes.Character) => value is string { Length: 1 },
+            _ => true,
+        };
+    }
+
+    private static string ValueTypeName(object value) => value switch
+    {
+        long => "integer",
+        double => "real",
+        bool => "boolean",
+        string => "char",
+        _ => "value",
+    };
 }

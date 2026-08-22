@@ -589,6 +589,20 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Array_Element_Assignment_Enforces_Element_Type()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter();
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Arrays; var values: array[1..1] of integer; begin values[1] := 'x'; end.")));
+
+        RuntimeException exception = Assert.ThrowsExactly<RuntimeException>(() => interpreter.Execute(program));
+
+        Assert.AreEqual("Cannot assign char to integer array element.", exception.Message);
+    }
+
+    [TestMethod]
     public void Execute_Multidimensional_Array_Indexing_Returns_Element()
     {
         IScanner scanner = new Language.Scanner.Scanner();
