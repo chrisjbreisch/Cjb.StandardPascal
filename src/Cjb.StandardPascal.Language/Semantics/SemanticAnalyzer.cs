@@ -106,8 +106,8 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
                 if (caseStatement.ElseBranch is not null) { AnalyzeStatement(caseStatement.ElseBranch); }
                 return;
             case For forStatement:
-                RequireInteger(InferType(forStatement.Initial), forStatement.Variable);
-                RequireInteger(InferType(forStatement.Limit), forStatement.Variable);
+                RequireOrdinal(InferType(forStatement.Initial), forStatement.Variable);
+                RequireOrdinal(InferType(forStatement.Limit), forStatement.Variable);
                 _activeForControls.Add(forStatement.Variable.Lexeme);
                 try { AnalyzeStatement(forStatement.Body); }
                 finally { _activeForControls.Remove(forStatement.Variable.Lexeme); }
@@ -394,6 +394,15 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         if (!ReferenceEquals(type, PascalTypes.Integer))
         {
             throw new SemanticException("Operands must be integers.", token.Span);
+        }
+    }
+
+    private static void RequireOrdinal(PascalType type, Token token)
+    {
+        if (!ReferenceEquals(type, PascalTypes.Integer)
+            && !ReferenceEquals(type, PascalTypes.Character))
+        {
+            throw new SemanticException("For bounds must be ordinal.", token.Span);
         }
     }
 

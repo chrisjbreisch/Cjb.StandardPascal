@@ -104,7 +104,7 @@ behavior, or conformance change.
 | Procedure call | ⬜ | Value, variable, and routine parameters |
 | `if` statement | ✅ | Includes nearest-`if` binding for `else` |
 | `while` and `repeat` statements | ✅ | Boolean conditions are semantically validated |
-| `for` statement | ✅ | Integer `to` and `downto`; active control assignment is rejected |
+| `for` statement | ✅ | Integer and character ordinal `to`/`downto`; active control assignment is rejected |
 | `case` statement | ✅ | Scalar ordinal selectors, multi-label branches, `else`, and compatibility checks |
 | `goto` and labeled statements | ✅ | Numeric labels with same-compound-block target restriction |
 | `with` statement | ✅ | Fixed record-field scope |

@@ -115,6 +115,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Character_For_Loops_Iterate_Forward_And_Backward()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Alphabet; var character: char; begin for character := 'A' to 'C' do write(character); writeln; for character := 'c' downto 'a' do write(character); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("ABC" + Environment.NewLine + "cba", output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Case_Statement_Selects_Matching_Ordinal_Label()
     {
         IScanner scanner = new Language.Scanner.Scanner();

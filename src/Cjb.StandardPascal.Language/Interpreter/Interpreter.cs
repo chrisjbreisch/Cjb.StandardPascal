@@ -652,25 +652,42 @@ public sealed class Interpreter : IInterpreter
     public object VisitForStatement(For statement)
     {
         if (!_types.TryGetValue(statement.Variable.Lexeme, out PascalType? type)
-            || !ReferenceEquals(type, PascalTypes.Integer))
+            || (!ReferenceEquals(type, PascalTypes.Integer) && !ReferenceEquals(type, PascalTypes.Character)))
         {
-            throw new RuntimeException("For control variable must be an integer variable.", statement.Variable.Span);
+            throw new RuntimeException("For control variable must be an ordinal variable.", statement.Variable.Span);
         }
 
-        long initial = RequireInteger(statement.Variable, Evaluate(statement.Initial));
-        long limit = RequireInteger(statement.Variable, Evaluate(statement.Limit));
-        _values[statement.Variable.Lexeme] = initial;
+        long initial = ToOrdinal(statement.Variable, Evaluate(statement.Initial));
+        long limit = ToOrdinal(statement.Variable, Evaluate(statement.Limit));
+        _values[statement.Variable.Lexeme] = FromOrdinal(type, initial);
         object result = string.Empty;
 
         for (long value = initial;
             statement.Direction == ForDirection.To ? value <= limit : value >= limit;
             value = checked(value + (statement.Direction == ForDirection.To ? 1 : -1)))
         {
-            _values[statement.Variable.Lexeme] = value;
+            _values[statement.Variable.Lexeme] = FromOrdinal(type, value);
             result = Interpret(statement.Body);
         }
 
         return result;
+    }
+
+    private static long ToOrdinal(Token token, object value)
+    {
+        return value switch
+        {
+            long integer => integer,
+            string { Length: 1 } character => character[0],
+            _ => throw Error(token, "For bounds must be ordinal."),
+        };
+    }
+
+    private static object FromOrdinal(PascalType type, long value)
+    {
+        return ReferenceEquals(type, PascalTypes.Character)
+            ? char.ConvertFromUtf32(checked((int)value))
+            : value;
     }
 
     public object VisitWriteStatement(Write statement)
