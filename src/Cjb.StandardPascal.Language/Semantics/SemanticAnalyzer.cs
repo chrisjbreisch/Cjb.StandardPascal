@@ -370,7 +370,8 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         PascalType right,
         Token binaryOperator)
     {
-        if (IsNumeric(left) && IsNumeric(right)
+        if (IsSet(left) && IsSet(right)
+            || IsNumeric(left) && IsNumeric(right)
             || ReferenceEquals(left, right))
         {
             return PascalTypes.Boolean;
@@ -427,4 +428,6 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         return ReferenceEquals(type, PascalTypes.Integer)
             || ReferenceEquals(type, PascalTypes.Real);
     }
+
+    private static bool IsSet(PascalType type) => string.Equals(type.Name, "set", StringComparison.Ordinal);
 }

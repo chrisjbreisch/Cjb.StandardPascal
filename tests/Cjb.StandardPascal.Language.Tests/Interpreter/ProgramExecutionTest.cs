@@ -677,6 +677,24 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Set_Equality_And_Inequality_Compare_Members()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(
+            new NullInput(),
+            output,
+            new InterpreterOptions { StrictIsoSpacing = false });
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Sets; begin writeln([1, 2] = [2, 1], [1] <> [1, 2]); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("TRUE TRUE" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_ReadLn_Assigns_Injected_Input()
     {
         IScanner scanner = new Language.Scanner.Scanner();

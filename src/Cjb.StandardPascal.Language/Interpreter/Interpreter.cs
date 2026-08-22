@@ -929,6 +929,11 @@ public sealed class Interpreter : IInterpreter
             return string.CompareOrdinal(leftString, rightString);
         }
 
+        if (left is HashSet<long> leftSet && right is HashSet<long> rightSet)
+        {
+            return leftSet.SetEquals(rightSet) ? 0 : 1;
+        }
+
         throw Error(token, "Operands are not comparable.");
     }
 
