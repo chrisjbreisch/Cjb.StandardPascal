@@ -57,7 +57,7 @@ behavior, or conformance change.
 | Identifier expressions | ✅ | Predefined Boolean values and declared constants/variables resolve case-insensitively during semantic analysis |
 | Function calls | ✅ | User functions and predefined ordinal/numeric routines are evaluated with arity/type checks |
 | Set constructors | ✅ | Integer elements and inclusive integer ranges are supported |
-| Static expression type checking | 🚧 | Program execution validates current expression operators and identifiers before interpretation; declared and structured types remain |
+| Static expression type checking | 🚧 | Program execution validates expression operators, declared scalar identifiers, and assignment compatibility before interpretation; structured types remain runtime-checked |
 | Program semantic analysis | ✅ | Program execution performs source-correlated expression type and identifier validation before interpretation |
 | Checked runtime arithmetic | ✅ | Integer overflow and division by zero produce source-positioned runtime errors |
 

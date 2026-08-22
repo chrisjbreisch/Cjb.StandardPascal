@@ -10,6 +10,7 @@ namespace Cjb.StandardPascal.Language.Semantics;
 
 public sealed class SemanticAnalyzer : ISemanticAnalyzer
 {
+    private static readonly PascalType StructuredType = new PrimitivePascalType("structured");
     private readonly Dictionary<string, PascalType> _symbols = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _activeForControls = new(StringComparer.OrdinalIgnoreCase);
     private readonly Stack<HashSet<long>> _blockLabels = [];
@@ -33,7 +34,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
                         {
                             _symbols[name.Lexeme] = variable.Type is ScalarTypeSyntax scalar
                                 ? scalar.Type
-                                : PascalTypes.Integer;
+                                : StructuredType;
                         }
                         break;
                     case ConstantDeclaration constant:
@@ -61,7 +62,16 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
                         assignment.Name.Span);
                 }
 
-                InferType(assignment.Value);
+                PascalType sourceType = InferType(assignment.Value);
+                if (_symbols.TryGetValue(assignment.Name.Lexeme, out PascalType? targetType)
+                    && !ReferenceEquals(targetType, StructuredType)
+                    && !targetType.IsAssignmentCompatibleWith(sourceType))
+                {
+                    throw new SemanticException(
+                        $"Cannot assign {sourceType.Name} to {targetType.Name} '{assignment.Name.Lexeme}'.",
+                        assignment.Name.Span);
+                }
+
                 return;
             case IndexedAssignment indexedAssignment:
                 foreach (Expression subscript in indexedAssignment.Subscripts) { RequireInteger(InferType(subscript), indexedAssignment.Name); }
@@ -82,7 +92,9 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
                     foreach (Expression label in branch.Labels)
                     {
                         PascalType labelType = InferType(label);
-                        if (!ReferenceEquals(selectorType, labelType) && !(IsNumeric(selectorType) && IsNumeric(labelType)))
+                        if (!ReferenceEquals(selectorType, StructuredType)
+                            && !ReferenceEquals(selectorType, labelType)
+                            && !(IsNumeric(selectorType) && IsNumeric(labelType)))
                         {
                             throw new SemanticException("Case label is not compatible with selector.", label.Span);
                         }

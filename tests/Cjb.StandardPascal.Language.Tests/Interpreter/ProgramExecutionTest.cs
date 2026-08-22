@@ -400,6 +400,20 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Incompatible_Assignment_Throws_Semantic_Exception()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter();
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Types; var count: integer; begin count := true; end.")));
+
+        SemanticException exception = Assert.ThrowsExactly<SemanticException>(() => interpreter.Execute(program));
+
+        Assert.AreEqual("Cannot assign boolean to integer 'count'.", exception.Message);
+    }
+
+    [TestMethod]
     public void Execute_Numeric_Predefined_Routines_Return_Expected_Values()
     {
         IScanner scanner = new Language.Scanner.Scanner();
