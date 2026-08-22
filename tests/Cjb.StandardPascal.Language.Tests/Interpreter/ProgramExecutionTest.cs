@@ -54,6 +54,24 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_WriteLn_Inserts_Spaces_When_Strict_Iso_Spacing_Is_Disabled()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(
+            new NullInput(),
+            output,
+            new InterpreterOptions { StrictIsoSpacing = false });
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Output; begin writeln(1, 2); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("1 2" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void ParseProgram_Malformed_Block_Throws_Source_Correlated_Parse_Exception()
     {
         IScanner scanner = new Language.Scanner.Scanner();

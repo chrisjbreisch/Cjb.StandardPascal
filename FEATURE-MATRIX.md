@@ -116,7 +116,7 @@ behavior, or conformance change.
 | Numeric functions | ✅ | `abs`, `sqr`, `sqrt`, `sin`, `cos`, `tan`, `arctan`, `exp`, and `ln` with source-correlated domain errors |
 | Ordinal functions | ✅ | `ord`, `chr`, `succ`, and `pred` for integer and character ordinals |
 | Real conversion functions | ✅ | `round` and `trunc` |
-| Text output | ✅ | `write` and `writeln` output supported values with minimum field widths and numeric precision |
+| Text output | ✅ | `write` and `writeln` output supported values with minimum field widths and numeric precision; `StrictIsoSpacing` controls separators between items |
 | Text input | ✅ | Injectable `read` and `readln` assign scalar console input |
 | File operations | ✅ | In-memory file queues implement one-item `write`/`read` with empty-file diagnostics |
 | Packing procedures | ✅ | `pack` and `unpack` copy bounded array elements |

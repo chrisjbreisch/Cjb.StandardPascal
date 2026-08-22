@@ -93,7 +93,11 @@ public sealed class Bootstrapper : IDisposable
         _services.AddSingleton<IStatementFormatter, StatementFormatter>();
         _services.AddSingleton<IInterpreter>(serviceProvider => new Interpreter(
             serviceProvider.GetRequiredService<IInput>(),
-            serviceProvider.GetRequiredService<IOutput>()));
+            serviceProvider.GetRequiredService<IOutput>(),
+            new InterpreterOptions
+            {
+                StrictIsoSpacing = Configuration.GetValue("StrictIsoSpacing", true),
+            }));
     }
 
     private void LogConfiguredServices()

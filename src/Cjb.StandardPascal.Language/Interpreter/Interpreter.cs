@@ -17,6 +17,7 @@ public sealed class Interpreter : IInterpreter
     private readonly ISemanticAnalyzer _semanticAnalyzer;
     private readonly IOutput _output;
     private readonly IInput _input;
+    private readonly InterpreterOptions _options;
     private readonly Dictionary<string, object> _values = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, PascalType> _types = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, PascalType> _namedTypes = new(StringComparer.OrdinalIgnoreCase);
@@ -35,7 +36,12 @@ public sealed class Interpreter : IInterpreter
     }
 
     public Interpreter(IInput input, IOutput output)
-        : this(new SemanticAnalyzer(), input, output)
+        : this(new SemanticAnalyzer(), input, output, new InterpreterOptions())
+    {
+    }
+
+    public Interpreter(IInput input, IOutput output, InterpreterOptions options)
+        : this(new SemanticAnalyzer(), input, output, options)
     {
     }
 
@@ -50,11 +56,21 @@ public sealed class Interpreter : IInterpreter
     }
 
     public Interpreter(ISemanticAnalyzer semanticAnalyzer, IInput input, IOutput output)
+        : this(semanticAnalyzer, input, output, new InterpreterOptions())
+    {
+    }
+
+    public Interpreter(
+        ISemanticAnalyzer semanticAnalyzer,
+        IInput input,
+        IOutput output,
+        InterpreterOptions options)
     {
         _semanticAnalyzer = semanticAnalyzer
             ?? throw new ArgumentNullException(nameof(semanticAnalyzer));
         _output = output ?? throw new ArgumentNullException(nameof(output));
         _input = input ?? throw new ArgumentNullException(nameof(input));
+        _options = options ?? throw new ArgumentNullException(nameof(options));
     }
 
     public object Evaluate(Expression expression)
@@ -668,7 +684,8 @@ public sealed class Interpreter : IInterpreter
             return string.Empty;
         }
 
-        string value = string.Concat(statement.Items.Select(FormatWriteItem));
+        string separator = _options.StrictIsoSpacing ? string.Empty : " ";
+        string value = string.Join(separator, statement.Items.Select(FormatWriteItem));
 
         if (statement.AppendNewLine)
         {
