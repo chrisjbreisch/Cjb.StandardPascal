@@ -776,9 +776,7 @@ public sealed class Parser : IParser
 
         if (Match(TokenType.Text))
         {
-            return new FileTypeSyntax(
-                new ScalarTypeSyntax(Previous(), PascalTypes.Character),
-                Previous().Span);
+            return new FileTypeSyntax(null, Previous().Span);
         }
 
         if (Match(TokenType.File))

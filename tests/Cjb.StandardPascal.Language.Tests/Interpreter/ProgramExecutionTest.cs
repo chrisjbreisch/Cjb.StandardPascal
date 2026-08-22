@@ -956,6 +956,20 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Typed_File_Write_Enforces_Element_Type()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter();
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Files; var data: file of integer; begin write(data, 'x'); end.")));
+
+        RuntimeException exception = Assert.ThrowsExactly<RuntimeException>(() => interpreter.Execute(program));
+
+        Assert.AreEqual("Cannot write char to file of integer.", exception.Message);
+    }
+
+    [TestMethod]
     public void Execute_Function_With_Incompatible_Argument_Throws_Runtime_Exception()
     {
         IScanner scanner = new Language.Scanner.Scanner();

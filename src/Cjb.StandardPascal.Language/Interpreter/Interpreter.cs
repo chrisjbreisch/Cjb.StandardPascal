@@ -143,8 +143,8 @@ public sealed class Interpreter : IInterpreter
                             PascalType variableType = ResolveType(variable.Type);
                             _values.Add(name.Lexeme, variable.Type is ArrayTypeSyntax array
                                 ? new ArrayValue(array.Bounds, ResolveType(array.ElementType), DefaultValue(ResolveType(array.ElementType)))
-                                : variable.Type is FileTypeSyntax
-                                    ? new FileValue()
+                                : variable.Type is FileTypeSyntax fileType
+                                    ? new FileValue(fileType.ElementType is null ? null : ResolveType(fileType.ElementType))
                                 : variable.Type is SetTypeSyntax || variableType is SetPascalType
                                     ? new HashSet<long>()
                                 : variableType is PointerPascalType
@@ -528,6 +528,30 @@ public sealed class Interpreter : IInterpreter
         }
     }
 
+    private static void ValidateFileValue(FileValue file, object value, SourceSpan span)
+    {
+        if (file.ElementType is null)
+        {
+            return;
+        }
+
+        PascalType actualType = value switch
+        {
+            long => PascalTypes.Integer,
+            double => PascalTypes.Real,
+            bool => PascalTypes.Boolean,
+            string => PascalTypes.Character,
+            _ => new PrimitivePascalType("structured"),
+        };
+
+        if (!file.ElementType.IsAssignmentCompatibleWith(actualType))
+        {
+            throw new RuntimeException(
+                $"Cannot write {actualType.Name} to file of {file.ElementType.Name}.",
+                span);
+        }
+    }
+
     private string ReadInputField()
     {
         while (_pendingInputFields.Count == 0)
@@ -797,7 +821,12 @@ public sealed class Interpreter : IInterpreter
             && _values.TryGetValue(fileName.Name.Lexeme, out object? fileValue)
             && fileValue is FileValue file)
         {
-            foreach (WriteItem item in statement.Items.Skip(1)) { file.Items.Enqueue(Evaluate(item.Expression)); }
+            foreach (WriteItem item in statement.Items.Skip(1))
+            {
+                object itemValue = Evaluate(item.Expression);
+                ValidateFileValue(file, itemValue, statement.Items[0].Expression.Span);
+                file.Items.Enqueue(itemValue);
+            }
             return string.Empty;
         }
 
@@ -1207,7 +1236,7 @@ public sealed class Interpreter : IInterpreter
     {
         ScalarTypeSyntax scalar => scalar.Type,
         ArrayTypeSyntax => new PrimitivePascalType("array"),
-        FileTypeSyntax => new FilePascalType(),
+        FileTypeSyntax file => new FilePascalType(file.ElementType is null ? null : ResolveType(file.ElementType)),
         SetTypeSyntax set => new SetPascalType(set.LowerBound, set.UpperBound),
         PointerTypeSyntax => new PointerPascalType("pointer"),
         NamedTypeSyntax named when _namedTypes.TryGetValue(named.Name.Lexeme, out PascalType? resolved) => resolved,

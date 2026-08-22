@@ -88,7 +88,7 @@ behavior, or conformance change.
 | Packed character arrays | ✅ | Indexed packed character arrays accept exact-length strings |
 | Record types | ✅ | Fixed and scalar variant fields support direct selection and `with` |
 | Set types | ✅ | Declared bounded integer set types enforce element bounds; runtime constructors support ranges, membership, union, difference, and intersection |
-| File types | ✅ | Predefined `text` and typed `file of T` declarations use injectable in-memory file queues |
+| File types | ✅ | Predefined `text` and typed `file of T` declarations use injectable in-memory file queues with element-type validation |
 | Pointer types | ✅ | Named pointer types, `nil`, allocation, disposal, dereference, and lifetime diagnostics are supported |
 | Packed types | ✅ | `packed array` syntax and fixed character-array representation are supported |
 | Type compatibility | 🚧 | Scalar identity, integer-to-real promotion, single-character `char`, pointers, subranges, fixed strings, and structured references are implemented; full ISO aggregate identity remains |
