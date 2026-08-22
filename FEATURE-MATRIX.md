@@ -6,6 +6,11 @@ This matrix is the authoritative implementation-status summary for
 Cjb.StandardPascal. It must be updated in the same change as any feature,
 behavior, or conformance change.
 
+For clause-by-clause ISO 7185 status, including nested subclauses, see the
+[ISO compatibility ledger](ISO-COMPATIBILITY.md). A completed row here may
+describe a deliberately scoped implementation slice and does not by itself
+constitute ISO processor compliance.
+
 **Status:** ✅ Implemented · 🚧 Partial · ⬜ Not implemented
 
 ## Foundation

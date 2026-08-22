@@ -1,6 +1,6 @@
 # Standard Pascal Interpreter Roadmap
 
-This roadmap describes the staged completion of the ISO 7185 Standard Pascal interpreter. The current implementation supports scanning, parsing, and evaluating expressions plus the temporary `Print` statement. Each phase should preserve existing regression coverage and update `FEATURE-MATRIX.md` in the same change as the implementation.
+This roadmap describes the engineering stages for the ISO 7185 Standard Pascal interpreter. A completed phase means that the planned implementation slice and its focused regression coverage are present; it does **not** mean that the corresponding ISO clauses are complete. Clause-level conformance is tracked separately in [`ISO-COMPATIBILITY.md`](ISO-COMPATIBILITY.md). Each phase should preserve existing regression coverage and update `FEATURE-MATRIX.md` in the same change as the implementation.
 
 ## Phase 0: Architecture Foundation
 
@@ -60,6 +60,10 @@ This roadmap describes the staged completion of the ISO 7185 Standard Pascal int
 - [x] Add positive and negative ISO program fixtures.
 
 ## Phase 5: Conformance and Delivery
+
+Phase 5 is the conformance and delivery gate. It remains incomplete even though
+the implementation phases above are complete because the processor still has
+partial ISO semantics documented in `ISO-COMPATIBILITY.md`.
 
 - [ ] Add an ISO example corpus with expected output and error metadata.
 - [ ] Add a conformance harness that executes programs through the same application/CLI path.
