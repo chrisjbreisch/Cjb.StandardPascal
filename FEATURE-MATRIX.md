@@ -54,7 +54,7 @@ behavior, or conformance change.
 | Binary `+` and `-` | 🚧 | Numeric semantics plus integer set union and difference are implemented |
 | Relational operators | 🚧 | Numeric and Boolean comparisons are implemented; other ISO types remain |
 | Set membership `in` | ✅ | Integer set membership is evaluated with ordinal operand checks |
-| Identifier expressions | 🚧 | `true` and `false` resolve; declared identifiers remain |
+| Identifier expressions | ✅ | Predefined Boolean values and declared constants/variables resolve case-insensitively during semantic analysis |
 | Function calls | ✅ | User functions and predefined ordinal/numeric routines are evaluated with arity/type checks |
 | Set constructors | ✅ | Integer elements and inclusive integer ranges are supported |
 | Static expression type checking | 🚧 | Program execution validates current expression operators and identifiers before interpretation; declared and structured types remain |

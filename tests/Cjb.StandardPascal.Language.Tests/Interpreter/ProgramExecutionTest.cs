@@ -352,6 +352,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Declared_Boolean_Identifier_Is_Valid_If_Condition()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Types; var ready: boolean; begin ready := true; if ready then writeln('yes'); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("yes" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Numeric_Predefined_Routines_Return_Expected_Values()
     {
         IScanner scanner = new Language.Scanner.Scanner();

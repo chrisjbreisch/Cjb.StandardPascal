@@ -143,9 +143,11 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
             case Read:
                 return;
             case Write write:
-                foreach (Expression expression in write.Expressions)
+                foreach (WriteItem item in write.Items)
                 {
-                    InferType(expression);
+                    InferType(item.Expression);
+                    if (item.Width is not null) { RequireInteger(InferType(item.Width), new Scanner.Token(Scanner.TokenType.Colon, ":", null, item.Width.Span)); }
+                    if (item.Precision is not null) { RequireInteger(InferType(item.Precision), new Scanner.Token(Scanner.TokenType.Colon, ":", null, item.Precision.Span)); }
                 }
 
                 return;
@@ -165,7 +167,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         }
     }
 
-    private static PascalType InferType(Expression expression)
+    private PascalType InferType(Expression expression)
     {
         return expression switch
         {
@@ -185,7 +187,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         };
     }
 
-    private static PascalType InferLiteralType(Literal literal)
+    private PascalType InferLiteralType(Literal literal)
     {
         return literal.Value switch
         {
@@ -196,13 +198,13 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         };
     }
 
-    private static PascalType InferIndexType(Cjb.StandardPascal.Language.Parser.Expressions.Index index)
+    private PascalType InferIndexType(Cjb.StandardPascal.Language.Parser.Expressions.Index index)
     {
         foreach (Expression subscript in index.Subscripts) { RequireInteger(InferType(subscript), index.Name); }
         return PascalTypes.Integer;
     }
 
-    private static PascalType InferCallType(Call call)
+    private PascalType InferCallType(Call call)
     {
         foreach (Expression argument in call.Arguments)
         {
@@ -214,7 +216,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
             : PascalTypes.Integer;
     }
 
-    private static PascalType InferSetLiteralType(SetLiteral setLiteral)
+    private PascalType InferSetLiteralType(SetLiteral setLiteral)
     {
         foreach (Expression element in setLiteral.Elements)
         {
@@ -232,7 +234,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         return new PrimitivePascalType("set");
     }
 
-    private static PascalType InferIdentifierType(Identifier identifier)
+    private PascalType InferIdentifierType(Identifier identifier)
     {
         if (string.Equals(identifier.Name.Lexeme, "true", StringComparison.OrdinalIgnoreCase)
             || string.Equals(identifier.Name.Lexeme, "false", StringComparison.OrdinalIgnoreCase))
@@ -240,10 +242,14 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
             return PascalTypes.Boolean;
         }
 
-        return PascalTypes.Integer;
+        return _symbols.TryGetValue(identifier.Name.Lexeme, out PascalType? type)
+            ? type
+            : throw new SemanticException(
+                $"Undefined identifier '{identifier.Name.Lexeme}'.",
+                identifier.Name.Span);
     }
 
-    private static PascalType InferUnaryType(Unary unary)
+    private PascalType InferUnaryType(Unary unary)
     {
         PascalType operand = InferType(unary.Right);
         return unary.UnaryOperator.Type switch
@@ -260,7 +266,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         };
     }
 
-    private static PascalType InferBinaryType(Binary binary)
+    private PascalType InferBinaryType(Binary binary)
     {
         PascalType left = InferType(binary.Left);
         PascalType right = InferType(binary.Right);
@@ -283,7 +289,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         };
     }
 
-    private static PascalType InferNumericResult(
+    private PascalType InferNumericResult(
         PascalType left,
         PascalType right,
         Token binaryOperator)
@@ -301,7 +307,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
             : PascalTypes.Integer;
     }
 
-    private static PascalType InferDivisionResult(
+    private PascalType InferDivisionResult(
         PascalType left,
         PascalType right,
         Token binaryOperator)
@@ -311,7 +317,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         return PascalTypes.Real;
     }
 
-    private static PascalType InferIntegerResult(
+    private PascalType InferIntegerResult(
         PascalType left,
         PascalType right,
         Token binaryOperator)
@@ -321,7 +327,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         return PascalTypes.Integer;
     }
 
-    private static PascalType InferBooleanResult(
+    private PascalType InferBooleanResult(
         PascalType left,
         PascalType right,
         Token binaryOperator)
@@ -331,7 +337,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         return PascalTypes.Boolean;
     }
 
-    private static PascalType InferComparisonResult(
+    private PascalType InferComparisonResult(
         PascalType left,
         PascalType right,
         Token binaryOperator)
@@ -345,7 +351,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         throw new SemanticException("Operands are not comparable.", binaryOperator.Span);
     }
 
-    private static PascalType InferMembershipResult(PascalType left, PascalType right, Token token)
+    private PascalType InferMembershipResult(PascalType left, PascalType right, Token token)
     {
         RequireInteger(left, token);
         return PascalTypes.Boolean;
