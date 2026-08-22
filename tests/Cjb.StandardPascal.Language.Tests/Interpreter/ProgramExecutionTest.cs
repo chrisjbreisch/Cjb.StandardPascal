@@ -291,6 +291,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Function_Local_Variable_And_Nested_Function_Are_In_Scope()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Functions; function Convert(value: real): real; const Scale = 2.0; begin Convert := value * Scale; end; function Twice(value: real): real; var angle: real; begin angle := Convert(value); Twice := angle; end; begin writeln(Twice(2.5):2:1); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("5.0" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Procedure_With_Var_Parameter_Updates_Caller()
     {
         IScanner scanner = new Language.Scanner.Scanner();

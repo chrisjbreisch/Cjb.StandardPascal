@@ -995,6 +995,7 @@ public sealed class Interpreter : IInterpreter
             PascalType returnType = ResolveType(function.ReturnType);
             _values.Add(function.Name.Lexeme, DefaultValue(returnType));
             _types.Add(function.Name.Lexeme, returnType);
+            InitializeRoutineBlock(function.Body);
             Interpret(new BlockStatement(function.Body));
             return _values[function.Name.Lexeme];
         }
