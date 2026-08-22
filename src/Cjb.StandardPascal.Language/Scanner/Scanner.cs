@@ -47,6 +47,7 @@ public sealed class Scanner : IScanner
             ["repeat"] = TokenType.Repeat,
             ["set"] = TokenType.Set,
             ["then"] = TokenType.Then,
+            ["text"] = TokenType.Text,
             ["to"] = TokenType.To,
             ["type"] = TokenType.Type,
             ["until"] = TokenType.Until,

@@ -72,6 +72,7 @@ public enum TokenType
     Repeat,
     Set,
     Then,
+    Text,
     To,
     Type,
     Until,

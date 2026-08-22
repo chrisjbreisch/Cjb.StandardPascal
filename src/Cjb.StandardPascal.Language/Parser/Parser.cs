@@ -774,6 +774,13 @@ public sealed class Parser : IParser
     {
         Match(TokenType.Packed);
 
+        if (Match(TokenType.Text))
+        {
+            return new FileTypeSyntax(
+                new ScalarTypeSyntax(Previous(), PascalTypes.Character),
+                Previous().Span);
+        }
+
         if (Match(TokenType.File))
         {
             Token file = Previous();

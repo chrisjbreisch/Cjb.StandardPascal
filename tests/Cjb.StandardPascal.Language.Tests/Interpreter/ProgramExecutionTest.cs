@@ -941,6 +941,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Text_File_Declaration_Supports_File_Transfer()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Files; var data: text; value: integer; begin write(data, 21); read(data, value); writeln(value); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("21" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Function_With_Incompatible_Argument_Throws_Runtime_Exception()
     {
         IScanner scanner = new Language.Scanner.Scanner();
