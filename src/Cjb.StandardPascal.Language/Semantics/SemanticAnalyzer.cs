@@ -306,6 +306,12 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
         PascalType right,
         Token binaryOperator)
     {
+        if (ReferenceEquals(left, PascalTypes.Character)
+            && ReferenceEquals(right, PascalTypes.Character))
+        {
+            return PascalTypes.Character;
+        }
+
         if (string.Equals(left.Name, "set", StringComparison.Ordinal)
             && string.Equals(right.Name, "set", StringComparison.Ordinal))
         {

@@ -166,6 +166,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_String_Addition_Concatenates_Values()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Strings; begin writeln('Hello, ' + 'world'); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("Hello, world" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Case_Statement_Selects_Matching_Ordinal_Label()
     {
         IScanner scanner = new Language.Scanner.Scanner();

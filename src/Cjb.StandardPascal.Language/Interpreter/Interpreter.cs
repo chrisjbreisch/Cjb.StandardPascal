@@ -779,6 +779,11 @@ public sealed class Interpreter : IInterpreter
 
     private static object Add(Token token, object left, object right)
     {
+        if (left is string leftString && right is string rightString)
+        {
+            return leftString + rightString;
+        }
+
         return Numeric(
             token,
             left,
