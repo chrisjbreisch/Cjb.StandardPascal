@@ -23,7 +23,9 @@ public sealed class Interpreter : IInterpreter
     private readonly Dictionary<string, PascalType> _namedTypes = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, ProcedureDeclaration> _procedures = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, FunctionDeclaration> _functions = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Queue<string> _pendingInputFields = [];
     private Dictionary<string, object>? _activeFields;
+    private bool _outputLineOpen;
 
     public Interpreter()
         : this(new SemanticAnalyzer(), new NullInput(), new NullOutput())
@@ -94,7 +96,9 @@ public sealed class Interpreter : IInterpreter
         _namedTypes.Clear();
         _procedures.Clear();
         _functions.Clear();
+        _pendingInputFields.Clear();
         _activeFields = null;
+        _outputLineOpen = false;
 
         if (program.Block is not null)
         {
@@ -433,35 +437,65 @@ public sealed class Interpreter : IInterpreter
 
     public object VisitReadStatement(Read statement)
     {
-        if (!_types.TryGetValue(statement.Target.Lexeme, out PascalType? type))
+        int targetStart = 0;
+        FileValue? file = null;
+
+        if (statement.Targets.Count > 1
+            && _values.TryGetValue(statement.Targets[0].Lexeme, out object? fileValue)
+            && fileValue is FileValue typedFile)
         {
-            throw Error(statement.Target, $"Undefined identifier '{statement.Target.Lexeme}'.");
+            file = typedFile;
+            targetStart = 1;
         }
 
-        object value;
+        object result = string.Empty;
 
-        if (statement.File is not null)
+        for (int index = targetStart; index < statement.Targets.Count; index++)
         {
-            if (!_values.TryGetValue(statement.File.Lexeme, out object? fileValue) || fileValue is not FileValue file || file.Items.Count == 0)
+            Token target = statement.Targets[index];
+            if (!_types.TryGetValue(target.Lexeme, out PascalType? type))
             {
-                throw Error(statement.File, "File has no readable item.");
+                throw Error(target, $"Undefined identifier '{target.Lexeme}'.");
             }
 
-            value = file.Items.Dequeue();
+            object value;
+            if (file is not null)
+            {
+                if (file.Items.Count == 0) { throw Error(statement.Targets[0], "File has no readable item."); }
+                value = file.Items.Dequeue();
+            }
+            else
+            {
+                string text = ReadInputField();
+                value = ReferenceEquals(type, PascalTypes.Integer)
+                    ? long.Parse(text, CultureInfo.InvariantCulture)
+                    : ReferenceEquals(type, PascalTypes.Real)
+                        ? double.Parse(text, CultureInfo.InvariantCulture)
+                        : ReferenceEquals(type, PascalTypes.Boolean)
+                            ? bool.Parse(text)
+                            : text;
+            }
+
+            _values[target.Lexeme] = value;
+            result = value;
         }
-        else
+
+        return result;
+    }
+
+    private string ReadInputField()
+    {
+        while (_pendingInputFields.Count == 0)
         {
-            string text = _input.ReadLine();
-            value = ReferenceEquals(type, PascalTypes.Integer)
-                ? long.Parse(text, CultureInfo.InvariantCulture)
-                : ReferenceEquals(type, PascalTypes.Real)
-                    ? double.Parse(text, CultureInfo.InvariantCulture)
-                    : ReferenceEquals(type, PascalTypes.Boolean)
-                        ? bool.Parse(text)
-                        : text;
+            foreach (string field in _input.ReadLine().Split(
+                [ ' ', '\t' ],
+                StringSplitOptions.RemoveEmptyEntries))
+            {
+                _pendingInputFields.Enqueue(field);
+            }
         }
-        _values[statement.Target.Lexeme] = value;
-        return value;
+
+        return _pendingInputFields.Dequeue();
     }
 
     public object VisitBlockStatement(BlockStatement statement)
@@ -704,13 +738,20 @@ public sealed class Interpreter : IInterpreter
         string separator = _options.StrictIsoSpacing ? string.Empty : " ";
         string value = string.Join(separator, statement.Items.Select(FormatWriteItem));
 
+        if (!_options.StrictIsoSpacing && _outputLineOpen && value.Length > 0)
+        {
+            value = " " + value;
+        }
+
         if (statement.AppendNewLine)
         {
             _output.WriteLine(value);
+            _outputLineOpen = false;
         }
         else
         {
             _output.Write(value);
+            _outputLineOpen |= value.Length > 0;
         }
 
         return value;

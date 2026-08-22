@@ -279,18 +279,11 @@ public sealed class Parser : IParser
         {
             Token keyword = Previous();
             Consume(TokenType.LeftParen, "Expected '(' after input routine.");
-            Token first = Consume(TokenType.Identifier, "Expected an input target.");
-            Token? file = null;
-            Token target = first;
-
-            if (Match(TokenType.Comma))
-            {
-                file = first;
-                target = Consume(TokenType.Identifier, "Expected an input target.");
-            }
+            List<Token> targets = [Consume(TokenType.Identifier, "Expected an input target.")];
+            while (Match(TokenType.Comma)) { targets.Add(Consume(TokenType.Identifier, "Expected an input target.")); }
 
             Token rightParenthesis = Consume(TokenType.RightParen, "Expected ')' after input target.");
-            return new Read(file, target, keyword.Type == TokenType.ReadLn, Span(keyword, rightParenthesis));
+            return new Read(targets, keyword.Type == TokenType.ReadLn, Span(keyword, rightParenthesis));
         }
 
         if (Match(TokenType.With))

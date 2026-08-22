@@ -72,6 +72,24 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Consecutive_Write_Statements_Insert_Space_When_Strict_Iso_Spacing_Is_Disabled()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(
+            new NullInput(),
+            output,
+            new InterpreterOptions { StrictIsoSpacing = false });
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Output; begin write('Value:'); writeln(7); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("Value: 7" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void ParseProgram_Malformed_Block_Throws_Source_Correlated_Parse_Exception()
     {
         IScanner scanner = new Language.Scanner.Scanner();
@@ -605,6 +623,21 @@ public sealed class ProgramExecutionTest
         interpreter.Execute(program);
 
         Assert.AreEqual("1906" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
+    public void Execute_ReadLn_Assigns_Multiple_Injected_Inputs()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(new FixedInput("1975 3"), output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Input; var year, position: integer; begin readln(year, position); writeln(year, position); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("19753" + Environment.NewLine, output.Text);
     }
 
     [TestMethod]
