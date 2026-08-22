@@ -16,10 +16,10 @@ behavior, or conformance change.
 | Strict build configuration | ✅ | Compiler warnings are treated as errors |
 | Application composition root | ✅ | Bootstrapper configures JSON/environment settings, logging, DI, and application scope |
 | Execution contract | ✅ | `IScanner.ScanTokens(SourceText)` feeds `IParser.Parse`/`ParseStatement`; `IInterpreter.Evaluate`/`Interpret` execute the resulting expression or temporary statement; the application hosts the interactive loop and the CLI delegates process execution to it |
-| Command-line application project | 🚧 | Interactive expression scanning is available; parsing and execution remain |
+| Command-line application project | ✅ | Interactive expressions and source-file program execution are available |
 | Interactive expression input | ✅ | Reads expressions until a blank line or end-of-input and prints interpreted values or positioned errors |
-| Source-file arguments | ⬜ | Planned final interface: `cjb-pascal file.pas [file2.pas ...]` |
-| Exit-code contract | 🚧 | Interactive scanner sessions return success; source-file and runtime codes remain undefined |
+| Source-file arguments | ✅ | Accepts one or more Pascal source paths: `cjb-pascal file.pas [file2.pas ...]` |
+| Exit-code contract | ✅ | Interactive sessions return `0`; source-file errors return `1` for file access, `2` for scan/parse/semantic errors, and `3` for runtime errors |
 | Automated unit-test projects | ✅ | MSTest 4 projects exist for the language and CLI |
 | Continuous integration | ⬜ | Build and test workflow not configured |
 
@@ -101,7 +101,7 @@ behavior, or conformance change.
 | Empty and compound statements | ✅ | Semicolon-separated statements in `begin ... end`, including empty statements |
 | Temporary `Print` statement | ✅ | Retained as a documented transitional extension for interactive migration |
 | Assignment | ✅ | Scalar, indexed, field, dereference, fixed-string, and structured reference assignment are supported |
-| Procedure call | ⬜ | Value, variable, and routine parameters |
+| Procedure call | ✅ | User procedure calls support value and `var` parameters with arity/type validation |
 | `if` statement | ✅ | Includes nearest-`if` binding for `else` |
 | `while` and `repeat` statements | ✅ | Boolean conditions are semantically validated |
 | `for` statement | ✅ | Integer and character ordinal `to`/`downto`; active control assignment is rejected |
