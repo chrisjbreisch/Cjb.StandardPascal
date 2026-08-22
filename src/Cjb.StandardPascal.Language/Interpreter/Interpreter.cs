@@ -996,6 +996,11 @@ public sealed class Interpreter : IInterpreter
         {
             switch (declaration)
             {
+                case ConstantDeclaration constant:
+                    object constantValue = Evaluate(constant.Value);
+                    _values[constant.Name.Lexeme] = constantValue;
+                    _types[constant.Name.Lexeme] = TypeOf(constantValue);
+                    break;
                 case VariableDeclaration variable:
                     foreach (Token name in variable.Names)
                     {
