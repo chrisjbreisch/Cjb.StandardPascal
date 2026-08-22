@@ -181,6 +181,24 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Successive_Writes_Use_Configured_Spacing()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(
+            new NullInput(),
+            output,
+            new InterpreterOptions { StrictIsoSpacing = false });
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Output; begin write(1); writeln(2); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("1 2" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     [DataRow("chr(256)", "Character ordinal must be between 0 and 255.")]
     [DataRow("succ(chr(255))", "Character ordinal is out of range.")]
     [DataRow("pred(chr(0))", "Character ordinal is out of range.")]
