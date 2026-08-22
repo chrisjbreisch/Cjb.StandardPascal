@@ -403,24 +403,24 @@ public sealed class Parser : IParser
         if (Match(TokenType.Write, TokenType.WriteLn))
         {
             Token keyword = Previous();
-            List<Expression> expressions = [];
+            List<WriteItem> items = [];
 
             if (Match(TokenType.LeftParen))
             {
                 if (!Check(TokenType.RightParen))
                 {
-                    expressions.Add(Expression());
+                    items.Add(ParseWriteItem());
                     while (Match(TokenType.Comma))
                     {
-                        expressions.Add(Expression());
+                        items.Add(ParseWriteItem());
                     }
                 }
 
                 Token rightParenthesis = Consume(TokenType.RightParen, "Expected ')' after output arguments.");
-                return new Write(expressions, keyword.Type == TokenType.WriteLn, Span(keyword, rightParenthesis));
+                return new Write(items, keyword.Type == TokenType.WriteLn, Span(keyword, rightParenthesis));
             }
 
-            return new Write(expressions, keyword.Type == TokenType.WriteLn, keyword.Span);
+            return new Write(items, keyword.Type == TokenType.WriteLn, keyword.Span);
         }
 
         if (Check(TokenType.Identifier))
@@ -821,6 +821,14 @@ public sealed class Parser : IParser
 
         Consume(TokenType.RightParen, "Expected ')' after parameters.");
         return parameters;
+    }
+
+    private WriteItem ParseWriteItem()
+    {
+        Expression expression = Expression();
+        Expression? width = Match(TokenType.Colon) ? Expression() : null;
+        Expression? precision = width is not null && Match(TokenType.Colon) ? Expression() : null;
+        return new WriteItem(expression, width, precision);
     }
 
     private static PascalType TypeFor(Token token)

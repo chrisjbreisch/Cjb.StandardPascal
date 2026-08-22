@@ -24,6 +24,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_WriteLn_Formats_Real_Value_With_Width_And_Precision()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Output; var size: real; begin size := 2.5; writeln('Size: ', size:2:2); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("Size: 2.50" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void ParseProgram_Malformed_Block_Throws_Source_Correlated_Parse_Exception()
     {
         IScanner scanner = new Language.Scanner.Scanner();

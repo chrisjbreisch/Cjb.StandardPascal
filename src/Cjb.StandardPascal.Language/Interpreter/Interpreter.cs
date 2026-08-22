@@ -656,16 +656,16 @@ public sealed class Interpreter : IInterpreter
 
     public object VisitWriteStatement(Write statement)
     {
-        if (statement.Expressions.Count > 1
-            && statement.Expressions[0] is Identifier fileName
+        if (statement.Items.Count > 1
+            && statement.Items[0].Expression is Identifier fileName
             && _values.TryGetValue(fileName.Name.Lexeme, out object? fileValue)
             && fileValue is FileValue file)
         {
-            foreach (Expression expression in statement.Expressions.Skip(1)) { file.Items.Enqueue(Evaluate(expression)); }
+            foreach (WriteItem item in statement.Items.Skip(1)) { file.Items.Enqueue(Evaluate(item.Expression)); }
             return string.Empty;
         }
 
-        string value = string.Concat(statement.Expressions.Select(expression => FormatValue(Evaluate(expression))));
+        string value = string.Concat(statement.Items.Select(FormatWriteItem));
 
         if (statement.AppendNewLine)
         {
@@ -677,6 +677,26 @@ public sealed class Interpreter : IInterpreter
         }
 
         return value;
+    }
+
+    private string FormatWriteItem(WriteItem item)
+    {
+        object value = Evaluate(item.Expression);
+        string text = item.Precision is null
+            ? FormatValue(value)
+            : value is long or double
+                ? Convert.ToDouble(value, CultureInfo.InvariantCulture).ToString(
+                    $"F{RequireInteger(new Token(TokenType.Colon, ":", null, item.Precision.Span), Evaluate(item.Precision))}",
+                    CultureInfo.InvariantCulture)
+                : throw new RuntimeException("Precision formatting requires a numeric value.", item.Precision.Span);
+
+        if (item.Width is not null)
+        {
+            int width = checked((int)RequireInteger(new Token(TokenType.Colon, ":", null, item.Width.Span), Evaluate(item.Width)));
+            text = text.PadLeft(width);
+        }
+
+        return text;
     }
 
     private static object Add(Token token, object left, object right)

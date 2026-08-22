@@ -5,16 +5,16 @@ namespace Cjb.StandardPascal.Language.Parser.Statements;
 
 public sealed class Write : IStatement
 {
-    public Write(IReadOnlyList<Expression> expressions, bool appendNewLine, SourceSpan span)
+    public Write(IReadOnlyList<WriteItem> items, bool appendNewLine, SourceSpan span)
     {
-        Expressions = expressions.ToArray();
+        Items = items.ToArray();
         AppendNewLine = appendNewLine;
         Span = span;
     }
 
     public bool AppendNewLine { get; }
 
-    public IReadOnlyList<Expression> Expressions { get; }
+    public IReadOnlyList<WriteItem> Items { get; }
 
     public SourceSpan Span { get; }
 
