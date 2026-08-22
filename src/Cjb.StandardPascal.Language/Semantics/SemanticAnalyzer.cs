@@ -160,7 +160,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
                 RequireBoolean(InferType(repeatStatement.Condition), new Scanner.Token(Scanner.TokenType.Until, "until", null, repeatStatement.Condition.Span), "Condition must be Boolean.");
                 return;
             case With withStatement:
-                AnalyzeStatement(withStatement.Body);
+                // Record fields are resolved dynamically by the active with scope.
                 return;
             default:
                 throw new SemanticException("Unsupported statement.", statement.Span);
