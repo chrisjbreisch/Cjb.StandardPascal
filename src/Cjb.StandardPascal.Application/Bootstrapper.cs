@@ -64,7 +64,7 @@ public sealed class Bootstrapper : IDisposable
     private static IConfiguration LoadConfiguration()
     {
         return new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
+            .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appSettings.json", optional: true)
             .AddEnvironmentVariables()
             .Build();
