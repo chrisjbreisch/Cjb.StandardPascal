@@ -1040,7 +1040,7 @@ public sealed class Interpreter : IInterpreter
         return value switch
         {
             long integer => checked(integer + delta),
-            string { Length: 1 } character => CharacterFromOrdinal(token, character[0] + delta, delta > 0),
+            string { Length: 1 } character => CharacterFromOrdinal(token, character[0] + delta, true),
             _ => throw Error(token, "Operand must be ordinal."),
         };
     }
