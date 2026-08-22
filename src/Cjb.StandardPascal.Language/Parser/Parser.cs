@@ -107,6 +107,17 @@ public sealed class Parser : IParser
                     declarations.Add(new TypeAliasDeclaration(name, targetType, Span(name, semicolon)));
                     continue;
                 }
+                if (Match(TokenType.Set))
+                {
+                    Token set = Previous();
+                    Consume(TokenType.Of, "Expected 'of' after 'set'.");
+                    Token lower = Consume(TokenType.Number, "Expected a set lower bound.");
+                    Consume(TokenType.Range, "Expected '..' in set bounds.");
+                    Token upper = Consume(TokenType.Number, "Expected a set upper bound.");
+                    Token semicolon = Consume(TokenType.Semicolon, "Expected ';' after type declaration.");
+                    declarations.Add(new TypeAliasDeclaration(name, new SetTypeSyntax((long)lower.Literal!, (long)upper.Literal!, Span(set, upper)), Span(name, semicolon)));
+                    continue;
+                }
                 if (Match(TokenType.Caret))
                 {
                     Token caret = Previous();

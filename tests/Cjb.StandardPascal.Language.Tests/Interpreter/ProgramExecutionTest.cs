@@ -695,6 +695,24 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Declared_Set_Type_Supports_Assignment_And_Membership()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(
+            new NullInput(),
+            output,
+            new InterpreterOptions { StrictIsoSpacing = false });
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Sets; type Digits = set of 1..10; var used: Digits; begin used := [2, 4]; writeln(2 in used, 3 in used); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("TRUE FALSE" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_ReadLn_Assigns_Injected_Input()
     {
         IScanner scanner = new Language.Scanner.Scanner();

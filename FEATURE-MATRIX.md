@@ -87,7 +87,7 @@ behavior, or conformance change.
 | Array types | 🚧 | Integer-bounded multidimensional arrays support indexed reads/writes and bounds diagnostics |
 | Packed character arrays | ✅ | Indexed packed character arrays accept exact-length strings |
 | Record types | ✅ | Fixed and scalar variant fields support direct selection and `with` |
-| Set types | ✅ | Runtime integer sets support constructors, ranges, membership, union, difference, and intersection |
+| Set types | ✅ | Declared bounded integer set types and runtime constructors support ranges, membership, union, difference, and intersection |
 | File types | ✅ | Injectable in-memory typed file queues support `write(file, value)` and `read(file, variable)` |
 | Pointer types | ✅ | Named pointer types, `nil`, allocation, disposal, dereference, and lifetime diagnostics are supported |
 | Packed types | ✅ | `packed array` syntax and fixed character-array representation are supported |

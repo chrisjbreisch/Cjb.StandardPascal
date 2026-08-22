@@ -145,6 +145,8 @@ public sealed class Interpreter : IInterpreter
                                 ? new ArrayValue(array.Bounds, DefaultValue(ResolveType(array.ElementType)))
                                 : variable.Type is FileTypeSyntax
                                     ? new FileValue()
+                                : variable.Type is SetTypeSyntax || variableType is SetPascalType
+                                    ? new HashSet<long>()
                                 : variableType is PointerPascalType
                                     ? new PointerValue()
                                 : program.Block.Declarations.OfType<RecordDeclaration>().FirstOrDefault(record => string.Equals(record.Name.Lexeme, variableType.Name, StringComparison.OrdinalIgnoreCase)) is RecordDeclaration record
@@ -568,10 +570,10 @@ public sealed class Interpreter : IInterpreter
         }
 
         if (_values.TryGetValue(statement.Name.Lexeme, out object? structuredTarget)
-            && structuredTarget is ArrayValue or Dictionary<string, object> or FileValue or PointerValue)
+            && structuredTarget is ArrayValue or Dictionary<string, object> or FileValue or PointerValue or HashSet<long>)
         {
             object structuredValue = Evaluate(statement.Value);
-            if (structuredValue is ArrayValue or Dictionary<string, object> or FileValue or PointerValue)
+            if (structuredValue is ArrayValue or Dictionary<string, object> or FileValue or PointerValue or HashSet<long>)
             {
                 _values[statement.Name.Lexeme] = structuredValue;
                 return structuredValue;
@@ -1089,6 +1091,7 @@ public sealed class Interpreter : IInterpreter
         bool => PascalTypes.Boolean,
         string => PascalTypes.Character,
         PointerValue => new PointerPascalType("pointer"),
+        HashSet<long> => new PrimitivePascalType("set"),
         _ => throw new InvalidOperationException("Unsupported runtime value."),
     };
 
@@ -1186,6 +1189,7 @@ public sealed class Interpreter : IInterpreter
         ScalarTypeSyntax scalar => scalar.Type,
         ArrayTypeSyntax => new PrimitivePascalType("array"),
         FileTypeSyntax => new FilePascalType(),
+        SetTypeSyntax set => new SetPascalType(set.LowerBound, set.UpperBound),
         PointerTypeSyntax => new PointerPascalType("pointer"),
         NamedTypeSyntax named when _namedTypes.TryGetValue(named.Name.Lexeme, out PascalType? resolved) => resolved,
         NamedTypeSyntax named => throw new RuntimeException($"Undefined type '{named.Name.Lexeme}'.", named.Span),
