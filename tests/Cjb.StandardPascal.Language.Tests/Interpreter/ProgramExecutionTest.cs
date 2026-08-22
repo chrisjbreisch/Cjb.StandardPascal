@@ -641,6 +641,28 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Multiple_Input_Values_Support_Numeric_Expressions()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(
+            new FixedInput("8 2"),
+            output,
+            new InterpreterOptions { StrictIsoSpacing = false });
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Calculations; var cat, rat: integer; begin readln(cat, rat); writeln(cat, rat); writeln(cat + rat, cat - rat); writeln(cat / rat, cat * rat); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual(
+            "8 2" + Environment.NewLine
+            + "10 6" + Environment.NewLine
+            + "4 16" + Environment.NewLine,
+            output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Pointer_New_Dereference_And_Dispose_Uses_Heap_Cell()
     {
         IScanner scanner = new Language.Scanner.Scanner();
