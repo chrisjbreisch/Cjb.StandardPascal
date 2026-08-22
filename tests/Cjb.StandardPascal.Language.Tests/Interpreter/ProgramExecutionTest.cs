@@ -148,6 +148,24 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Character_Relational_Operators_Use_Ordinal_Order()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(
+            new NullInput(),
+            output,
+            new InterpreterOptions { StrictIsoSpacing = false });
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Characters; begin writeln('A' < 'B', 'B' = 'B', 'C' > 'A'); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("TRUE TRUE TRUE" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Case_Statement_Selects_Matching_Ordinal_Label()
     {
         IScanner scanner = new Language.Scanner.Scanner();

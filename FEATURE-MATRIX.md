@@ -52,7 +52,7 @@ behavior, or conformance change.
 | `*`, `/`, `div`, and `mod` | ✅ | `/` returns real; `div` and `mod` require integers and detect zero divisors |
 | `and`, `or` | ✅ | Boolean operands are required |
 | Binary `+` and `-` | 🚧 | Numeric semantics plus integer set union and difference are implemented |
-| Relational operators | 🚧 | Numeric and Boolean comparisons are implemented; other ISO types remain |
+| Relational operators | 🚧 | Numeric, Boolean, and character comparisons are implemented; remaining structured-type rules continue to evolve |
 | Set membership `in` | ✅ | Integer set membership is evaluated with ordinal operand checks |
 | Identifier expressions | ✅ | Predefined Boolean values and declared constants/variables resolve case-insensitively during semantic analysis |
 | Function calls | ✅ | User functions and predefined ordinal/numeric routines are evaluated with arity/type checks |
