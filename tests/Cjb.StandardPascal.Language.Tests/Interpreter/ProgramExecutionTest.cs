@@ -618,6 +618,21 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Character_Indexed_Array_Uses_Ordinal_Bounds()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Arrays; var values: array['A'..'C'] of integer; begin values['B'] := 8; writeln(values['B']); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("8" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Packed_Character_Array_Stores_Characters()
     {
         IScanner scanner = new Language.Scanner.Scanner();

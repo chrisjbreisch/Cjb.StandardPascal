@@ -84,7 +84,7 @@ behavior, or conformance change.
 | --- | :---: | --- |
 | `integer`, `real`, `boolean`, and `char` | ✅ | 64-bit signed integer (`maxint` = `9223372036854775807`), double real, Boolean, and single-character string values |
 | Enumerated and subrange types | 🚧 | Enumerations and integer subranges are supported, including assignment range checks; advanced ordinal compatibility remains |
-| Array types | 🚧 | Integer-bounded multidimensional arrays support indexed reads/writes, element type compatibility, and bounds diagnostics |
+| Array types | 🚧 | Integer- and character-ordinal bounded multidimensional arrays support indexed reads/writes, element type compatibility, and bounds diagnostics |
 | Packed character arrays | ✅ | Indexed packed character arrays accept exact-length strings |
 | Record types | ✅ | Fixed and scalar variant fields support direct selection and `with` |
 | Set types | ✅ | Declared bounded integer set types enforce element bounds; runtime constructors support ranges, membership, union, difference, and intersection |

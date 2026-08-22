@@ -84,7 +84,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
 
                 return;
             case IndexedAssignment indexedAssignment:
-                foreach (Expression subscript in indexedAssignment.Subscripts) { RequireInteger(InferType(subscript), indexedAssignment.Name); }
+                foreach (Expression subscript in indexedAssignment.Subscripts) { RequireOrdinal(InferType(subscript), indexedAssignment.Name); }
                 InferType(indexedAssignment.Value);
                 return;
             case Allocation:
@@ -222,7 +222,7 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
 
     private PascalType InferIndexType(Cjb.StandardPascal.Language.Parser.Expressions.Index index)
     {
-        foreach (Expression subscript in index.Subscripts) { RequireInteger(InferType(subscript), index.Name); }
+        foreach (Expression subscript in index.Subscripts) { RequireOrdinal(InferType(subscript), index.Name); }
         return PascalTypes.Integer;
     }
 

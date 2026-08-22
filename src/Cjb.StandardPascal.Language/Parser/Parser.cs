@@ -775,6 +775,20 @@ public sealed class Parser : IParser
         throw Error(Peek(), "Expected a scalar type.");
     }
 
+    private Token ConsumeOrdinalBound(string message)
+    {
+        if (Match(TokenType.Number)) { return Previous(); }
+        if (Match(TokenType.String) && Previous().Literal is string { Length: 1 }) { return Previous(); }
+        throw Error(Peek(), message);
+    }
+
+    private static long OrdinalValue(Token token) => token.Literal switch
+    {
+        long integer => integer,
+        string { Length: 1 } character => character[0],
+        _ => throw new ArgumentOutOfRangeException(nameof(token)),
+    };
+
     private TypeSyntax ParseTypeSyntax()
     {
         Match(TokenType.Packed);
@@ -799,10 +813,10 @@ public sealed class Parser : IParser
             List<ArrayBound> bounds = [];
             do
             {
-                Token lowerBound = Consume(TokenType.Number, "Expected an array lower bound.");
+                Token lowerBound = ConsumeOrdinalBound("Expected an array lower bound.");
                 Consume(TokenType.Range, "Expected '..' in array bounds.");
-                Token upperBound = Consume(TokenType.Number, "Expected an array upper bound.");
-                bounds.Add(new ArrayBound((long)lowerBound.Literal!, (long)upperBound.Literal!));
+                Token upperBound = ConsumeOrdinalBound("Expected an array upper bound.");
+                bounds.Add(new ArrayBound(OrdinalValue(lowerBound), OrdinalValue(upperBound)));
             }
             while (Match(TokenType.Comma));
             Consume(TokenType.RightBracket, "Expected ']' after array bounds.");

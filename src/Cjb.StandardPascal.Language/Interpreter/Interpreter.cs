@@ -253,7 +253,7 @@ public sealed class Interpreter : IInterpreter
             throw Error(expression.Name, $"'{expression.Name.Lexeme}' is not an array.");
         }
 
-        long[] indices = expression.Subscripts.Select(subscript => RequireInteger(expression.Name, Evaluate(subscript))).ToArray();
+        long[] indices = expression.Subscripts.Select(subscript => ToOrdinal(expression.Name, Evaluate(subscript))).ToArray();
         return array.Get(indices, expression.Span);
     }
 
@@ -700,7 +700,7 @@ public sealed class Interpreter : IInterpreter
             throw Error(statement.Name, $"'{statement.Name.Lexeme}' is not an array.");
         }
 
-        long[] indices = statement.Subscripts.Select(subscript => RequireInteger(statement.Name, Evaluate(subscript))).ToArray();
+        long[] indices = statement.Subscripts.Select(subscript => ToOrdinal(statement.Name, Evaluate(subscript))).ToArray();
         object element = Evaluate(statement.Value);
         array.Set(indices, element, statement.Span);
         return element;
