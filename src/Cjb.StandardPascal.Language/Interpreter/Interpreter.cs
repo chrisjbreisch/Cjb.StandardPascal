@@ -569,6 +569,20 @@ public sealed class Interpreter : IInterpreter
             return array;
         }
 
+        if (_types.TryGetValue(statement.Name.Lexeme, out PascalType? declaredType)
+            && declaredType is SetPascalType setType
+            && Evaluate(statement.Value) is HashSet<long> assignedSet)
+        {
+            if (assignedSet.Any(element => element < setType.LowerBound || element > setType.UpperBound))
+            {
+                long invalidElement = assignedSet.First(element => element < setType.LowerBound || element > setType.UpperBound);
+                throw Error(statement.Name, $"Set element {invalidElement} is outside {setType.LowerBound}..{setType.UpperBound}.");
+            }
+
+            _values[statement.Name.Lexeme] = assignedSet;
+            return assignedSet;
+        }
+
         if (_values.TryGetValue(statement.Name.Lexeme, out object? structuredTarget)
             && structuredTarget is ArrayValue or Dictionary<string, object> or FileValue or PointerValue or HashSet<long>)
         {

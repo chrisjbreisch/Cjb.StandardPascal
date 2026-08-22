@@ -713,6 +713,20 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Set_Assignment_Outside_Declared_Bounds_Throws_Runtime_Exception()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter();
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Sets; type Digits = set of 1..3; var used: Digits; begin used := [4]; end.")));
+
+        RuntimeException exception = Assert.ThrowsExactly<RuntimeException>(() => interpreter.Execute(program));
+
+        Assert.AreEqual("Set element 4 is outside 1..3.", exception.Message);
+    }
+
+    [TestMethod]
     public void Execute_ReadLn_Assigns_Injected_Input()
     {
         IScanner scanner = new Language.Scanner.Scanner();
