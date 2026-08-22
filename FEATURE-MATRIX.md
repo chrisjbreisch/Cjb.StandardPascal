@@ -51,7 +51,7 @@ behavior, or conformance change.
 | Unary `+`, `-`, and `not` | ✅ | Numeric signs and Boolean negation are evaluated with operand checks |
 | `*`, `/`, `div`, and `mod` | ✅ | `/` returns real; `div` and `mod` require integers and detect zero divisors |
 | `and`, `or` | ✅ | Boolean operands are required |
-| Binary `+` and `-` | 🚧 | Numeric semantics plus integer set union and difference are implemented |
+| Binary `+` and `-` | 🚧 | Numeric semantics plus integer set union and difference are implemented; set intersection uses `*` |
 | Relational operators | 🚧 | Numeric, Boolean, and character comparisons are implemented; remaining structured-type rules continue to evolve |
 | Set membership `in` | ✅ | Integer set membership is evaluated with ordinal operand checks |
 | Identifier expressions | ✅ | Predefined Boolean values and declared constants/variables resolve case-insensitively during semantic analysis |
@@ -91,7 +91,7 @@ behavior, or conformance change.
 | File types | ✅ | Injectable in-memory typed file queues support `write(file, value)` and `read(file, variable)` |
 | Pointer types | ✅ | Named pointer types, `nil`, allocation, disposal, dereference, and lifetime diagnostics are supported |
 | Packed types | ✅ | `packed array` syntax and fixed character-array representation are supported |
-| Type compatibility | ⬜ | Identity, ordinal/subrange, set, and string rules |
+| Type compatibility | 🚧 | Scalar identity, integer-to-real promotion, pointers, subranges, fixed strings, and structured references are implemented; full ISO aggregate identity remains |
 | Assignment compatibility | ✅ | Scalar identity, integer-to-real promotion, pointer `nil`, subrange checks, fixed strings, and structured reference aliasing are enforced |
 
 ## Statements
