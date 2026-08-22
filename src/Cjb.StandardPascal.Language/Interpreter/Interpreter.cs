@@ -558,6 +558,13 @@ public sealed class Interpreter : IInterpreter
             ? identifierType
             : TypeOf(value);
 
+        if (ReferenceEquals(type, PascalTypes.Character)
+            && value is string characterText
+            && characterText.Length != 1)
+        {
+            throw Error(statement.Name, "Character value must contain exactly one character.");
+        }
+
         if (!type.IsAssignmentCompatibleWith(sourceType)
             && !(type is PointerPascalType && value is PointerValue))
         {

@@ -72,6 +72,16 @@ public sealed class SemanticAnalyzer : ISemanticAnalyzer
                         assignment.Name.Span);
                 }
 
+                if (_symbols.TryGetValue(assignment.Name.Lexeme, out targetType)
+                    && ReferenceEquals(targetType, PascalTypes.Character)
+                    && assignment.Value is Literal { Value: string text }
+                    && text.Length != 1)
+                {
+                    throw new SemanticException(
+                        "Character value must contain exactly one character.",
+                        assignment.Value.Span);
+                }
+
                 return;
             case IndexedAssignment indexedAssignment:
                 foreach (Expression subscript in indexedAssignment.Subscripts) { RequireInteger(InferType(subscript), indexedAssignment.Name); }

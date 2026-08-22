@@ -46,7 +46,7 @@ behavior, or conformance change.
 | --- | :---: | --- |
 | Integer and real constants | ✅ | 64-bit integer and double-precision real values are scanned, parsed, and evaluated |
 | Boolean constants | ✅ | Predefined identifiers `true` and `false` are evaluated case-insensitively |
-| Character and string constants | ✅ | Strings scan, parse, compare, print, and assign to exact-length fixed character arrays |
+| Character and string constants | ✅ | Strings scan, parse, compare, print, and assign to exact-length fixed character arrays; `char` targets require one character |
 | Parenthesized expressions | ✅ | Grouped expressions preserve precedence and evaluate recursively |
 | Unary `+`, `-`, and `not` | ✅ | Numeric signs and Boolean negation are evaluated with operand checks |
 | `*`, `/`, `div`, and `mod` | ✅ | `/` returns real; `div` and `mod` require integers and detect zero divisors |
@@ -91,7 +91,7 @@ behavior, or conformance change.
 | File types | ✅ | Injectable in-memory typed file queues support `write(file, value)` and `read(file, variable)` |
 | Pointer types | ✅ | Named pointer types, `nil`, allocation, disposal, dereference, and lifetime diagnostics are supported |
 | Packed types | ✅ | `packed array` syntax and fixed character-array representation are supported |
-| Type compatibility | 🚧 | Scalar identity, integer-to-real promotion, pointers, subranges, fixed strings, and structured references are implemented; full ISO aggregate identity remains |
+| Type compatibility | 🚧 | Scalar identity, integer-to-real promotion, single-character `char`, pointers, subranges, fixed strings, and structured references are implemented; full ISO aggregate identity remains |
 | Assignment compatibility | ✅ | Scalar identity, integer-to-real promotion, pointer `nil`, subrange checks, fixed strings, and structured reference aliasing are enforced |
 
 ## Statements

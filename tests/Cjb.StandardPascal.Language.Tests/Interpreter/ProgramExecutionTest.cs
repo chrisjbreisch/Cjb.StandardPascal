@@ -181,6 +181,20 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_MultiCharacter_String_Cannot_Assign_To_Char()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter();
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Characters; var letter: char; begin letter := 'AB'; end.")));
+
+        SemanticException exception = Assert.ThrowsExactly<SemanticException>(() => interpreter.Execute(program));
+
+        Assert.AreEqual("Character value must contain exactly one character.", exception.Message);
+    }
+
+    [TestMethod]
     public void Execute_Case_Statement_Selects_Matching_Ordinal_Label()
     {
         IScanner scanner = new Language.Scanner.Scanner();
