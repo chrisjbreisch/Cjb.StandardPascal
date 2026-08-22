@@ -181,6 +181,25 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    [DataRow("chr(256)", "Character ordinal must be between 0 and 255.")]
+    [DataRow("succ(chr(255))", "Character ordinal is out of range.")]
+    [DataRow("pred(chr(0))", "Character ordinal is out of range.")]
+    public void Execute_Character_Ordinal_Outside_Range_Throws_Runtime_Exception(
+        string expression,
+        string message)
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter();
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            $"program Characters; begin writeln({expression}); end.")));
+
+        RuntimeException exception = Assert.ThrowsExactly<RuntimeException>(() => interpreter.Execute(program));
+
+        Assert.AreEqual(message, exception.Message);
+    }
+
+    [TestMethod]
     public void Execute_MultiCharacter_String_Cannot_Assign_To_Char()
     {
         IScanner scanner = new Language.Scanner.Scanner();

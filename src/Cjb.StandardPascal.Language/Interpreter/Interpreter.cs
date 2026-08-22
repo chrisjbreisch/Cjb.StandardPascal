@@ -211,7 +211,7 @@ public sealed class Interpreter : IInterpreter
         return expression.Name.Lexeme.ToLowerInvariant() switch
         {
             "ord" when argument is string { Length: 1 } character => (long)character[0],
-            "chr" => char.ConvertFromUtf32(checked((int)RequireInteger(expression.Name, argument))),
+            "chr" => CharacterFromOrdinal(expression.Name, RequireInteger(expression.Name, argument), false),
             "succ" => Successor(expression.Name, argument, 1),
             "pred" => Successor(expression.Name, argument, -1),
             "round" => checked((long)Math.Round(ToDouble(expression.Name, argument), MidpointRounding.AwayFromZero)),
@@ -976,9 +976,21 @@ public sealed class Interpreter : IInterpreter
         return value switch
         {
             long integer => checked(integer + delta),
-            string { Length: 1 } character => char.ConvertFromUtf32(checked(character[0] + delta)),
+            string { Length: 1 } character => CharacterFromOrdinal(token, character[0] + delta, delta > 0),
             _ => throw Error(token, "Operand must be ordinal."),
         };
+    }
+
+    private static string CharacterFromOrdinal(Token token, long value, bool successor)
+    {
+        if (value is < 0 or > 255)
+        {
+            throw Error(token, successor
+                ? "Character ordinal is out of range."
+                : "Character ordinal must be between 0 and 255.");
+        }
+
+        return ((char)value).ToString();
     }
 
     private static object Absolute(Token token, object value) => value switch
