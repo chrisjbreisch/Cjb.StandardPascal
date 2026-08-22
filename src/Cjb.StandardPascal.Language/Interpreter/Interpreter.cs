@@ -452,6 +452,12 @@ public sealed class Interpreter : IInterpreter
 
         object result = string.Empty;
 
+        if (file is null && statement.ReadLine && statement.Targets.Count == 0)
+        {
+            _input.ReadLine();
+            return result;
+        }
+
         if (file is null && statement.ReadLine)
         {
             string[] lineFields = _input.ReadLine().Split(

@@ -820,6 +820,23 @@ public sealed class ProgramExecutionTest
     }
 
     [TestMethod]
+    public void Execute_Parameterless_ReadLn_Discards_Current_Line()
+    {
+        IScanner scanner = new Language.Scanner.Scanner();
+        IParser parser = new Language.Parser.Parser();
+        BufferOutput output = new();
+        IInterpreter interpreter = new Language.Interpreter.Interpreter(
+            new FixedInput("unused", "7"),
+            output);
+        Program program = parser.ParseProgram(scanner.ScanTokens(new SourceText(
+            "program Input; var value: integer; begin readln; readln(value); writeln(value); end.")));
+
+        interpreter.Execute(program);
+
+        Assert.AreEqual("7" + Environment.NewLine, output.Text);
+    }
+
+    [TestMethod]
     public void Execute_Multiple_Input_Values_Support_Numeric_Expressions()
     {
         IScanner scanner = new Language.Scanner.Scanner();

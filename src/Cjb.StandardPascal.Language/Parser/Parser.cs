@@ -289,6 +289,11 @@ public sealed class Parser : IParser
         if (Match(TokenType.Read, TokenType.ReadLn))
         {
             Token keyword = Previous();
+            if (!Check(TokenType.LeftParen))
+            {
+                return new Read([], keyword.Type == TokenType.ReadLn, keyword.Span);
+            }
+
             Consume(TokenType.LeftParen, "Expected '(' after input routine.");
             List<Token> targets = [Consume(TokenType.Identifier, "Expected an input target.")];
             while (Match(TokenType.Comma)) { targets.Add(Consume(TokenType.Identifier, "Expected an input target.")); }
