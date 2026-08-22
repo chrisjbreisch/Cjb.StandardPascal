@@ -21,7 +21,7 @@ behavior, or conformance change.
 | Source-file arguments | ✅ | Accepts one or more Pascal source paths: `cjb-pascal file.pas [file2.pas ...]` |
 | Exit-code contract | ✅ | Interactive sessions return `0`; source-file errors return `1` for file access, `2` for scan/parse/semantic errors, and `3` for runtime errors |
 | Automated unit-test projects | ✅ | MSTest 4 projects exist for the language and CLI |
-| Continuous integration | ⬜ | Build and test workflow not configured |
+| Continuous integration | ✅ | GitHub Actions restores, builds the solution in Release mode, and runs the full test suite on pushes and pull requests to `main` |
 
 ## Lexical analysis
 
