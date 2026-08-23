@@ -164,6 +164,45 @@ public sealed class ScannerTest
     }
 
     [TestMethod]
+    public void Scanner_Recognizes_Numbers_Next_To_Range_And_Dot_Delimiters()
+    {
+        List<Token> tokens = _scanner.ScanTokens(new SourceText("1..2 3. 4.5"));
+
+        AssertTokenTypes(
+            tokens,
+            TokenType.Number,
+            TokenType.Range,
+            TokenType.Number,
+            TokenType.Number,
+            TokenType.Dot,
+            TokenType.Number,
+            TokenType.EndOfFile);
+
+        Assert.AreEqual(1L, tokens[0].Literal);
+        Assert.AreEqual(2L, tokens[2].Literal);
+        Assert.AreEqual(3L, tokens[3].Literal);
+        Assert.AreEqual(4.5, tokens[5].Literal);
+    }
+
+    [TestMethod]
+    public void Scanner_Tokenizes_Signs_Separately_From_Number_Tokens()
+    {
+        List<Token> tokens = _scanner.ScanTokens(new SourceText("+1 -2 +3.5 -4E-2"));
+
+        AssertTokenTypes(
+            tokens,
+            TokenType.Plus,
+            TokenType.Number,
+            TokenType.Minus,
+            TokenType.Number,
+            TokenType.Plus,
+            TokenType.Number,
+            TokenType.Minus,
+            TokenType.Number,
+            TokenType.EndOfFile);
+    }
+
+    [TestMethod]
     public void Scanner_Tracks_Positions_Across_Lines()
     {
         List<Token> tokens = _scanner.ScanTokens(
@@ -373,6 +412,7 @@ public sealed class ScannerTest
     [DataRow("1e+")]
     [DataRow("12abc")]
     [DataRow("999999999999999999999999999999")]
+    [DataRow("1e309")]
     public void Scanner_Reports_Invalid_Numbers(string source)
     {
         ScanException exception = Assert.ThrowsExactly<ScanException>(

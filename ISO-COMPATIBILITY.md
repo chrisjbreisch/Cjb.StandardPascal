@@ -50,7 +50,7 @@ harness.
 | 6.1.2 Special-symbols | ✅ | The scanner recognizes the ISO non-word symbols (`+ - * / = <> < <= >= > ( ) [ ] (. .) : := , ; . ..`) and ISO word-symbols (`and array begin case const div do downto else end file for function goto if in label mod nil not of or packed procedure program record repeat set then to type until var while with`). |
 | 6.1.3 Identifiers | ✅ | Identifiers are scanned as letter followed by zero or more letters/digits, keyword recognition is case-insensitive, and non-identifier characters produce source-correlated scan errors. |
 | 6.1.4 Directives | ✅ | `forward` is recognized and used by procedure declarations. |
-| 6.1.5 Numbers | 🚧 | Decimal integer, real, and scientific literals with overflow diagnostics are implemented; all signed-number and implementation-defined numeric policies are not complete. |
+| 6.1.5 Numbers | ✅ | Decimal integer and real literals are scanned, including scientific notation with signed exponents; integer/real overflow and malformed exponent forms are diagnosed with source-correlated scan errors, and leading signs are tokenized separately as operators per Pascal lexical conventions. |
 | 6.1.6 Labels | 🚧 | Numeric labels are scanned and parsed; the complete ISO `0..9999` validation policy is not enforced. |
 | 6.1.7 Character-strings | 🚧 | Single-quoted strings and doubled apostrophes are supported; the full ISO fixed string-type model remains narrower than the standard. |
 | 6.1.8 Token separators | 🚧 | Whitespace, multiline `{...}` and `(*...*)` comments work; ISO cross-delimiter comment termination and every separator edge case are not complete. |
