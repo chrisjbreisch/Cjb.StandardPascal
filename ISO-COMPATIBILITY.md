@@ -48,7 +48,7 @@ harness.
 | 6.1 Lexical tokens | 🚧 | Scanner coverage is broad for the implemented subset but does not cover every ISO token and separator rule. |
 | 6.1.1 General | ✅ | ASCII letters/digits and token scanning are implemented. |
 | 6.1.2 Special-symbols | ✅ | The scanner recognizes the ISO non-word symbols (`+ - * / = <> < <= >= > ( ) [ ] (. .) : := , ; . ..`) and ISO word-symbols (`and array begin case const div do downto else end file for function goto if in label mod nil not of or packed procedure program record repeat set then to type until var while with`). |
-| 6.1.3 Identifiers | 🚧 | Case-insensitive letter/digit identifiers are supported; full ISO identifier-region validation is not independently audited. |
+| 6.1.3 Identifiers | ✅ | Identifiers are scanned as letter followed by zero or more letters/digits, keyword recognition is case-insensitive, and non-identifier characters produce source-correlated scan errors. |
 | 6.1.4 Directives | ✅ | `forward` is recognized and used by procedure declarations. |
 | 6.1.5 Numbers | 🚧 | Decimal integer, real, and scientific literals with overflow diagnostics are implemented; all signed-number and implementation-defined numeric policies are not complete. |
 | 6.1.6 Labels | 🚧 | Numeric labels are scanned and parsed; the complete ISO `0..9999` validation policy is not enforced. |

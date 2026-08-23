@@ -285,6 +285,54 @@ public sealed class ScannerTest
     }
 
     [TestMethod]
+    public void Scanner_Recognizes_Iso_Identifiers_With_Letters_And_Digits()
+    {
+        List<Token> tokens = _scanner.ScanTokens(
+            new SourceText("A a1 Alpha9 Beta007 Z"));
+
+        AssertTokenTypes(
+            tokens,
+            TokenType.Identifier,
+            TokenType.Identifier,
+            TokenType.Identifier,
+            TokenType.Identifier,
+            TokenType.Identifier,
+            TokenType.EndOfFile);
+
+        CollectionAssert.AreEqual(
+            new[] { "A", "a1", "Alpha9", "Beta007", "Z" },
+            tokens.Take(5).Select(static token => token.Lexeme).ToArray());
+    }
+
+    [TestMethod]
+    public void Scanner_Recognizes_Keywords_Case_Insensitively_But_Preserves_Identifier_Lexeme()
+    {
+        List<Token> tokens = _scanner.ScanTokens(
+            new SourceText("BeGiN EndX eNd"));
+
+        AssertTokenTypes(
+            tokens,
+            TokenType.Begin,
+            TokenType.Identifier,
+            TokenType.End,
+            TokenType.EndOfFile);
+
+        Assert.AreEqual("EndX", tokens[1].Lexeme);
+    }
+
+    [TestMethod]
+    [DataRow("value_name")]
+    [DataRow("x$")]
+    public void Scanner_Reports_Unexpected_Characters_In_Identifiers(string source)
+    {
+        ScanException exception = Assert.ThrowsExactly<ScanException>(
+            () => _scanner.ScanTokens(new SourceText(source, "identifier.pas")));
+
+        Assert.AreEqual("identifier.pas", exception.Span.FilePath);
+        Assert.IsTrue(exception.Message.StartsWith("Unexpected character", StringComparison.Ordinal));
+    }
+
+    [TestMethod]
     [DataRow("'Hello, world!'", "Hello, world!")]
     [DataRow("'isn''t'", "isn't")]
     [DataRow("''", "")]

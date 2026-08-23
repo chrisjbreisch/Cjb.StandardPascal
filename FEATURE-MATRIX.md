@@ -33,7 +33,7 @@ constitute ISO processor compliance.
 | Feature | Status | Notes |
 | --- | :---: | --- |
 | Source text and source spans | ✅ | Tokens and scan errors carry file, line, column, offset, and length |
-| Case-insensitive identifiers | ✅ | Keyword matching is case-insensitive; original spelling is preserved |
+| Case-insensitive identifiers | ✅ | Identifiers are letter-initiated and continue with letters/digits, keyword matching is case-insensitive, and original identifier spelling is preserved |
 | Reserved words | ✅ | The scanner recognizes all ISO 7185 word-symbols (`and`, `array`, `begin`, `case`, `const`, `div`, `do`, `downto`, `else`, `end`, `file`, `for`, `function`, `goto`, `if`, `in`, `label`, `mod`, `nil`, `not`, `of`, `or`, `packed`, `procedure`, `program`, `record`, `repeat`, `set`, `then`, `to`, `type`, `until`, `var`, `while`, `with`) |
 | Integer literals | ✅ | Decimal digits are parsed as 64-bit integers pending the `maxint` policy |
 | Real literals | ✅ | Decimal and scientific notation use invariant culture |
