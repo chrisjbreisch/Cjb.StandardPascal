@@ -204,6 +204,87 @@ public sealed class ScannerTest
     }
 
     [TestMethod]
+    public void Scanner_Recognizes_All_Iso_Special_Symbols()
+    {
+        List<Token> tokens = _scanner.ScanTokens(
+            new SourceText("+ - * / = <> < <= >= > ( ) [ ] (. .) : := , ; . .. ^ @"));
+
+        AssertTokenTypes(
+            tokens,
+            TokenType.Plus,
+            TokenType.Minus,
+            TokenType.Star,
+            TokenType.Slash,
+            TokenType.Equal,
+            TokenType.NotEqual,
+            TokenType.LessThan,
+            TokenType.LessThanOrEqual,
+            TokenType.GreaterThanOrEqual,
+            TokenType.GreaterThan,
+            TokenType.LeftParen,
+            TokenType.RightParen,
+            TokenType.LeftBracket,
+            TokenType.RightBracket,
+            TokenType.LeftBracket,
+            TokenType.RightBracket,
+            TokenType.Colon,
+            TokenType.Assign,
+            TokenType.Comma,
+            TokenType.Semicolon,
+            TokenType.Dot,
+            TokenType.Range,
+            TokenType.Caret,
+            TokenType.Caret,
+            TokenType.EndOfFile);
+    }
+
+    [TestMethod]
+    public void Scanner_Recognizes_All_Iso_Word_Symbols()
+    {
+        List<Token> tokens = _scanner.ScanTokens(
+            new SourceText("and array begin case const div do downto else end file for function goto if in label mod nil not of or packed procedure program record repeat set then to type until var while with"));
+
+        AssertTokenTypes(
+            tokens,
+            TokenType.And,
+            TokenType.Array,
+            TokenType.Begin,
+            TokenType.Case,
+            TokenType.Const,
+            TokenType.Div,
+            TokenType.Do,
+            TokenType.DownTo,
+            TokenType.Else,
+            TokenType.End,
+            TokenType.File,
+            TokenType.For,
+            TokenType.Function,
+            TokenType.Goto,
+            TokenType.If,
+            TokenType.In,
+            TokenType.Label,
+            TokenType.Mod,
+            TokenType.Nil,
+            TokenType.Not,
+            TokenType.Of,
+            TokenType.Or,
+            TokenType.Packed,
+            TokenType.Procedure,
+            TokenType.Program,
+            TokenType.Record,
+            TokenType.Repeat,
+            TokenType.Set,
+            TokenType.Then,
+            TokenType.To,
+            TokenType.Type,
+            TokenType.Until,
+            TokenType.Var,
+            TokenType.While,
+            TokenType.With,
+            TokenType.EndOfFile);
+    }
+
+    [TestMethod]
     [DataRow("'Hello, world!'", "Hello, world!")]
     [DataRow("'isn''t'", "isn't")]
     [DataRow("''", "")]

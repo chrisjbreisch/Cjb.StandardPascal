@@ -34,11 +34,11 @@ constitute ISO processor compliance.
 | --- | :---: | --- |
 | Source text and source spans | ✅ | Tokens and scan errors carry file, line, column, offset, and length |
 | Case-insensitive identifiers | ✅ | Keyword matching is case-insensitive; original spelling is preserved |
-| Reserved words | 🚧 | Program, declaration, scalar-type, output, expression, and control-flow keywords are recognized; routine and composite grammar support remains |
+| Reserved words | ✅ | The scanner recognizes all ISO 7185 word-symbols (`and`, `array`, `begin`, `case`, `const`, `div`, `do`, `downto`, `else`, `end`, `file`, `for`, `function`, `goto`, `if`, `in`, `label`, `mod`, `nil`, `not`, `of`, `or`, `packed`, `procedure`, `program`, `record`, `repeat`, `set`, `then`, `to`, `type`, `until`, `var`, `while`, `with`) |
 | Integer literals | ✅ | Decimal digits are parsed as 64-bit integers pending the `maxint` policy |
 | Real literals | ✅ | Decimal and scientific notation use invariant culture |
 | Character and string literals | ✅ | Single-quoted literals, doubled-quote escaping, and exact-length packed character-array assignment are implemented |
-| Operators and delimiters | 🚧 | Expression tokens plus program punctuation, assignment, and block delimiters are implemented |
+| Operators and delimiters | ✅ | The scanner recognizes the ISO non-word symbol set (`+`, `-`, `*`, `/`, `=`, `<>`, `<`, `<=`, `>=`, `>`, `(`, `)`, `[`, `]`, `(.`, `.)`, `:`, `:=`, `,`, `;`, `.`, `..`) |
 | Delimiter aliases | ✅ | `(.`/`[`, `.)`/`]`, and `@`/`^` normalize to canonical tokens |
 | Whitespace | ✅ | Whitespace is ignored while source locations remain accurate |
 | Brace comments | ✅ | `{ comment }`, including source-correlated unterminated-comment diagnostics |
